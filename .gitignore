@@ -1,0 +1,27 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Compiled Dynamic libraries
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Project files
+*.cbp
+*.depend
+*.layout
+
+# Build
+/bin/*
+/obj/*
+
+# Media
+/Images/*
