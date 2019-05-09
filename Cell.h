@@ -15,6 +15,7 @@ public:
     Vector2i coords;
     vector<Object> objects;
     vector<Item> items;
+    string appearence;
 
     vector<Item> searchfor();
 

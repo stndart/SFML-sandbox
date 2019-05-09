@@ -6,4 +6,8 @@ class Object
 {
 public:
     string name;
+    string appearence;
+
+    Object();
+    Object(string name);
 };
