@@ -4,7 +4,7 @@ Player::Player()
 {
     name = "Player";
     type = 0;
-    backpack = Inventory());
+    backpack = Inventory();
     coords = Vector2i(0, 0);
     appearence = "player";
 }

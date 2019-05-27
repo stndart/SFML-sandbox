@@ -1,7 +1,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <string>
 
-#inclue "Inventory.h"
+#include "Inventory.h"
 
 using namespace std;
 using namespace sf;

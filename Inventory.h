@@ -3,7 +3,6 @@
 #include "Item.h"
 
 using namespace std;
-using namespace sf;
 
 class Inventory
 {
