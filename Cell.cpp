@@ -6,6 +6,7 @@ Cell::Cell()
     coords = Vector2i(0, 0);
     objects = vector<Object>(0);
     items = vector<Item>(0);
+    appearence = string("");
 }
 
 Cell::Cell(int t, Vector2i c)
@@ -14,6 +15,7 @@ Cell::Cell(int t, Vector2i c)
     coords = c;
     objects = vector<Object>(0);
     items = vector<Item>(0);
+    appearence = string("");
 }
 
 vector<Item> Cell::searchfor()

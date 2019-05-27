@@ -7,4 +7,8 @@ class Item
 public:
     string name;
     int amount;
+
+    Item();
+    Item(string n, int a);
+    Item(string n);
 };
