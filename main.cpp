@@ -1,14 +1,41 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+#include <conio.h>
+
 #include "Cell.h"
 #include "AnimatedSprite.h"
 
 using namespace sf;
 using namespace std;
 
+int KeyMotion;
+
+void Motion()
+{
+    switch (KeyMotion)
+    {
+    case 1:
+        cout << "up" << endl;
+        break;
+
+    case 2:
+        cout << "down" << endl;
+        break;
+
+    case 3:
+        cout << "left" << endl;
+        break;
+
+    case 4:
+        cout << "right" << endl;
+        break;
+    }
+}
+
 int main()
 {
+    int key;
     // setup window
     Vector2i screenDimensions(800,600);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
@@ -49,8 +76,33 @@ int main()
             if (event.type == Event::Closed){
                 window.close();
             }
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
                 window.close();
+            }
+            if (event.type == Event::KeyPressed){
+                switch (event.key.code)
+                {
+                case Keyboard::W:
+                    KeyMotion = 1;
+                    Motion();
+                    break;
+
+                case Keyboard::S:
+                    KeyMotion = 2;
+                    Motion();
+                    break;
+
+                case Keyboard::A:
+                    KeyMotion = 3;
+                    Motion();
+                    break;
+
+                case Keyboard::D:
+                    KeyMotion = 4;
+                    Motion();
+                    break;
+                }
+            }
         }
 
         Time frameTime = frameClock.restart();
