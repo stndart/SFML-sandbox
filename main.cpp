@@ -3,8 +3,8 @@
 
 #include <conio.h>
 
-#include "Cell.h"
 #include "AnimatedSprite.h"
+#include "VisualEffect.h"
 
 using namespace sf;
 using namespace std;
@@ -35,7 +35,6 @@ void Motion()
 
 int main()
 {
-    int key;
     // setup window
     Vector2i screenDimensions(800,600);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
@@ -62,14 +61,34 @@ int main()
 
     Animation* currentAnimation = &loading;
 
-    AnimatedSprite animatedSprite(seconds(0.2), true, false);
-    animatedSprite.setPosition(Vector2f(screenDimensions / 4));
+    AnimatedSprite animatedSprite("animated", seconds(0.1), true, false);
+    Vector2f origin = Vector2f(256.0f / 2, 256.0f / 2);
+    animatedSprite.setOrigin(origin);
+    animatedSprite.setPosition(Vector2f(200, 200));
+
+    State start = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    State finish = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    VisualEffect temp = VisualEffect("temp", &animatedSprite, seconds(3), seconds(80), start, finish);
+
+    State start1 = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    State finish1 = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(200, 0), Vector2f(1, 1)};
+    VisualEffect effectedSprite = VisualEffect("effected", &tempí, seconds(4), seconds(1), start1, finish1);
+
+    std::cout << "ani name is " << animatedSprite.name << std::endl;
+    std::cout << "temp name is " << temp.name << std::endl;
+    std::cout << "eff name is " << effectedSprite.name << std::endl;
+    std::cout << std::endl;
+    std::cout << "temp child name is " << temp.sprite->name << std::endl;
+    std::cout << "eff child name is " << effectedSprite.sprite->name << std::endl;
+    std::cout << "but should " << (&temp)->name << std::endl;
 
     Clock frameClock;
 
 
     while (window.isOpen())
     {
+        std::cout << "-----------------------\n";
+
         Event event;
         while (window.pollEvent(event))
         {
@@ -101,19 +120,22 @@ int main()
                     KeyMotion = 4;
                     Motion();
                     break;
+
+                default:
+                    break;
                 }
             }
         }
 
         Time frameTime = frameClock.restart();
-        animatedSprite.play(*currentAnimation);
+        effectedSprite.play(*currentAnimation);
 
         // update AnimatedSprite
-        animatedSprite.update(frameTime);
+        effectedSprite.update(frameTime);
 
         // draw
         window.clear();
-        window.draw(animatedSprite);
+        window.draw(effectedSprite);
         window.display();
     }
 

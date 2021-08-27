@@ -1,6 +1,6 @@
 #include "AnimatedSprite.h"
 
-AnimatedSprite::AnimatedSprite(Time frameTime, bool paused, bool looped) :
+AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped) : name(name),
     m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), m_isPaused(paused), m_isLooped(looped), m_texture(NULL)
 {
 
@@ -121,6 +121,7 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 
 void AnimatedSprite::update(Time deltaTime)
 {
+    std::cout << name << " update pos " << getPosition().x << " " << getPosition().y << std::endl;
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
@@ -128,10 +129,10 @@ void AnimatedSprite::update(Time deltaTime)
         m_currentTime += deltaTime;
 
         // if current time is bigger then the frame time advance one frame
-        if (m_currentTime >= m_frameTime)
+        while (m_currentTime >= m_frameTime)
         {
-            // reset time, but keep the remainder
-            m_currentTime = microseconds(m_currentTime.asMicroseconds() % m_frameTime.asMicroseconds());
+            // shift time by one frame, but keep the remainder
+            m_currentTime = microseconds(m_currentTime.asMicroseconds() - m_frameTime.asMicroseconds());
 
             // get next Frame index
             if (m_currentFrame + 1 < m_animation->getSize())
@@ -162,4 +163,10 @@ void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
         states.texture = m_texture;
         target.draw(m_vertices, 4, Quads, states);
     }
+}
+
+void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
+{
+    std::cout << name << " redraw pos " << getPosition().x << " " << getPosition().y << std::endl;
+    draw(target, states);
 }
