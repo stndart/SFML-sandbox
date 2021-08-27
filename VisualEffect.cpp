@@ -40,7 +40,7 @@ VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Preset p, T
 }
 
 VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Time offset, Time duration, State start, State finish) : AnimatedSprite(name),
-    sprite(sprite), offset(offset), duration(duration), start(start), finish(finish)
+    duration(duration), offset(offset), start(start), finish(finish), sprite(sprite)
 {
     now = start;
     //std::cout << name << " now owns " << sprite->name << std::endl;

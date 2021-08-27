@@ -1,7 +1,7 @@
 #include "AnimatedSprite.h"
 
 AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped) : name(name),
-    m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), m_isPaused(paused), m_isLooped(looped), m_texture(NULL)
+    m_isPaused(paused), m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), m_isLooped(looped), m_texture(NULL)
 {
 
 }
