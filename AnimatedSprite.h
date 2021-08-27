@@ -19,25 +19,28 @@ class AnimatedSprite : public Drawable, public Transformable
 public:
     std::string name; ///TEMP
 
-    explicit AnimatedSprite(std::string name="sprite", Time frameTime = seconds(0.2f), bool paused = false, bool looped = true);
+    explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true);
 
     virtual void update(Time deltaTime);
     void setAnimation(const Animation& animation);
     void setFrameTime(Time time);
-    void play();
-    void play(const Animation& animation);
-    void pause();
-    void stop();
-    void setLooped(bool looped);
-    void setColor(const Color& color);
-    const Animation* getAnimation() const;
+    virtual void play();
+    virtual void play(const Animation& animation);
+    virtual void pause();
+    virtual void stop();
+    virtual void setLooped(bool looped);
+    virtual void setColor(const Color& color);
+    virtual const Animation* getAnimation() const;
+    virtual void move(const Vector2f &offset);
+    virtual void rotate(float angle);
+    virtual void scale(const Vector2f &factor);
     FloatRect getLocalBounds() const;
     FloatRect getGlobalBounds() const;
     bool isLooped() const;
     bool isPlaying() const;
     Time getFrameTime() const;
     void setFrame(std::size_t newFrame, bool resetTime = true);
-    void redraw(RenderTarget& target, RenderStates states) const;
+    virtual void redraw(RenderTarget& target, RenderStates states) const;
 
 protected:
     Time m_currentTime;
@@ -51,7 +54,7 @@ private:
     const Texture* m_texture;
     Vertex m_vertices[4];
 
-    virtual void draw(RenderTarget& target, RenderStates states) const;
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
 
 };
 

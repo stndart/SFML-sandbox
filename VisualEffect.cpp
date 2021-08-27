@@ -1,8 +1,9 @@
 #include "VisualEffect.h"
 
-VisualEffect::VisualEffect(std::string name, AnimatedSprite *sprite, Preset p, Time offset) : name(name),
-    sprite(sprite), offset(offset)
+VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite(name),
+    offset(offset), sprite(sprite)
 {
+
     switch (p)
     {
     case EMPTY:
@@ -38,11 +39,11 @@ VisualEffect::VisualEffect(std::string name, AnimatedSprite *sprite, Preset p, T
     now = start;
 }
 
-VisualEffect::VisualEffect(std::string name, AnimatedSprite *sprite, Time offset, Time duration, State start, State finish) :
-    sprite(sprite), offset(offset), duration(duration), start(start), finish(finish), name(name)
+VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Time offset, Time duration, State start, State finish) : AnimatedSprite(name),
+    sprite(sprite), offset(offset), duration(duration), start(start), finish(finish)
 {
     now = start;
-    std::cout << name << " now owns " << sprite->name << std::endl;
+    //std::cout << name << " now owns " << sprite->name << std::endl;
 }
 
 void VisualEffect::play()
@@ -150,12 +151,6 @@ State curstate(State start, State finish, Time duration, Time now)
     Vector2f acc = (finish.speed - start.speed) / T;
     mid.pos = start.pos + start.speed * T + acc / 2.0f * T * T;
 
-    /*std::cout << start.speed.x << "," << start.speed.y << " " << finish.speed.x << "," << finish.speed.y << std::endl;
-    std::cout << " " << acc.x << "," << acc.y << " " << now.asMicroseconds() << std::endl;
-    std::cout << mid.pos.x - start.pos.x << "," << mid.pos.y - start.pos.y << std::endl;
-    std::cout << start.pos.x << "," << start.pos.y << " " << mid.pos.x << "," << mid.pos.y << std::endl;
-    std::cout << "---- " << std::endl;*/
-
     return mid;
 }
 
@@ -169,6 +164,7 @@ void VisualEffect::update(Time deltaTime)
         m_currentTime += deltaTime;
 
         Time midTime = offset + duration / 2.0f;
+
         if (m_currentTime > offset && m_currentTime < offset + duration)
         {
             State s;
@@ -188,9 +184,9 @@ void VisualEffect::update(Time deltaTime)
             move(now.pos);
             rotate(now.rotation);
             scale(now.scale);
-            //setColor(now.color);
+            setColor(now.color);
         }
-        if (m_currentTime >= offset + duration && now != finish)
+        if (m_currentTime >= offset + duration)
         {
             move(-now.pos);
             rotate(-now.rotation);
@@ -201,21 +197,18 @@ void VisualEffect::update(Time deltaTime)
             move(now.pos);
             rotate(now.rotation);
             scale(now.scale);
-            //setColor(now.color);
+            setColor(now.color);
         }
     }
 }
 
 void VisualEffect::redraw(RenderTarget& target, RenderStates states) const
 {
-    if (sprite) {
-        std::cout << name << " calls for " << sprite->name << std::endl;
+    if (sprite)
         sprite->redraw(target, states);
-    }
 }
 
 void VisualEffect::draw(RenderTarget& target, RenderStates states) const
 {
-    std::cout << "Who asked " << name << " to draw?\n";
     redraw(target, states);
 }

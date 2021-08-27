@@ -92,6 +92,21 @@ Time AnimatedSprite::getFrameTime() const
     return m_frameTime;
 }
 
+void AnimatedSprite::move(const Vector2f &offset)
+{
+    Transformable::move(offset);
+}
+
+void AnimatedSprite::rotate(float angle)
+{
+    Transformable::rotate(angle);
+}
+
+void AnimatedSprite::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+}
+
 void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 {
     if (m_animation)
@@ -121,7 +136,7 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 
 void AnimatedSprite::update(Time deltaTime)
 {
-    std::cout << name << " update pos " << getPosition().x << " " << getPosition().y << std::endl;
+    //std::cout << name << " update pos " << getPosition().x << " " << getPosition().y << std::endl;
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
@@ -155,18 +170,19 @@ void AnimatedSprite::update(Time deltaTime)
     }
 }
 
+void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
+{
+    draw(target, states);
+}
+
 void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 {
+    //std::cout << "Who asked " << name << " to draw?\n";
+    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
     if (m_animation && m_texture)
     {
         states.transform *= getTransform();
         states.texture = m_texture;
         target.draw(m_vertices, 4, Quads, states);
     }
-}
-
-void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
-{
-    std::cout << name << " redraw pos " << getPosition().x << " " << getPosition().y << std::endl;
-    draw(target, states);
 }

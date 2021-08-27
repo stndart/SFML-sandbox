@@ -66,29 +66,20 @@ int main()
     animatedSprite.setOrigin(origin);
     animatedSprite.setPosition(Vector2f(200, 200));
 
-    State start = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-    State finish = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-    VisualEffect temp = VisualEffect("temp", &animatedSprite, seconds(3), seconds(80), start, finish);
+    State start = {0, Color(255, 255, 255), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    State finish = {360 * 80, Color(255, 255, 255), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    VisualEffect a1 = VisualEffect("temp", &animatedSprite, seconds(1), seconds(80), start, finish);
 
-    State start1 = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-    State finish1 = {0, Color(0, 0, 0), Vector2f(0, 0), Vector2f(200, 0), Vector2f(1, 1)};
-    VisualEffect effectedSprite = VisualEffect("effected", &tempí, seconds(4), seconds(1), start1, finish1);
-
-    std::cout << "ani name is " << animatedSprite.name << std::endl;
-    std::cout << "temp name is " << temp.name << std::endl;
-    std::cout << "eff name is " << effectedSprite.name << std::endl;
-    std::cout << std::endl;
-    std::cout << "temp child name is " << temp.sprite->name << std::endl;
-    std::cout << "eff child name is " << effectedSprite.sprite->name << std::endl;
-    std::cout << "but should " << (&temp)->name << std::endl;
+    State start1 = {0, Color(255, 255, 255), Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    State finish1 = {0, Color(0, 255, 0), Vector2f(400, 0), Vector2f(0, 0), Vector2f(1, 1)};
+    VisualEffect a2 = VisualEffect("effected", &a1, seconds(2), seconds(2), start1, finish1);
+    VisualEffect effectedSprite = VisualEffect("effected", &a2, seconds(5), seconds(2), finish1, start1);
 
     Clock frameClock;
 
 
     while (window.isOpen())
     {
-        std::cout << "-----------------------\n";
-
         Event event;
         while (window.pollEvent(event))
         {
