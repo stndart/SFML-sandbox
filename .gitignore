@@ -22,3 +22,9 @@
 # Build
 /bin/*
 /obj/*
+
+# Resources
+/Images/*
+
+# notes
+*.txt
