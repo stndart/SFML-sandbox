@@ -1,0 +1,122 @@
+# depslib dependency file v1.0
+1630005916 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	<conio.h>
+	"AnimatedSprite.h"
+	"VisualEffect.h"
+
+1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\cell.h
+	<SFML/System/Vector2.hpp>
+	<vector>
+	"Object.h"
+	"Item.h"
+
+1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\object.h
+	<string>
+
+1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\item.h
+	<string>
+
+1630005632 c:\users\svyat.000\desktop\gbs\sfml sandbox\animatedsprite.h
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/System/Time.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/System/Vector2.hpp>
+	<iostream>
+	<string>
+	"Animation.h"
+
+1592223550 c:\users\svyat.000\desktop\gbs\sfml sandbox\animation.h
+	<vector>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/Texture.hpp>
+
+1630005658 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\animatedsprite.cpp
+	"AnimatedSprite.h"
+
+1592223550 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\animation.cpp
+	"Animation.h"
+
+1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\cell.cpp
+	"Cell.h"
+
+1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\field.cpp
+	"Field.h"
+
+1592223550 c:\users\svyat.000\desktop\gbs\sfml sandbox\field.h
+	<iostream>
+	"Cell.h"
+
+1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\inventory.cpp
+	"Inventory.h"
+
+1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\inventory.h
+	<vector>
+	"Item.h"
+
+1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\item.cpp
+	"Item.h"
+
+1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\object.cpp
+	"Object.h"
+
+1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\player.cpp
+	"Player.h"
+
+1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\player.h
+	<SFML/System/Vector2.hpp>
+	<string>
+	"Inventory.h"
+
+1629988274 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\scene.cpp
+
+1630006031 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\visualeffect.cpp
+	"VisualEffect.h"
+
+1630006707 c:\users\svyat.000\desktop\gbs\sfml sandbox\visualeffect.h
+	<SFML/System/Time.hpp>
+	<iostream>
+	<string>
+	"AnimatedSprite.h"
+
+1630064502 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.cpp
+	"AnimatedSprite.h"
+
+1630064331 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.h
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/System/Time.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/System/Vector2.hpp>
+	<iostream>
+	<string>
+	"Animation.h"
+
+1630059651 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.h
+	<vector>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/Texture.hpp>
+
+1630059651 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.cpp
+	"Animation.h"
+
+1630059651 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.cpp
+
+1630064743 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.cpp
+	"VisualEffect.h"
+
+1630064307 c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.h
+	<SFML/System/Time.hpp>
+	<iostream>
+	<string>
+	"AnimatedSprite.h"
+
+1630064758 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	<conio.h>
+	"AnimatedSprite.h"
+	"VisualEffect.h"
+

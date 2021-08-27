@@ -14,11 +14,6 @@
 *.out
 *.app
 
-# Project files
-*.cbp
-*.depend
-*.layout
-
 # Build
 /bin/*
 /obj/*
