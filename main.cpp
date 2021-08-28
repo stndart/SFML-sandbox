@@ -5,6 +5,7 @@
 
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
+#include "Scene.h"
 
 using namespace sf;
 using namespace std;
@@ -36,13 +37,27 @@ void Motion()
 int main()
 {
     // setup window
-    Vector2i screenDimensions(800,600);
-    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
+    Vector2i screenDimensions(1920, 1080);
+    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
     window.setFramerateLimit(60);
 
     // load texture
     Texture texture;
     if (!texture.loadFromFile("Images/tex.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
+    Texture menu_texture;
+    if (!menu_texture.loadFromFile("Images/menu.jpg"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
+    Texture new_button_texture;
+    if (!new_button_texture.loadFromFile("Images/new_game_button.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
@@ -59,7 +74,7 @@ int main()
     loading.addFrame(IntRect(512, 256, 256, 256));
     loading.addFrame(IntRect(768, 256, 256, 256));
 
-    Animation* currentAnimation = &loading;
+    //Animation* currentAnimation = &loading;
 
     AnimatedSprite animatedSprite("animated", seconds(0.1), true, false);
     Vector2f origin = Vector2f(256.0f / 2, 256.0f / 2);
@@ -77,6 +92,7 @@ int main()
 
     Clock frameClock;
 
+    Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, screenDimensions);
 
     while (window.isOpen())
     {
@@ -119,14 +135,13 @@ int main()
         }
 
         Time frameTime = frameClock.restart();
-        effectedSprite.play(*currentAnimation);
 
-        // update AnimatedSprite
-        effectedSprite.update(frameTime);
+        main_menu.update(frameTime);
 
         // draw
         window.clear();
-        window.draw(effectedSprite);
+        //menu_scene_draw(window, texture);
+        window.draw(main_menu);
         window.display();
     }
 

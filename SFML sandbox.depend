@@ -128,12 +128,13 @@
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1630071844 source:d:\gbi\sfml-sandbox\main.cpp
+1630167468 source:d:\gbi\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
 	"AnimatedSprite.h"
 	"VisualEffect.h"
+	"Scene.h"
 
 1630071844 d:\gbi\sfml-sandbox\animatedsprite.h
 	<SFML/Graphics/RenderTarget.hpp>
@@ -151,11 +152,17 @@
 	<string>
 	"AnimatedSprite.h"
 
-1630071844 source:d:\gbi\sfml-sandbox\scene.cpp
+1630167349 source:d:\gbi\sfml-sandbox\scene.cpp
+	"Scene.h"
 
-1630074736 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
+1630166521 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
 	"AnimatedSprite.h"
 
-1630074786 source:d:\gbi\sfml-sandbox\visualeffect.cpp
+1630074861 source:d:\gbi\sfml-sandbox\visualeffect.cpp
 	"VisualEffect.h"
+
+1630166968 d:\gbi\sfml-sandbox\scene.h
+	<vector>
+	<SFML/Graphics/Sprite.hpp>
+	"AnimatedSprite.h"
 
