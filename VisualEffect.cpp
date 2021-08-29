@@ -1,6 +1,6 @@
 #include "VisualEffect.h"
 
-VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite(name),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite("default veffect"),
     offset(offset), sprite(sprite)
 {
 
@@ -39,7 +39,7 @@ VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Preset p, T
     now = start;
 }
 
-VisualEffect::VisualEffect(std::string name, AnimatedSprite* sprite, Time offset, Time duration, State start, State finish) : AnimatedSprite(name),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, State start, State finish) : AnimatedSprite("default veffect"),
     duration(duration), offset(offset), start(start), finish(finish), sprite(sprite)
 {
     now = start;
@@ -53,7 +53,7 @@ void VisualEffect::play()
         sprite->play();
 }
 
-void VisualEffect::play(const Animation& animation)
+void VisualEffect::play(Animation& animation)
 {
     if (sprite)
         sprite->play(animation);
@@ -104,7 +104,7 @@ void VisualEffect::scale(const Vector2f &factor)
 }
 
 
-const Animation* VisualEffect::getAnimation() const
+Animation* VisualEffect::getAnimation()
 {
     if (sprite)
         return sprite->getAnimation();

@@ -12,15 +12,18 @@ class Animation
 public:
     Animation();
 
-    void addFrame(IntRect rect);
-    void setSpriteSheet(const Texture& texture);
-    const Texture* getSpriteSheet() const;
+    void addFrame(IntRect rect, int i=0);
+    void setSpriteSheet(Texture& texture, int i=0);
+    int addSpriteSheet(Texture& texture);
+    Texture* getSpriteSheet(int i=0);
     std::size_t getSize() const;
     const IntRect& getFrame(std::size_t n) const;
+    int getTextureIndex(std::size_t n) const;
 
 private:
     std::vector<IntRect> m_frames;
-    const Texture* m_texture;
+    std::vector<Texture*> textures;
+    std::vector<int> texture_index;
 };
 
 #endif // ANIMATION_INCLUDE

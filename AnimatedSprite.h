@@ -31,7 +31,7 @@ public:
     virtual void stop();
     virtual void setLooped(bool looped);
     virtual void setColor(const Color& color);
-    virtual Animation* getAnimation() const;
+    virtual Animation* getAnimation();
     virtual void move(const Vector2f &offset);
     virtual void rotate(float angle);
     virtual void scale(const Vector2f &factor);
@@ -42,6 +42,8 @@ public:
     Time getFrameTime() const;
     void setFrame(std::size_t newFrame, bool resetTime = true);
     virtual void redraw(RenderTarget& target, RenderStates states) const;
+
+    void onClick(bool pressed);
 
 protected:
     Time m_currentTime;

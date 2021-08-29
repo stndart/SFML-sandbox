@@ -67,19 +67,14 @@ void AnimatedSprite::setColor(const Color& color)
     m_vertices[3].color = color;
 }
 
-Animation* AnimatedSprite::getAnimation() const
+Animation* AnimatedSprite::getAnimation()
 {
     return m_animation;
 }
 
 FloatRect AnimatedSprite::getLocalBounds() const
 {
-    IntRect rect = m_animation->getFrame(m_currentFrame);
-
-    float width = static_cast<float>(std::abs(rect.width));
-    float height = static_cast<float>(std::abs(rect.height));
-
-    return FloatRect(0.f, 0.f, width, height);
+    return FloatRect(m_animation->getFrame(m_currentFrame));
 }
 
 FloatRect AnimatedSprite::getGlobalBounds() const
@@ -138,6 +133,8 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_vertices[1].texCoords = Vector2f(left, bottom);
         m_vertices[2].texCoords = Vector2f(right, bottom);
         m_vertices[3].texCoords = Vector2f(right, top);
+
+        m_texture = m_animation->getSpriteSheet(m_animation->getTextureIndex(newFrame));
     }
 
     if (resetTime)
@@ -197,4 +194,12 @@ void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
         states.texture = m_texture;
         target.draw(m_vertices, 4, Quads, states);
     }
+}
+
+void AnimatedSprite::onClick(bool pressed)
+{
+    if (pressed)
+        play();
+    else
+        stop();
 }

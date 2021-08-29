@@ -48,15 +48,14 @@ private:
     State now;
 public:
     AnimatedSprite *sprite;
-    //std::string name;
-    VisualEffect(std::string name, AnimatedSprite *sprite, Preset p = RFADE, Time offset = seconds(0));
-    VisualEffect(std::string name, AnimatedSprite *sprite, Time offset, Time duration, State start, State finish);
+    VisualEffect(AnimatedSprite *sprite, Preset p = RFADE, Time offset = seconds(0));
+    VisualEffect(AnimatedSprite *sprite, Time offset, Time duration, State start, State finish);
     void move(const Vector2f &offset) override;
     void rotate(float angle) override;
     void scale(const Vector2f &factor) override;
-    const Animation* getAnimation() const override;
+    Animation* getAnimation() override;
     void play() override;
-    void play(const Animation &animation) override;
+    void play(Animation &animation) override;
     void pause() override;
     void stop() override;
     void setLooped(bool looped) override;

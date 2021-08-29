@@ -81,10 +81,10 @@
 	<string>
 	"AnimatedSprite.h"
 
-1630064502 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.cpp
+1630263207 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.cpp
 	"AnimatedSprite.h"
 
-1630064331 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.h
+1630257751 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.h
 	<SFML/Graphics/RenderTarget.hpp>
 	<SFML/System/Time.hpp>
 	<SFML/Graphics/Drawable.hpp>
@@ -94,31 +94,33 @@
 	<string>
 	"Animation.h"
 
-1630059651 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.h
+1630263227 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.h
 	<vector>
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1630059651 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.cpp
+1630263118 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.cpp
 	"Animation.h"
 
-1630059651 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.cpp
+1630262105 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.cpp
+	"Scene.h"
 
-1630064743 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.cpp
+1630257462 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.cpp
 	"VisualEffect.h"
 
-1630064307 c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.h
+1630257493 c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.h
 	<SFML/System/Time.hpp>
 	<iostream>
 	<string>
 	"AnimatedSprite.h"
 
-1630064758 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\main.cpp
+1630262319 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
 	"AnimatedSprite.h"
 	"VisualEffect.h"
+	"Scene.h"
 
 1630071844 source:d:\gbi\sfml-sandbox\animation.cpp
 	"Animation.h"
@@ -164,5 +166,11 @@
 1630166968 d:\gbi\sfml-sandbox\scene.h
 	<vector>
 	<SFML/Graphics/Sprite.hpp>
+	"AnimatedSprite.h"
+
+1630262330 c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.h
+	<vector>
+	<SFML/Graphics/Sprite.hpp>
+	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 

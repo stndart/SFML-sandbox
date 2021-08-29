@@ -5,22 +5,6 @@ Scene::Scene(std::string name) : name(name)
 
 }
 
-void Scene::draw(RenderTarget& target, RenderStates states) const
-{
-    //std::cout << "Who asked " << name << " to draw?\n";
-    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
-
-    if (background)
-    {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
-    }
-    for (std::size_t i = 0; i < sprites.size(); ++i)
-        if (sprites[i])
-            target.draw(*sprites[i], states);
-}
-
 void Scene::addTexture(Texture* texture, IntRect rect)
 {
     background = texture;
@@ -41,38 +25,116 @@ void Scene::addTexture(Texture* texture, IntRect rect)
     m_vertices[3].texCoords = Vector2f(right, top);
 }
 
-void Scene::addSprite(Sprite* sprite)
+void Scene::addSprite(AnimatedSprite* sprite)
 {
     sprites.push_back(sprite);
 }
 
-void Scene::update(Time deltaTime)
+void Scene::update(Event& event)
 {
-    // полная фигня, чтобы компиллер не ругался на неиспользуемую переменную
+    if (event.type == Event::MouseButtonPressed){
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            for (auto s : sprites)
+            {
+                ///FloatRect curRect = s->getGlobalBounds();
+                Vector2f curPos = Vector2f(Mouse::getPosition());
+                ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
+                ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
+                if (s->getGlobalBounds().contains(curPos))
+                {
+                    s->onClick(true);
+                }
+            }
+            break;
 
-    if (deltaTime.asSeconds() < 0)
-        return;
+        default:
+            break;
+        }
+    }
+    if (event.type == Event::MouseButtonReleased)
+    {
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            for (auto s : sprites)
+            {
+                ///FloatRect curRect = s->getGlobalBounds();
+                Vector2f curPos = Vector2f(Mouse::getPosition());
+                ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
+                ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
+
+                std::cout << curPos.x << " " << curPos.y << std::endl;
+                std::cout << s->getGlobalBounds().left << "x" << s->getGlobalBounds().top << std::endl;
+                std::cout << s->getGlobalBounds().contains(curPos) << std::endl;
+
+                if (s->getGlobalBounds().contains(curPos))
+                {
+                    s->onClick(true);
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
-Scene new_menu_scene(Texture* bg, Texture* new_button, Vector2i screen_dimensions)
+void Scene::update(Time deltaTime)
+{
+    for (auto s : sprites)
+    {
+        s->update(deltaTime);
+    }
+}
+
+void Scene::draw(RenderTarget& target, RenderStates states) const
+{
+    //std::cout << "Who asked " << name << " to draw?\n";
+    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
+
+    if (background)
+    {
+        states.transform *= getTransform();
+        states.texture = background;
+        target.draw(m_vertices, 4, Quads, states);
+    }
+    for (std::size_t i = 0; i < sprites.size(); ++i)
+        if (sprites[i])
+            target.draw(*sprites[i]);
+}
+
+Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
 {
     Scene main_menu("Main menu");
     main_menu.addTexture(bg, IntRect(0, 0, 1920, 1080));
-    //main_menu.setScale(0.6f, 0.6f);
+    main_menu.setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
-    /*AnimatedSprite* button = new AnimatedSprite("new game button");
-    Animation* new_game = new Animation();
-    new_game->setSpriteSheet(*new_button);
-    new_game->addFrame(IntRect(0, 0, 1000, 500));
-    button->setAnimation(*new_game);
-    button->setPosition(Vector2f(0, 0));*/
-
-    Sprite* button = new Sprite(*new_button, IntRect(0, 0, 1000, 500));
+    AnimatedSprite* button = new AnimatedSprite("asprite", *new_button, IntRect(0, 0, 1000, 500));
+    button->getAnimation()->addSpriteSheet(*new_button_pressed);
+    button->getAnimation()->addFrame(IntRect(0, 0, 1000, 500), 1);
     button->setScale(0.5f, 0.5f);
     button->setOrigin(button->getLocalBounds().width / 2.0f,
                       button->getLocalBounds().height / 2.0f);
     button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);
+
+
+    /*Sprite* button = new Sprite(*new_button, IntRect(0, 0, 1000, 500));
+    button->setScale(0.5f, 0.5f);
+    button->setOrigin(button->getLocalBounds().width / 2.0f,
+                      button->getLocalBounds().height / 2.0f);
+    button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);*/
+
     main_menu.addSprite(button);
+
+    FloatRect b = button->getGlobalBounds();
+    std::cout << "bounds " << b.left << " " << b.top << " | " << b.width << " " << b.height << std::endl;
+    Vector2f o = button->getOrigin();
+    std::cout << "origin " << o.x << " " << o.y << std::endl;
+    Vector2f p = button->getPosition();
+    std::cout << "position " << p.x << " " << p.y << std::endl;
 
     return main_menu;
 }
