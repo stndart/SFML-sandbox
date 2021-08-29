@@ -30,7 +30,11 @@ int Animation::addSpriteSheet(Texture& texture)
     return textures.size() - 1;
 }
 
+<<<<<<< HEAD
 Texture* Animation::getSpriteSheet(int i)
+=======
+Texture* Animation::getSpriteSheet()
+>>>>>>> c167c65bd18d0815f20432e6594df7a741aaccfa
 {
     return textures[i];
 }
