@@ -67,7 +67,7 @@ void AnimatedSprite::setColor(const Color& color)
     m_vertices[3].color = color;
 }
 
-Animation* AnimatedSprite::getAnimation() const
+Animation* AnimatedSprite::getAnimation()
 {
     return m_animation;
 }

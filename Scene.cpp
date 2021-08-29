@@ -46,12 +46,47 @@ void Scene::addSprite(Sprite* sprite)
     sprites.push_back(sprite);
 }
 
-void Scene::update(Time deltaTime)
+void Scene::update(Event& event)
 {
-    // полная фигня, чтобы компиллер не ругался на неиспользуемую переменную
+    if (event.type == Event::MouseButtonPressed){
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            for (auto s : sprites)
+            {
+                FloatRect curRect = s->getGlobalBounds();
+                Vector2i curPos = Mouse::getPosition();
+                if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
+                    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
+                {
+                    s->onClick(true);
+                }
+            }
+            break;
 
-    if (deltaTime.asSeconds() < 0)
-        return;
+        default:
+            break;
+        }
+    }
+    if (event.type == Event::MouseButtonReleased)
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            for (auto s : sprites)
+            {
+                FloatRect curRect = s->getGlobalBounds();
+                Vector2i curPos = Mouse::getPosition();
+                if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
+                    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
+                {
+                    s->onClick(false);
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
 }
 
 Scene new_menu_scene(Texture* bg, Texture* new_button, Vector2i screen_dimensions)

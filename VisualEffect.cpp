@@ -53,7 +53,7 @@ void VisualEffect::play()
         sprite->play();
 }
 
-void VisualEffect::play(const Animation& animation)
+void VisualEffect::play(Animation& animation)
 {
     if (sprite)
         sprite->play(animation);
@@ -104,7 +104,7 @@ void VisualEffect::scale(const Vector2f &factor)
 }
 
 
-const Animation* VisualEffect::getAnimation() const
+Animation* VisualEffect::getAnimation()
 {
     if (sprite)
         return sprite->getAnimation();

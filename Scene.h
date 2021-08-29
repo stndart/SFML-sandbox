@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Window/Event.hpp>
 #include "AnimatedSprite.h"
 
 using namespace sf;
@@ -19,7 +20,7 @@ public:
     Scene(std::string name);
     void addTexture(Texture* texture, IntRect rect);
     void addSprite(Sprite* sprite);
-    virtual void update(Time deltaTime);
+    virtual void update(Event& event);
 };
 
 Scene new_menu_scene(Texture* bg, Texture* new_button, Vector2i screen_dimensions);

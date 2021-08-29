@@ -54,9 +54,9 @@ public:
     void move(const Vector2f &offset) override;
     void rotate(float angle) override;
     void scale(const Vector2f &factor) override;
-    const Animation* getAnimation() const override;
+    Animation* getAnimation() override;
     void play() override;
-    void play(const Animation &animation) override;
+    void play(Animation &animation) override;
     void pause() override;
     void stop() override;
     void setLooped(bool looped) override;

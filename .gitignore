@@ -23,3 +23,6 @@
 
 # notes
 *.txt
+*.cbp
+*.depend
+*.layout

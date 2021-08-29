@@ -17,19 +17,7 @@ void Motion()
     switch (KeyMotion)
     {
     case 1:
-        cout << "up" << endl;
-        break;
-
-    case 2:
-        cout << "down" << endl;
-        break;
-
-    case 3:
-        cout << "left" << endl;
-        break;
-
-    case 4:
-        cout << "right" << endl;
+        cout << "click" << endl;
         break;
     }
 }
@@ -58,6 +46,13 @@ int main()
 
     Texture new_button_texture;
     if (!new_button_texture.loadFromFile("Images/new_game_button.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
+    Texture new_button_pushed_texture;
+    if (!new_button_pushed_texture.loadFromFile("Images/new_game_button_pushed.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
@@ -105,42 +100,11 @@ int main()
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
                 window.close();
             }
-            if (event.type == Event::KeyPressed){
-                switch (event.key.code)
-                {
-                case Keyboard::W:
-                    KeyMotion = 1;
-                    Motion();
-                    break;
-
-                case Keyboard::S:
-                    KeyMotion = 2;
-                    Motion();
-                    break;
-
-                case Keyboard::A:
-                    KeyMotion = 3;
-                    Motion();
-                    break;
-
-                case Keyboard::D:
-                    KeyMotion = 4;
-                    Motion();
-                    break;
-
-                default:
-                    break;
-                }
-            }
+            main_menu.update(event);
         }
-
-        Time frameTime = frameClock.restart();
-
-        main_menu.update(frameTime);
 
         // draw
         window.clear();
-        //menu_scene_draw(window, texture);
         window.draw(main_menu);
         window.display();
     }

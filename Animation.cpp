@@ -10,12 +10,12 @@ void Animation::addFrame(IntRect rect)
     m_frames.push_back(rect);
 }
 
-void Animation::setSpriteSheet(const Texture& texture)
+void Animation::setSpriteSheet(Texture& texture)
 {
     m_texture = &texture;
 }
 
-const Texture* Animation::getSpriteSheet() const
+Texture* Animation::getSpriteSheet()
 {
     return m_texture;
 }

@@ -13,14 +13,14 @@ public:
     Animation();
 
     void addFrame(IntRect rect);
-    void setSpriteSheet(const Texture& texture);
-    const Texture* getSpriteSheet() const;
+    void setSpriteSheet(Texture& texture);
+    Texture* getSpriteSheet();
     std::size_t getSize() const;
     const IntRect& getFrame(std::size_t n) const;
 
 private:
     std::vector<IntRect> m_frames;
-    const Texture* m_texture;
+    Texture* m_texture;
 };
 
 #endif // ANIMATION_INCLUDE

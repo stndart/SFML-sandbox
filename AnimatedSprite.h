@@ -31,7 +31,7 @@ public:
     virtual void stop();
     virtual void setLooped(bool looped);
     virtual void setColor(const Color& color);
-    virtual Animation* getAnimation() const;
+    virtual Animation* getAnimation();
     virtual void move(const Vector2f &offset);
     virtual void rotate(float angle);
     virtual void scale(const Vector2f &factor);
