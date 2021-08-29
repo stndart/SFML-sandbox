@@ -21,14 +21,9 @@ public:
     int getTextureIndex(std::size_t n) const;
 
 private:
-<<<<<<< HEAD
     std::vector<IntRect> m_frames;
     std::vector<Texture*> textures;
     std::vector<int> texture_index;
-=======
-    std::vector<IntRect> m_frames;
-    Texture* m_texture;
->>>>>>> c167c65bd18d0815f20432e6594df7a741aaccfa
 };
 
 #endif // ANIMATION_INCLUDE
