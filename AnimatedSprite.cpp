@@ -6,7 +6,17 @@ AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bo
 
 }
 
-void AnimatedSprite::setAnimation(const Animation& animation)
+AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) : name(name),
+    m_isPaused(true), m_frameTime(seconds(0.2f)), m_currentFrame(0), m_isLooped(true)
+{
+    m_texture = &texture;
+    m_animation = new Animation();
+    m_animation->addFrame(frame0);
+    m_animation->setSpriteSheet(*m_texture);
+    setFrame(m_currentFrame);
+}
+
+void AnimatedSprite::setAnimation(Animation& animation)
 {
     m_animation = &animation;
     m_texture = m_animation->getSpriteSheet();
@@ -24,7 +34,7 @@ void AnimatedSprite::play()
     m_isPaused = false;
 }
 
-void AnimatedSprite::play(const Animation& animation)
+void AnimatedSprite::play(Animation& animation)
 {
     if (getAnimation() != &animation)
         setAnimation(animation);
@@ -57,7 +67,7 @@ void AnimatedSprite::setColor(const Color& color)
     m_vertices[3].color = color;
 }
 
-const Animation* AnimatedSprite::getAnimation() const
+Animation* AnimatedSprite::getAnimation() const
 {
     return m_animation;
 }
@@ -137,6 +147,7 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 void AnimatedSprite::update(Time deltaTime)
 {
     //std::cout << name << " update pos " << getPosition().x << " " << getPosition().y << std::endl;
+
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
@@ -179,6 +190,7 @@ void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 {
     //std::cout << "Who asked " << name << " to draw?\n";
     //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
+
     if (m_animation && m_texture)
     {
         states.transform *= getTransform();

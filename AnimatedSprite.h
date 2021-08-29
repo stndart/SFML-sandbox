@@ -17,20 +17,21 @@ using namespace sf;
 class AnimatedSprite : public Drawable, public Transformable
 {
 public:
-    std::string name; ///TEMP
+    std::string name; /// TEMP
 
     explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true);
+    AnimatedSprite(std::string name, Texture& texture, IntRect frame0);
 
     virtual void update(Time deltaTime);
-    void setAnimation(const Animation& animation);
+    void setAnimation(Animation& animation);
     void setFrameTime(Time time);
     virtual void play();
-    virtual void play(const Animation& animation);
+    virtual void play(Animation& animation);
     virtual void pause();
     virtual void stop();
     virtual void setLooped(bool looped);
     virtual void setColor(const Color& color);
-    virtual const Animation* getAnimation() const;
+    virtual Animation* getAnimation() const;
     virtual void move(const Vector2f &offset);
     virtual void rotate(float angle);
     virtual void scale(const Vector2f &factor);
@@ -47,11 +48,11 @@ protected:
     bool m_isPaused;
 
 private:
-    const Animation* m_animation;
+    Animation* m_animation;
     Time m_frameTime;
     std::size_t m_currentFrame;
     bool m_isLooped;
-    const Texture* m_texture;
+    Texture* m_texture;
     Vertex m_vertices[4];
 
     virtual void draw(RenderTarget& target, RenderStates states) const override;
