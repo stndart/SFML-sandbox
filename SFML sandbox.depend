@@ -81,7 +81,7 @@
 	<string>
 	"AnimatedSprite.h"
 
-1630263207 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.cpp
+1630267451 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.cpp
 	"AnimatedSprite.h"
 
 1630257751 c:\users\svyat.000\desktop\gbs\sfml-sandbox\animatedsprite.h
@@ -99,10 +99,10 @@
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1630264544 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.cpp
+1630264858 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\animation.cpp
 	"Animation.h"
 
-1630262105 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.cpp
+1630267156 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.cpp
 	"Scene.h"
 
 1630257462 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\visualeffect.cpp
@@ -114,7 +114,7 @@
 	<string>
 	"AnimatedSprite.h"
 
-1630264529 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\main.cpp
+1630265238 source:c:\users\svyat.000\desktop\gbs\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
@@ -168,7 +168,7 @@
 	<SFML/Graphics/Sprite.hpp>
 	"AnimatedSprite.h"
 
-1630264564 c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.h
+1630267113 c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.h
 	<vector>
 	<SFML/Graphics/Sprite.hpp>
 	<SFML/Window/Event.hpp>

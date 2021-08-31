@@ -39,9 +39,17 @@ void Scene::update(Event& event)
             for (auto s : sprites)
             {
                 ///FloatRect curRect = s->getGlobalBounds();
-                Vector2f curPos = Vector2f(Mouse::getPosition());
+                ///Vector2f curPos = Vector2f(Mouse::getPosition());
                 ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
                 ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
+
+                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+
+                /*std::cout << event.mouseButton.x << " - " << event.mouseButton.y << std::endl;
+                std::cout << curPos.x << " " << curPos.y << std::endl;
+                std::cout << s->getGlobalBounds().left << "x" << s->getGlobalBounds().top << std::endl;
+                std::cout << s->getGlobalBounds().contains(curPos) << std::endl;//*/
+
                 if (s->getGlobalBounds().contains(curPos))
                 {
                     s->onClick(true);
@@ -60,14 +68,17 @@ void Scene::update(Event& event)
         case Mouse::Left:
             for (auto s : sprites)
             {
+
                 ///FloatRect curRect = s->getGlobalBounds();
-                Vector2f curPos = Vector2f(Mouse::getPosition());
+                ///Vector2f curPos = Vector2f(Mouse::getPosition());
                 ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
                 ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
+                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
 
+                /*std::cout << event.mouseButton.x << " - " << event.mouseButton.y << std::endl;
                 std::cout << curPos.x << " " << curPos.y << std::endl;
                 std::cout << s->getGlobalBounds().left << "x" << s->getGlobalBounds().top << std::endl;
-                std::cout << s->getGlobalBounds().contains(curPos) << std::endl;
+                std::cout << s->getGlobalBounds().contains(curPos) << std::endl;//*/
 
                 if (s->getGlobalBounds().contains(curPos))
                 {
@@ -86,6 +97,8 @@ void Scene::update(Time deltaTime)
 {
     for (auto s : sprites)
     {
+        s->getGlobalBounds();
+        deltaTime += seconds(0.00002f);
         s->update(deltaTime);
     }
 }
@@ -112,24 +125,31 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
     main_menu.addTexture(bg, IntRect(0, 0, 1920, 1080));
     main_menu.setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
+    if (new_button == new_button_pressed)
+        throw;
+
     AnimatedSprite* button = new AnimatedSprite("asprite", *new_button, IntRect(0, 0, 1000, 500));
     button->getAnimation()->addSpriteSheet(*new_button_pressed);
     button->getAnimation()->addFrame(IntRect(0, 0, 1000, 500), 1);
+    button->setLooped(false);
     button->setScale(0.5f, 0.5f);
     button->setOrigin(button->getLocalBounds().width / 2.0f,
                       button->getLocalBounds().height / 2.0f);
-    button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);
+    button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);//*/
 
 
     /*Sprite* button = new Sprite(*new_button, IntRect(0, 0, 1000, 500));
     button->setScale(0.5f, 0.5f);
     button->setOrigin(button->getLocalBounds().width / 2.0f,
                       button->getLocalBounds().height / 2.0f);
-    button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);*/
+    button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);//*/
 
     main_menu.addSprite(button);
 
-    FloatRect b = button->getGlobalBounds();
+    FloatRect b;
+    b = button->getLocalBounds();
+    std::cout << "local bounds " << b.left << " " << b.top << " | " << b.width << " " << b.height << std::endl;
+    b = button->getGlobalBounds();
     std::cout << "bounds " << b.left << " " << b.top << " | " << b.width << " " << b.height << std::endl;
     Vector2f o = button->getOrigin();
     std::cout << "origin " << o.x << " " << o.y << std::endl;

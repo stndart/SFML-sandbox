@@ -158,8 +158,9 @@ void AnimatedSprite::update(Time deltaTime)
             m_currentTime = microseconds(m_currentTime.asMicroseconds() - m_frameTime.asMicroseconds());
 
             // get next Frame index
-            if (m_currentFrame + 1 < m_animation->getSize())
+            if (m_currentFrame + 1 < m_animation->getSize()) {
                 m_currentFrame++;
+            }
             else
             {
                 // animation has ended
