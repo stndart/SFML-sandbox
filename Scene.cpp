@@ -71,7 +71,7 @@ void Scene::update(Event& event)
 
                 if (s->getGlobalBounds().contains(curPos))
                 {
-                    s->onClick(true);
+                    s->onClick(false);
                 }
             }
             break;
@@ -115,6 +115,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
     AnimatedSprite* button = new AnimatedSprite("asprite", *new_button, IntRect(0, 0, 1000, 500));
     button->getAnimation()->addSpriteSheet(*new_button_pressed);
     button->getAnimation()->addFrame(IntRect(0, 0, 1000, 500), 1);
+    button->setLooped(false);
     button->setScale(0.5f, 0.5f);
     button->setOrigin(button->getLocalBounds().width / 2.0f,
                       button->getLocalBounds().height / 2.0f);

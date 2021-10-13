@@ -13,7 +13,7 @@ void Animation::addFrame(IntRect rect, int i)
     texture_index.push_back(i);
 }
 
-void Animation::setSpriteSheet(Texture& texture, int i)
+void Animation::setSpriteSheet(Texture& texture, std::size_t i)
 {
     if (i > textures.size())
         throw;

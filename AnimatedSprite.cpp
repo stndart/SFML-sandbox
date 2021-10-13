@@ -163,7 +163,7 @@ void AnimatedSprite::update(Time deltaTime)
             else
             {
                 // animation has ended
-                m_currentFrame = 0; // reset to start
+                //m_currentFrame = 0; // reset to start
 
                 if (!m_isLooped)
                 {
@@ -199,7 +199,11 @@ void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 void AnimatedSprite::onClick(bool pressed)
 {
     if (pressed)
+    {
         play();
+    }
     else
+    {
         stop();
+    }
 }

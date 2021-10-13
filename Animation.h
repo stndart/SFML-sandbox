@@ -13,7 +13,7 @@ public:
     Animation();
 
     void addFrame(IntRect rect, int i=0);
-    void setSpriteSheet(Texture& texture, int i=0);
+    void setSpriteSheet(Texture& texture, std::size_t i=0);
     int addSpriteSheet(Texture& texture);
     Texture* getSpriteSheet(int i=0);
     std::size_t getSize() const;

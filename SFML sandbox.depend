@@ -122,15 +122,15 @@
 	"VisualEffect.h"
 	"Scene.h"
 
-1630071844 source:d:\gbi\sfml-sandbox\animation.cpp
+1630265345 source:d:\gbi\sfml-sandbox\animation.cpp
 	"Animation.h"
 
-1630071844 d:\gbi\sfml-sandbox\animation.h
+1630265345 d:\gbi\sfml-sandbox\animation.h
 	<vector>
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1630167468 source:d:\gbi\sfml-sandbox\main.cpp
+1630265021 source:d:\gbi\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
@@ -138,7 +138,7 @@
 	"VisualEffect.h"
 	"Scene.h"
 
-1630071844 d:\gbi\sfml-sandbox\animatedsprite.h
+1630265021 d:\gbi\sfml-sandbox\animatedsprite.h
 	<SFML/Graphics/RenderTarget.hpp>
 	<SFML/System/Time.hpp>
 	<SFML/Graphics/Drawable.hpp>
@@ -148,24 +148,25 @@
 	<string>
 	"Animation.h"
 
-1630071844 d:\gbi\sfml-sandbox\visualeffect.h
+1630265021 d:\gbi\sfml-sandbox\visualeffect.h
 	<SFML/System/Time.hpp>
 	<iostream>
 	<string>
 	"AnimatedSprite.h"
 
-1630167349 source:d:\gbi\sfml-sandbox\scene.cpp
+1630267059 source:d:\gbi\sfml-sandbox\scene.cpp
 	"Scene.h"
 
-1630166521 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
+1630267427 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
 	"AnimatedSprite.h"
 
-1630074861 source:d:\gbi\sfml-sandbox\visualeffect.cpp
+1630265021 source:d:\gbi\sfml-sandbox\visualeffect.cpp
 	"VisualEffect.h"
 
-1630166968 d:\gbi\sfml-sandbox\scene.h
+1630265021 d:\gbi\sfml-sandbox\scene.h
 	<vector>
 	<SFML/Graphics/Sprite.hpp>
+	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 
 1630264564 c:\users\svyat.000\desktop\gbs\sfml-sandbox\scene.h
