@@ -202,9 +202,11 @@ void AnimatedSprite::onClick(bool pressed)
     if (pressed)
     {
         play();
+        std::cout << "push" << std::endl;
     }
     else
     {
         stop();
+        std::cout << "unpush" << std::endl;
     }
 }
