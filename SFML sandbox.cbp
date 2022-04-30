@@ -35,6 +35,10 @@
 		<Unit filename="AnimatedSprite.h" />
 		<Unit filename="Animation.cpp" />
 		<Unit filename="Animation.h" />
+		<Unit filename="Cell.cpp" />
+		<Unit filename="Cell.h" />
+		<Unit filename="Field.cpp" />
+		<Unit filename="Field.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
 		<Unit filename="VisualEffect.cpp" />

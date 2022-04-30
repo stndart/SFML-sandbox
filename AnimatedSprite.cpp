@@ -114,6 +114,7 @@ void AnimatedSprite::scale(const Vector2f &factor)
 
 void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 {
+    std::cout << "I'm done. SetFrame" << std::endl;
     if (m_animation)
     {
         //calculate new vertex positions and texture coordiantes
@@ -146,10 +147,11 @@ void AnimatedSprite::update(Time deltaTime)
     //std::cout << name << " update pos " << getPosition().x << " " << getPosition().y << std::endl;
 
     // if not paused and we have a valid animation
+
     if (!m_isPaused && m_animation)
     {
         // add delta time
-        m_currentTime += deltaTime;
+        m_currentTime = deltaTime;
 
         // if current time is bigger then the frame time advance one frame
         while (m_currentTime >= m_frameTime)
@@ -169,6 +171,7 @@ void AnimatedSprite::update(Time deltaTime)
                 if (!m_isLooped)
                 {
                     m_isPaused = true;
+                    break;
                 }
 
             }

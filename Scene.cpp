@@ -136,6 +136,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
     button->setOrigin(button->getLocalBounds().width / 2.0f,
                       button->getLocalBounds().height / 2.0f);
     button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);//*/
+    button->setFrameTime(milliseconds(1.0f));
 
 
     /*Sprite* button = new Sprite(*new_button, IntRect(0, 0, 1000, 500));

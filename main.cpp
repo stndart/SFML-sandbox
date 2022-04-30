@@ -6,6 +6,7 @@
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
+#include "Field.h"
 
 using namespace sf;
 using namespace std;
@@ -52,9 +53,33 @@ int main()
         return 1;
     }
 
+    Texture player_texture;
+    if (!player_texture.loadFromFile("Images/player.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
+    Texture field_bg_texture;
+    if (!field_bg_texture.loadFromFile("Images/field_bg.jpg"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
+    Texture grass_block_texture;
+    if (!grass_block_texture.loadFromFile("Images/grass.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
+    //Scene game_scene = new_game_scen(&game_texture)
+    Field game_field = new_field_scene(&field_bg_texture, 100, 100, &grass_block_texture, &player_texture, screenDimensions);
+    //cout << "field maked\n";
 
     while (window.isOpen())
     {
@@ -67,17 +92,23 @@ int main()
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
                 window.close();
             }
-            main_menu.update(event);
+            //main_menu.update(event);
+            game_field.update(event);
         }
 
         Time frameTime = frameClock.restart();
 
-        main_menu.update(frameTime);
+        //main_menu.update(frameTime);
+        game_field.update(frameTime);
 
         // draw
         window.clear();
-        window.draw(main_menu);
+        //cout << "window has been cleared" << endl;
+        window.draw(game_field);
+        //window.draw(main_menu);
+        //cout << "window has been drawn" << endl;
         window.display();
+        //return 0;
     }
 
     return 0;

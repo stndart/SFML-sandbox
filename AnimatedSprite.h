@@ -51,7 +51,7 @@ protected:
 
 private:
     Animation* m_animation;
-    Time m_frameTime;
+    Time m_frameTime; //time for 1 frame
     std::size_t m_currentFrame;
     bool m_isLooped;
     Texture* m_texture;
