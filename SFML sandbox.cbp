@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="../SFML-sandbox" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -22,6 +23,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="../SFML-sandbox" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -39,8 +41,12 @@
 		<Unit filename="Cell.h" />
 		<Unit filename="Field.cpp" />
 		<Unit filename="Field.h" />
+		<Unit filename="Player.cpp" />
+		<Unit filename="Player.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
+		<Unit filename="Scene_Field.cpp" />
+		<Unit filename="Scene_Field.h" />
 		<Unit filename="VisualEffect.cpp" />
 		<Unit filename="VisualEffect.h" />
 		<Unit filename="main.cpp" />

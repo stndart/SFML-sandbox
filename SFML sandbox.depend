@@ -130,14 +130,14 @@
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1651343812 source:d:\gbi\sfml-sandbox\main.cpp
+1652088707 source:d:\gbi\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
 	"AnimatedSprite.h"
 	"VisualEffect.h"
 	"Scene.h"
-	"Field.h"
+	"Scene_Field.h"
 
 1634326041 d:\gbi\sfml-sandbox\animatedsprite.h
 	<SFML/Graphics/RenderTarget.hpp>
@@ -155,7 +155,7 @@
 	<string>
 	"AnimatedSprite.h"
 
-1645114057 source:d:\gbi\sfml-sandbox\scene.cpp
+1652084042 source:d:\gbi\sfml-sandbox\scene.cpp
 	"Scene.h"
 
 1634327555 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
@@ -164,7 +164,7 @@
 1630265021 source:d:\gbi\sfml-sandbox\visualeffect.cpp
 	"VisualEffect.h"
 
-1630265021 d:\gbi\sfml-sandbox\scene.h
+1652084090 d:\gbi\sfml-sandbox\scene.h
 	<vector>
 	<SFML/Graphics/Sprite.hpp>
 	<SFML/Window/Event.hpp>
@@ -176,25 +176,42 @@
 	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 
-1651343539 source:d:\gbi\sfml-sandbox\cell.cpp
+1651570975 source:d:\gbi\sfml-sandbox\cell.cpp
 	"Cell.h"
 	<iostream>
 	<typeinfo>
 
-1645353168 d:\gbi\sfml-sandbox\cell.h
-	<vector>
+1652086459 d:\gbi\sfml-sandbox\cell.h
 	<SFML/Graphics/Sprite.hpp>
 	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 
-1651343932 source:d:\gbi\sfml-sandbox\field.cpp
+1652106185 source:d:\gbi\sfml-sandbox\field.cpp
 	"Field.h"
 	<iostream>
 
-1645352055 d:\gbi\sfml-sandbox\field.h
+1652105297 d:\gbi\sfml-sandbox\field.h
 	<vector>
 	<SFML/Graphics/Sprite.hpp>
 	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 	"Cell.h"
+	"Player.h"
+
+1652089281 d:\gbi\sfml-sandbox\scene_field.h
+	"Scene.h"
+	"Field.h"
+
+1652089352 source:d:\gbi\sfml-sandbox\scene_field.cpp
+	"Scene_Field.h"
+
+1652095359 d:\gbi\sfml-sandbox\player.h
+	<SFML/Graphics/Sprite.hpp>
+	<SFML/Window/Event.hpp>
+	"AnimatedSprite.h"
+
+1652086740 source:d:\gbi\sfml-sandbox\player.cpp
+	"Player.h"
+	<iostream>
+	<typeinfo>
 

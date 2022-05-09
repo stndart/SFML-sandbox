@@ -12,7 +12,8 @@ class Scene : public Drawable, public Transformable
 {
 private:
     std::vector<AnimatedSprite*> sprites;
-    const Texture* background;
+protected:
+    Texture* background;
     Vertex m_vertices[4];
     void draw(RenderTarget& target, RenderStates states) const override;
 public:

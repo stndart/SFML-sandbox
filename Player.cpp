@@ -1,23 +1,13 @@
-#include "Cell.h"
+#include "Player.h"
 #include <iostream>
 #include <typeinfo>
 
-Cell::Cell(std::string name) : name(name)
+Player::Player(std::string name, Texture* texture) : background(texture), name(name)
 {
 
 }
 
-Cell::Cell(std::string name, Texture* texture) : background(texture), name(name)
-{
-
-}
-
-void Cell::addTexture(Texture* texture)
-{
-    background = texture;
-}
-
-void Cell::addTexCoords(IntRect rect)
+void Player::addTexCoords(IntRect rect)
 {
     m_vertices[0].position = Vector2f(0.f, 0.f);
     m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
@@ -35,7 +25,7 @@ void Cell::addTexCoords(IntRect rect)
     m_vertices[3].texCoords = Vector2f(right, top);
 }
 
-void Cell::draw(RenderTarget& target, RenderStates states) const
+void Player::draw(RenderTarget& target, RenderStates states) const
 {
     //std::cout << "Who asked " << name << " to draw?\n";
     //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
@@ -46,13 +36,4 @@ void Cell::draw(RenderTarget& target, RenderStates states) const
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
     }
-}
-
-Cell* new_cell(Texture* bg, std::string name)
-{
-    Cell* cell = new Cell(name);
-    cell->addTexture(bg);
-    cell->addTexCoords(IntRect(0, 0, 120, 120));
-
-    return cell;
 }

@@ -6,6 +6,7 @@
 #include <SFML/Window/Event.hpp>
 #include "AnimatedSprite.h"
 #include "Cell.h"
+#include "Player.h"
 
 using namespace sf;
 
@@ -15,20 +16,23 @@ private:
     std::vector<std::vector<Cell*> > cells;
     Texture* background;
     Vertex m_vertices[4];
-    void draw(RenderTarget& target, RenderStates states) const override;
-    std::pair<int, int> player;
-    Texture* player_texture;
+    Player* player_0;
+    double x_coord;
+    double y_coord;
+    int turn_length;
+    int cell_length;
 public:
     std::string name;
-    Field(std::string name);
+    Field(int length, int width, std::string name);
     void addTexture(Texture* texture, IntRect rect);
     void addCell(Texture* texture, unsigned int x, unsigned int y);
     void addPlayer(unsigned int length, unsigned int width, Texture* player_texture);
     void field_resize(unsigned int length, unsigned int width);         // CHECK
-    virtual void update(Event& event);
-    virtual void update(Time deltaTime);
+    void move_player(int direction, int value);
+    void draw(RenderTarget& target, RenderStates states) const override; //not in private
+    void someTextures(Texture* texture1, Texture* texture2);
 };
 
-Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions);
+Field* new_field(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions);
 
 #endif // FIELD_INCLUDE

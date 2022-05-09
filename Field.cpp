@@ -1,9 +1,13 @@
 #include "Field.h"
 #include <iostream>
 
-Field::Field(std::string name) : name(name)
+Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
-
+    x_coord = length/2 * 120 + 60;
+    y_coord = width/2 * 120 + 60;
+    turn_length = 1;
+    cell_length = 120;
+    //std::cout << x_coord << " " << y_coord << std::endl;
 }
 
 void Field::addTexture(Texture* texture, IntRect rect)
@@ -28,15 +32,15 @@ void Field::addTexture(Texture* texture, IntRect rect)
 
 void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 {
-    Cell* new_cell = new Cell("new_cell", texture);
-    cells[x][y] = new_cell;
+    cells[x][y] = new_cell(texture, "new_cell");
 }
 
-void Field::addPlayer(unsigned int length, unsigned int width, Texture* player_text)
+void Field::addPlayer(unsigned int length, unsigned int width, Texture* player_texture)
 {
-    player.first = (length+1)/2;
-    player.second = (width+1)/2;
-    player_texture = player_text;
+    player_0 = new Player("default_player", player_texture);
+    player_0->x_coord = x_coord;
+    player_0->y_coord = y_coord;
+    player_0->addTexCoords(IntRect(0, 0, 120, 120));
 }
 
 void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
@@ -48,24 +52,33 @@ void Field::field_resize(unsigned int length, unsigned int width)         // CHE
     }
 }
 
-void Field::update(Event& event)
+void Field::move_player(int direction, int value)
 {
-    if (event.type == Event::MouseButtonPressed){
-        switch (event.mouseButton.button)
+    if (direction == 0)
+    {
+        if ((y_coord - value*turn_length >= 1080/2) && (y_coord - value*turn_length <= cells[0].size()*cell_length-turn_length-1080/2) && player_0->y_coord == y_coord)
         {
-        case Mouse::Left:
-
-            break;
-
-        default:
-            break;
+            y_coord -= value*turn_length;
         }
+        if (player_0->y_coord - value*turn_length >= cell_length && player_0->y_coord - value*turn_length <= (cells[0].size()-1)*cell_length)
+        {
+            player_0->y_coord -= value*turn_length;
+        }
+        else return;
     }
-}
-
-void Field::update(Time deltaTime)
-{
-
+    else if (direction == 1)
+    {
+        if ((x_coord + value*turn_length >= 1920/2) && (x_coord + value*turn_length <= cells.size()*cell_length-turn_length-1920/2) && player_0->x_coord == x_coord)
+        {
+            x_coord += value*turn_length;
+        }
+        if (player_0->x_coord + value*turn_length >= cell_length && player_0->x_coord + value*turn_length <= (cells[0].size()-1)*cell_length)
+        {
+            player_0->x_coord += value*turn_length;
+        }
+        else return;
+    }
+    //std::cout << x_coord << " " << y_coord << "\n";
 }
 
 void Field::draw(RenderTarget& target, RenderStates states) const
@@ -80,44 +93,81 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         target.draw(m_vertices, 4, Quads, states);
     }
 
-    cells[42][45]->addCoords(IntRect(0, 0, 120, 120));
-    cells[42][45]->draw(target, states);
-    cells[42][46]->addCoords(IntRect(0, 120, 120, 240));
-    cells[42][46]->draw(target, states);
-
     /*for (unsigned int i = 0; i < 16; i++)
     {
         for (unsigned int j = 0; j < 9; j++)
         {
-            unsigned int x = player.first-8+i;
-            unsigned int y = player.second-5+j;
+            unsigned int x = player_0->x_coord-8+i;
+            unsigned int y = player_0->y_coord-5+j;
 
-            std::cout << x << " " << y << " | " << i << " " << j << std::endl;
-            cells[x][y]->addCoords(IntRect(120*i, 120*j, 120*(i+1), 120*(j+1)));
+            cells[x][y]->setPosition(120*i, 120*j);
             cells[x][y]->draw(target, states);
         }
-        //return;
-    }//*/
-    std::cout << std::endl;
+    }*/
+    //cells[20][20]->setPosition(-60, -60);
+    //cells[20][20]->draw(target, states);
+    for (unsigned int i = 0; i < 17; i++)
+    {
+        for (unsigned int j = 0; j < 10; j++)
+        {
+            int x = (x_coord-960)/cell_length;
+            int y = (y_coord-540)/cell_length;
+            cells[x+i][y+j]->setPosition(x*cell_length-x_coord+960+cell_length*i, y*cell_length-y_coord+540+cell_length*j);
+            cells[x+i][y+j]->draw(target, states);
+            //std::cout << x*120-x_coord+960+120*i << " " << y*120-y_coord+540+120*j << std::endl;
+        }
+    }
+    if (true)
+    {
+        player_0->setPosition(900-(x_coord-player_0->x_coord), 480-(y_coord-player_0->y_coord));
+        //std::cout << player_0->getPosition().x << " " << player_0->getPosition().y << std::endl;
+        player_0->draw(target, states);
+    }
 }
 
-Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
+void Field::someTextures(Texture* texture1, Texture* texture2)
 {
-    Field field("Main field");
-    field.addTexture(bg, IntRect(0, 0, 1920, 1080));
-    field.setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
+    cells[1][1] = new_cell(texture1, "border");
+    for (unsigned int x = 0; x < cells[0].size(); x++)
+    {
+        cells[0][x] = new_cell(texture1, "border");
+        cells[cells.size()-1][x] = new_cell(texture1, "border");
+    }
+    for (unsigned int x = 0; x < cells.size(); x++)
+    {
+        cells[x][0] = new_cell(texture1, "border");
+        cells[x][cells[x].size()-1] = new_cell(texture1, "border");
+    }
+    for (unsigned int x = 0; x < cells.size(); x++)
+    {
+        for (unsigned int y = 0; y < cells[x].size(); y++)
+        {
+            if ((x+1)%8 == 0 && (y+1)%8 == 0)
+            {
+                cells[x][y] = new_cell(texture2, "grass_8");
+            }
+        }
+    }
+}
 
-    field.field_resize(length, width);
+Field* new_field(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
+{
+    Field* field = new Field(length, width, "Main field");
+    field->addTexture(bg, IntRect(0, 0, 1920, 1080));
+    field->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
+
+    field->field_resize(length, width);
 
     for (unsigned int x = 0; x < length; x++)
     {
         for (unsigned int y = 0; y < width; y++)
         {
-            field.addCell(cell_texture, x, y);
+
+            field->addCell(cell_texture, x, y);
         }
     }
 
-    field.addPlayer(length, width, player_texture);
+    field->addPlayer(length, width, player_texture);
 
     return field;
 }

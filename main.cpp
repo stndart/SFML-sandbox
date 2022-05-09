@@ -6,7 +6,7 @@
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
-#include "Field.h"
+#include "Scene_Field.h"
 
 using namespace sf;
 using namespace std;
@@ -74,11 +74,25 @@ int main()
         return 1;
     }
 
+    Texture border_block_texture;
+    if (!border_block_texture.loadFromFile("Images/border.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
+    Texture grass_8_block_texture;
+    if (!grass_8_block_texture.loadFromFile("Images/grass_8.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-    //Scene game_scene = new_game_scen(&game_texture)
-    Field game_field = new_field_scene(&field_bg_texture, 100, 100, &grass_block_texture, &player_texture, screenDimensions);
+    Scene_Field field_scene = new_field_scene(&field_bg_texture, 100, 100, &grass_block_texture, &player_texture, screenDimensions);
+    field_scene.someTextures(&border_block_texture, &grass_8_block_texture);
     //cout << "field maked\n";
 
     while (window.isOpen())
@@ -93,18 +107,18 @@ int main()
                 window.close();
             }
             //main_menu.update(event);
-            game_field.update(event);
+            field_scene.update(event);
         }
 
         Time frameTime = frameClock.restart();
 
         //main_menu.update(frameTime);
-        game_field.update(frameTime);
+        field_scene.update(frameTime);
 
         // draw
         window.clear();
         //cout << "window has been cleared" << endl;
-        window.draw(game_field);
+        window.draw(field_scene);
         //window.draw(main_menu);
         //cout << "window has been drawn" << endl;
         window.display();
