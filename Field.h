@@ -2,6 +2,7 @@
 #define FIELD_INCLUDE
 
 #include <vector>
+#include <map>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 #include "AnimatedSprite.h"
@@ -29,8 +30,9 @@ public:
     void addPlayer(unsigned int length, unsigned int width, Texture* player_texture);
     void field_resize(unsigned int length, unsigned int width);         // CHECK
     void move_player(int direction, int value);
+    void action_change(Texture* texture);
+    void someTextures(std::map <std::string, Texture*> *field_block);
     void draw(RenderTarget& target, RenderStates states) const override; //not in private
-    void someTextures(Texture* texture1, Texture* texture2);
 };
 
 Field* new_field(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions);

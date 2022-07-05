@@ -1,6 +1,6 @@
 #include "Scene_Field.h"
 
-Scene_Field::Scene_Field(std::string name) : Scene::Scene(name)
+Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_block(field_blocks)
 {
 
 }
@@ -28,7 +28,9 @@ void Scene_Field::update(Event& event)
         case sf::Keyboard::A:
             field->move_player(1, -1);
             break;
-
+        case sf::Keyboard::Space:
+            field->action_change((*field_block)["S"]);
+            break;
         default:
             break;
         }
@@ -51,9 +53,9 @@ void Scene_Field::update(Time deltaTime)
     // empty
 }
 
-void Scene_Field::someTextures(Texture* texture1, Texture* texture2)
+void Scene_Field::someTextures()
 {
-    field->someTextures(texture1, texture2);
+    field->someTextures(field_block);
 }
 
 void Scene_Field::draw(RenderTarget& target, RenderStates states) const
@@ -67,10 +69,10 @@ void Scene_Field::draw(RenderTarget& target, RenderStates states) const
     field->draw(target, states);
 }
 
-Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
+Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks, Texture* player_texture, Vector2i screen_dimensions)
 {
-    Scene_Field field_scene(std::string("field_scene")); // FIX (pointer)
-    Field* field_0 = new_field(bg, length, width, cell_texture, player_texture, screen_dimensions);
+    Scene_Field field_scene(std::string("field_scene"), field_blocks); // FIX (pointer)
+    Field* field_0 = new_field(bg, length, width, (*field_blocks)["B"], player_texture, screen_dimensions);
     field_scene.add_Field(field_0);
     return field_scene;
 }

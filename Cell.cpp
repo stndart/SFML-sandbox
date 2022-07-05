@@ -12,6 +12,14 @@ Cell::Cell(std::string name, Texture* texture) : background(texture), name(name)
 
 }
 
+Cell::Cell(std::string name, Texture* texture, Texture* texture1) : background(texture), name(name)
+{
+    /*
+    Cell_object* object1 = new Cell_object("tree", texture1);
+    objects.push_back(object1);
+    */
+}
+
 void Cell::addTexture(Texture* texture)
 {
     background = texture;
@@ -35,16 +43,50 @@ void Cell::addTexCoords(IntRect rect)
     m_vertices[3].texCoords = Vector2f(right, top);
 }
 
+void Cell::addPosition(float x, float y)
+{
+    setPosition(x, y);
+    for (auto it = objects.begin(); it != objects.end(); it++)
+    {
+        it->second->setPosition(0, 0);
+        //std::cout << x << " " << y << std::endl;
+    }
+}
+
+void Cell::addObject(Texture* texture, std::string name)
+{
+    Cell_object* object1 = new Cell_object(name, texture);
+    object1->addTexCoords(IntRect(0, 0, 120, 120));
+    objects[name] = object1;
+}
+
+void Cell::removeObject(std::string name)
+{
+    objects.erase(name);
+}
+
+void Cell::action_change(std::string name, Texture* texture)
+{
+    removeObject(name);
+    addObject(texture, name);
+}
+
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
     //std::cout << "Who asked " << name << " to draw?\n";
     //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
-
     if (background)
     {
         states.transform *= getTransform();
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
+        //std::cout << getPosition().x << " " << getPosition().y << std::endl;
+    }
+
+    for (auto it = objects.begin(); it != objects.end(); it++)
+    {
+        it->second->draw(target, states);
+        //std::cout << it->second->type_name << std::endl;
     }
 }
 

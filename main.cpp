@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <conio.h>
+#include <map>
 
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
@@ -26,8 +27,8 @@ void Motion()
 int main()
 {
     // setup window
-    Vector2i screenDimensions(1280, 720);
-    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
+    Vector2i screenDimensions(1920, 1080);
+    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
     window.setFramerateLimit(60);
 
     // load textures
@@ -67,12 +68,15 @@ int main()
         return 1;
     }
 
+    map <string, Texture*> field_block;
+
     Texture grass_block_texture;
     if (!grass_block_texture.loadFromFile("Images/grass.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
     }
+    field_block.insert({"G", &grass_block_texture});
 
     Texture border_block_texture;
     if (!border_block_texture.loadFromFile("Images/border.png"))
@@ -80,6 +84,7 @@ int main()
         cout << "Failed to load texture\n";
         return 1;
     }
+    field_block.insert({"B", &border_block_texture});
 
     Texture grass_8_block_texture;
     if (!grass_8_block_texture.loadFromFile("Images/grass_8.png"))
@@ -87,13 +92,38 @@ int main()
         cout << "Failed to load texture\n";
         return 1;
     }
+    field_block.insert({"8", &grass_8_block_texture});
+
+    Texture null_block;
+    if (!null_block.loadFromFile("Images/null.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+    field_block.insert({"N", &null_block});
+
+    Texture object_tree;
+    if (!object_tree.loadFromFile("Images/tree.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+    field_block.insert({"T", &object_tree});
+
+    Texture object_stump;
+    if (!object_stump.loadFromFile("Images/stump.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+    field_block.insert({"S", &object_stump});
 
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-    Scene_Field field_scene = new_field_scene(&field_bg_texture, 100, 100, &grass_block_texture, &player_texture, screenDimensions);
-    field_scene.someTextures(&border_block_texture, &grass_8_block_texture);
-    //cout << "field maked\n";
+    Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions);
+    field_scene.someTextures();
+    cout << "field made\n";
 
     while (window.isOpen())
     {
