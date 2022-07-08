@@ -1,6 +1,7 @@
 #include "Field.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
@@ -81,20 +82,31 @@ void Field::move_player(int direction, int value)
     }
 }
 
-void Field::action_change(Texture* texture)
+void Field::action(Texture* texture)
 {
-    std::cout << player_0->x_coord << " " << player_0->y_coord << std::endl;
+    //std::cout << player_0->x_coord << " " << player_0->y_coord << std::endl;
     int x = player_0->x_coord-60;
     int y = player_0->y_coord-60;
     x /= 120;
     y /= 120;
-    cells[x][y]->action_change("T", texture);
+    if (cells[x][y]->hasObject("T"))
+    {
+        cells[x][y]->action_change("T", texture);
+    }
+    if (cells[x][y]->hasObject("P"))
+    {
+
+    }
 }
 
-void Field::someTextures(std::map <std::string, Texture*> *field_block)
+void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
 {
     std::string map_field[cells.size()];
-    std::ifstream in ("map_field.txt");
+    std::string path = "Locations/loc_";
+    path += std::to_string(num);
+    path += ".txt";
+    std::cout << path << std::endl;
+    std::ifstream in (path);
     if (in.is_open())
     {
         int i = 0;

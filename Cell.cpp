@@ -53,6 +53,16 @@ void Cell::addPosition(float x, float y)
     }
 }
 
+bool Cell::hasObject(std::string name)
+{
+    auto it = objects.find(name);
+    if (it != objects.end());
+    {
+        return true;
+    }
+    return false;
+}
+
 void Cell::addObject(Texture* texture, std::string name)
 {
     Cell_object* object1 = new Cell_object(name, texture);

@@ -30,8 +30,8 @@ public:
     void addPlayer(unsigned int length, unsigned int width, Texture* player_texture);
     void field_resize(unsigned int length, unsigned int width);         // CHECK
     void move_player(int direction, int value);
-    void action_change(Texture* texture);
-    void someTextures(std::map <std::string, Texture*> *field_block);
+    void action(Texture* texture);
+    void someTextures(std::map <std::string, Texture*> *field_block, int num);
     void draw(RenderTarget& target, RenderStates states) const override; //not in private
 };
 

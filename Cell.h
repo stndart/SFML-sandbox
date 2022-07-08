@@ -23,6 +23,7 @@ public:
     void addTexture(Texture* texture);
     void addTexCoords(IntRect rect);
     void addPosition(float x, float y);
+    bool hasObject(std::string name);
     void addObject(Texture* texture, std::string name);
     void removeObject(std::string name);
     void action_change(std::string name, Texture* texture);

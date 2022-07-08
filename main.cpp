@@ -117,12 +117,21 @@ int main()
         return 1;
     }
     field_block.insert({"S", &object_stump});
+    Texture object_portal;
+    if (!object_portal.loadFromFile("Images/portal.png"))
+    {
+        cout << "Failed to load texture\n";
+        return 1;
+    }
+    field_block.insert({"P", &object_portal});
 
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-    Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions);
-    field_scene.someTextures();
+    Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
+    field_scene.someTextures(0);
+    field_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
+    field_scene.someTextures(1);
     cout << "field made\n";
 
     while (window.isOpen())
