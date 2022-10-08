@@ -51,6 +51,9 @@
 		<Unit filename="Scene_Field.h" />
 		<Unit filename="VisualEffect.cpp" />
 		<Unit filename="VisualEffect.h" />
+		<Unit filename="json/json-forwards.h" />
+		<Unit filename="json/json.h" />
+		<Unit filename="jsoncpp.cpp" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

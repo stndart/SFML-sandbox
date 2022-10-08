@@ -130,7 +130,7 @@
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1657206451 source:d:\gbi\sfml-sandbox\main.cpp
+1664099797 source:d:\gbi\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
@@ -177,7 +177,7 @@
 	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 
-1657011754 source:d:\gbi\sfml-sandbox\cell.cpp
+1664121174 source:d:\gbi\sfml-sandbox\cell.cpp
 	"Cell.h"
 	<iostream>
 	<typeinfo>
@@ -188,11 +188,12 @@
 	"AnimatedSprite.h"
 	"Cell_object.h"
 
-1657267000 source:d:\gbi\sfml-sandbox\field.cpp
+1664121054 source:d:\gbi\sfml-sandbox\field.cpp
 	"Field.h"
 	<iostream>
 	<fstream>
 	<string>
+	"json/json.h"
 
 1657206481 d:\gbi\sfml-sandbox\field.h
 	<vector>
@@ -227,4 +228,93 @@
 1652544532 d:\gbi\sfml-sandbox\cell_object.h
 	<SFML/Graphics/Sprite.hpp>
 	"AnimatedSprite.h"
+
+1664096585 source:d:\gbi\sfml-sandbox\jsoncpp.cpp
+	"json/json.h"
+	<json/config.h>
+	<clocale>
+	"json_tool.h"
+	<json/assertions.h>
+	<json/reader.h>
+	<json/value.h>
+	<algorithm>
+	<cassert>
+	<cmath>
+	<cstring>
+	<iostream>
+	<istream>
+	<limits>
+	<memory>
+	<set>
+	<sstream>
+	<utility>
+	<cstdio>
+	<json/assertions.h>
+	<json/value.h>
+	<json/writer.h>
+	<algorithm>
+	<cassert>
+	<cmath>
+	<cstddef>
+	<cstring>
+	<iostream>
+	<sstream>
+	<utility>
+	<stdarg.h>
+	"json_valueiterator.inl"
+	"json_tool.h"
+	<json/writer.h>
+	<algorithm>
+	<cassert>
+	<cctype>
+	<cstring>
+	<iomanip>
+	<memory>
+	<set>
+	<sstream>
+	<utility>
+	<cmath>
+	<cstdio>
+	<cmath>
+	<cstdio>
+	<float.h>
+	<float.h>
+	<ieeefp.h>
+
+1664096585 d:\gbi\sfml-sandbox\json\json.h
+	<cstring>
+	<memory>
+	<cstddef>
+	<cstdint>
+	<istream>
+	<memory>
+	<ostream>
+	<sstream>
+	<string>
+	<type_traits>
+	"allocator.h"
+	"version.h"
+	"config.h"
+	"forwards.h"
+	"forwards.h"
+	<array>
+	<exception>
+	<map>
+	<memory>
+	<string>
+	<vector>
+	"json_features.h"
+	"value.h"
+	<deque>
+	<iosfwd>
+	<istream>
+	<stack>
+	<string>
+	"value.h"
+	<ostream>
+	<string>
+	<vector>
+	<cstdlib>
+	<sstream>
+	"config.h"
 

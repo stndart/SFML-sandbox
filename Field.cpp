@@ -3,6 +3,8 @@
 #include <fstream>
 #include <string>
 
+#include "json/json.h"
+
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
     x_coord = length/2 * 120 + 60;
@@ -115,6 +117,21 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
             i++;
         }
     }
+    //Json::Value obj;
+    for (unsigned int x = 0; x < cells.size(); x++)
+    {
+        for (unsigned int y = 0; y < cells[x].size(); y++)
+        {
+            std::string letter_string = "";
+            letter_string = map_field[y][x];
+            //obj[x][y]["type"] = letter_string;
+        }
+    }
+    std::ofstream ofs("Locations/loc_0.json");
+    //Json::Value final_obj;
+    //final_obj["map"] = obj;
+    //ofs << final_obj;
+    ofs.close();
 
     for (unsigned int x = 1; x < cells.size()-1; x++)
     {

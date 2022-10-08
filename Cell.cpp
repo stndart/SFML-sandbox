@@ -56,8 +56,9 @@ void Cell::addPosition(float x, float y)
 bool Cell::hasObject(std::string name)
 {
     auto it = objects.find(name);
-    if (it != objects.end());
+    if (it != objects.end())
     {
+        //std::cout << "[" << name << "] = [" << objects.size() << "]" << std::endl;
         return true;
     }
     return false;
