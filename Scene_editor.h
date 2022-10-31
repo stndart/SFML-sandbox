@@ -2,6 +2,8 @@
 #define SCENE_EDITOR_H_INCLUDED
 
 #include <SFML/Graphics/Text.hpp>
+#include <string>
+#include <cassert>
 #include "Scene_Field.h"
 #include "Field.h"
 

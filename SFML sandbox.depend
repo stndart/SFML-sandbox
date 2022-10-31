@@ -130,7 +130,7 @@
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1667145858 source:d:\gbi\sfml-sandbox\main.cpp
+1667220043 source:d:\gbi\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
@@ -319,11 +319,13 @@
 	<sstream>
 	"config.h"
 
-1667206477 d:\gbi\sfml-sandbox\scene_editor.h
+1667230245 d:\gbi\sfml-sandbox\scene_editor.h
 	<SFML/Graphics/Text.hpp>
+	<string>
+	<cassert>
 	"Scene_Field.h"
 	"Field.h"
 
-1667207056 source:d:\gbi\sfml-sandbox\scene_editor.cpp
+1667231036 source:d:\gbi\sfml-sandbox\scene_editor.cpp
 	"Scene_editor.h"
 

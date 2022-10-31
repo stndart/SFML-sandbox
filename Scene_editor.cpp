@@ -20,10 +20,7 @@ void Scene_editor::update(Event& event)
         {
             std::cout << s_input << std::endl;
         }
-        else
-        {
-            s_input = "";
-        }
+        s_input = "";
         if_input = !if_input;
     }
     if (event.type == sf::Event::KeyPressed && !if_input)
@@ -54,11 +51,33 @@ void Scene_editor::update(Event& event)
     }
     else if (if_input && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
     {
-        s_input.pop_back();
+        /*int cg = '\v';
+        std::cout << cg << " " << s_input.size() << std::endl;
+        if (s_input.size() == 6)
+        {
+            for (unsigned int i = 0; i < 6; i++)
+            {
+                int ch = s_input[i];
+                std::cout << "|" << ch << "|";
+            }
+            std::cout << std::endl;
+            for (unsigned int i = 0; i < 6; i++)
+            {
+                char ch = s_input[i];
+                std::cout << "|" << ch << "|";
+            }
+            std::cout << std::endl;
+        }*/
+        //assert(s_input.size() == 6);
+        std::string g = s_input;
+        g.erase(g.size()-1);
+        s_input = g;
+        //assert(s_input.size() == 5);
+        //std::cout << s_input << std::endl;
     }
     else if (if_input && event.type == sf::Event::TextEntered)
     {
-        if (event.text.unicode != '\n')
+        if (event.text.unicode != '\r')
         {
             char letter = event.text.unicode;
             s_input += letter;
@@ -96,11 +115,18 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
     }
     if (s_input != "")
     {
-        sf::Text text;
-        text.setString("Hello world");
+        Font font;
+        if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
+        {
+            std::cout << "failed to load arial\n";
+        }
+        Text text;
+        text.setFont(font);
+        text.setString(s_input);
         text.setCharacterSize(24);
         text.setStyle(sf::Text::Bold);
         text.setFillColor(sf::Color::Magenta);
+        text.setPosition(0, 0);
         target.draw(text);
     }
 }

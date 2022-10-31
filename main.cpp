@@ -168,17 +168,7 @@ int main()
         window.clear();
         //cout << "window has been cleared" << endl;
         //window.draw(field_scene);
-        //window.draw(editor_scene);
-
-
-        sf::Text text;
-        text.setString("Hello world");
-        text.setCharacterSize(24);
-        text.setStyle(sf::Text::Bold);
-        text.setFillColor(sf::Color::Magenta);
-        text.setPosition(0, 0);
-        window.draw(text);
-
+        window.draw(editor_scene);
 
         //window.draw(main_menu);
         //cout << "window has been drawn" << endl;
