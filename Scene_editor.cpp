@@ -51,7 +51,7 @@ void Scene_editor::update(Event& event)
     }
     else if (if_input && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
     {
-        /*int cg = '\v';
+        /*int cg = '\b';
         std::cout << cg << " " << s_input.size() << std::endl;
         if (s_input.size() == 6)
         {
@@ -69,15 +69,13 @@ void Scene_editor::update(Event& event)
             std::cout << std::endl;
         }*/
         //assert(s_input.size() == 6);
-        std::string g = s_input;
-        g.erase(g.size()-1);
-        s_input = g;
+        s_input.pop_back();
         //assert(s_input.size() == 5);
         //std::cout << s_input << std::endl;
     }
     else if (if_input && event.type == sf::Event::TextEntered)
     {
-        if (event.text.unicode != '\r')
+        if (event.text.unicode != '\r' && event.text.unicode != '\b' && event.text.unicode != '\n')
         {
             char letter = event.text.unicode;
             s_input += letter;
