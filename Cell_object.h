@@ -11,7 +11,9 @@ private:
     const Texture* texture;
 public:
     std::string type_name;
+    int depth_level;
     Cell_object(std::string name, Texture* texture);
+    ~Cell_object();
     void addTexCoords(IntRect rect);
     void draw(RenderTarget& target, RenderStates states) const override;
 };

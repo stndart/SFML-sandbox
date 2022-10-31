@@ -28,6 +28,12 @@ public:
     void removeObject(std::string name);
     void action_change(std::string name, Texture* texture);
     void draw(RenderTarget& target, RenderStates states) const override;
+
+    // TEMP
+    int mapsize()
+    {
+        return objects.size();
+    }
 };
 
 Cell* new_cell(Texture* bg, std::string name);

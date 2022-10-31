@@ -69,6 +69,7 @@ void Cell::addObject(Texture* texture, std::string name)
     Cell_object* object1 = new Cell_object(name, texture);
     object1->addTexCoords(IntRect(0, 0, 120, 120));
     objects[name] = object1;
+    //std::cout << objects.size() << " ";
 }
 
 void Cell::removeObject(std::string name)
@@ -94,6 +95,10 @@ void Cell::draw(RenderTarget& target, RenderStates states) const
         //std::cout << getPosition().x << " " << getPosition().y << std::endl;
     }
 
+    if (name == "8")
+    {
+        //std::cout <<  objects.size() << " ";
+    }
     for (auto it = objects.begin(); it != objects.end(); it++)
     {
         it->second->draw(target, states);

@@ -22,6 +22,7 @@ private:
     double y_coord;
     int turn_length;
     int cell_length;
+    /// UserInterface UI; // implement UserInterface to do
 public:
     std::string name;
     Field(int length, int width, std::string name);
@@ -33,6 +34,12 @@ public:
     void action(Texture* texture);
     void someTextures(std::map <std::string, Texture*> *field_block, int num);
     void draw(RenderTarget& target, RenderStates states) const override; //not in private
+
+    //TEMP
+    int mapsize(int x, int y)
+    {
+        return cells[x][y]->mapsize();
+    }
 };
 
 Field* new_field(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions);

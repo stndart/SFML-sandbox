@@ -2,7 +2,12 @@
 
 Cell_object::Cell_object(std::string name, Texture* texture) : texture(texture), type_name(name)
 {
+    depth_level = 1;
+}
 
+Cell_object::~Cell_object()
+{
+   //std::cout << "went ";
 }
 
 void Cell_object::addTexCoords(IntRect rect)

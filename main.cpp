@@ -8,6 +8,7 @@
 #include "VisualEffect.h"
 #include "Scene.h"
 #include "Scene_Field.h"
+#include "Scene_editor.h"
 
 using namespace sf;
 using namespace std;
@@ -128,11 +129,18 @@ int main()
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-    Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
-    field_scene.someTextures(0);
-    field_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
-    field_scene.someTextures(1);
+//    Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
+//    field_scene.someTextures(0);
+//    field_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
+    ///--------------------------------------------------------
+    Scene_editor editor_scene = new_editor_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
+    editor_scene.someTextures(0);
+    editor_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
+
+    //field_scene.someTextures(1);
     cout << "field made\n";
+
+//    cout << "field cell 4 4 mapsize is " << field_scene.mapsize(4, 4) << endl;
 
     while (window.isOpen())
     {
@@ -146,18 +154,32 @@ int main()
                 window.close();
             }
             //main_menu.update(event);
-            field_scene.update(event);
+            //field_scene.update(event);
+            editor_scene.update(event);
         }
 
         Time frameTime = frameClock.restart();
 
         //main_menu.update(frameTime);
-        field_scene.update(frameTime);
+        //field_scene.update(frameTime);
+        editor_scene.update(frameTime);
 
         // draw
         window.clear();
         //cout << "window has been cleared" << endl;
-        window.draw(field_scene);
+        //window.draw(field_scene);
+        //window.draw(editor_scene);
+
+
+        sf::Text text;
+        text.setString("Hello world");
+        text.setCharacterSize(24);
+        text.setStyle(sf::Text::Bold);
+        text.setFillColor(sf::Color::Magenta);
+        text.setPosition(0, 0);
+        window.draw(text);
+
+
         //window.draw(main_menu);
         //cout << "window has been drawn" << endl;
         window.display();

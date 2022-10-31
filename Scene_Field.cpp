@@ -19,6 +19,7 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 void Scene_Field::change_current_field(int num)
 {
     current_field = num;
+    field[num]->someTextures(field_block, num);
 }
 
 void Scene_Field::update(Event& event)
@@ -69,6 +70,7 @@ void Scene_Field::update(Time deltaTime)
 
 void Scene_Field::someTextures(int num)
 {
+    //std::cout << "draw another map" << std::endl;
     field[num]->someTextures(field_block, num);
 }
 

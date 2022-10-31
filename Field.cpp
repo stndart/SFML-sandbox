@@ -5,6 +5,9 @@
 
 #include "json/json.h"
 
+bool isdrawed = false;
+
+
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
     x_coord = length/2 * 120 + 60;
@@ -103,49 +106,61 @@ void Field::action(Texture* texture)
 
 void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
 {
-    std::string map_field[cells.size()];
     std::string path = "Locations/loc_";
     path += std::to_string(num);
-    path += ".txt";
+    path += ".json";
     std::cout << path << std::endl;
-    std::ifstream in (path);
-    if (in.is_open())
-    {
-        int i = 0;
-        while (getline(in, map_field[i]))
-        {
-            i++;
-        }
-    }
-    //Json::Value obj;
-    for (unsigned int x = 0; x < cells.size(); x++)
+    Json::Value Locations;
+    std::ifstream ifs(path);
+    ifs >> Locations;
+    /*for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
             std::string letter_string = "";
-            letter_string = map_field[y][x];
-            //obj[x][y]["type"] = letter_string;
+            letter_string = obj;
+            obj[x][y]["type"] = letter_string;
         }
     }
-    std::ofstream ofs("Locations/loc_0.json");
-    //Json::Value final_obj;
-    //final_obj["map"] = obj;
-    //ofs << final_obj;
-    ofs.close();
+    std::ofstream ofs("Locations/loc_1.json");
+    Json::Value final_obj;
+    final_obj["map"] = obj;
+    ofs << final_obj;
+    ofs.close();*/
 
-    for (unsigned int x = 1; x < cells.size()-1; x++)
+    //bool rass = true;
+    for (unsigned int x = 0; x < cells.size(); x++)
     {
-        for (unsigned int y = 1; y < cells[x].size()-1; y++)
+        for (unsigned int y = 0; y < cells[x].size(); y++)
         {
             std::string z = "";
-            z = map_field[y][x];
-            if (z == "T")
-            {
-                cells[x][y] = new_cell((*field_block)["G"], z);
-                cells[x][y]->addObject((*field_block)[z], z);
-                continue;
-            }
+            z = Locations["map"][x][y]["type"].asString();
             cells[x][y] = new_cell((*field_block)[z], z);
+//            std::cout << z << " ";
+//            if (z == "T")
+//            {
+//                cells[x][y] = new_cell((*field_block)["G"], z);
+//                cells[x][y]->addObject((*field_block)[z], z);
+//                continue;
+//            }
+            if (z == "8")
+            {
+                //std::cout << "go " << x << " "<< y << "\n";
+                cells[x][y]->addObject((*field_block)["T"], "T");
+                //std::cout << "cell " << x << " "<< y << "mapsize is " << cells[x][y]->mapsize() << "\n";
+                //Locations["big_objects"][x][y][0]["type"] = "tree";
+                //Locations["big_objects"][x][y][0]["depth_level"] = 1;
+            }
+            else
+            {
+                //Locations["big_objects"][x][y];
+                if (Locations["big_objects"][x][y][0].isObject())
+                {
+                    std::cout << "true";// << std::endl;
+                }
+
+            }
+            //FJSLIFGBFALSIFHBFSKUAVHBALDFBSALDYBSAKFHSLKANJFaaaaaaaaaaaaaaaaaa
             /*if ((x+1)%8 == 0 && (y+1)%8 == 0)
             {
                 cells[x][y] = new_cell((*field_block)["8"], "grass_8");
@@ -156,10 +171,18 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
             }*/
         }
     }
+    std::cout << std::endl;
+//    std::ofstream ofs("Locations/loc_1.json");
+//    ofs << Locations;
+//    ofs.close();
 }
 
 void Field::draw(RenderTarget& target, RenderStates states) const
 {
+//    if (isdrawed)
+//        return;
+//    isdrawed = true;
+
     //std::cout << "Who asked " << name << " to draw?\n";
     //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
 
@@ -170,17 +193,33 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         target.draw(m_vertices, 4, Quads, states);
     }*/
 
+    //std::cout << "field draw pre\n";
+//    for (unsigned int i = 0; i < 17; i++)
+//    {
+//        for (unsigned int j = 0; j < 10; j++)
+//        {
+//            int x = (x_coord-960)/cell_length;
+//            int y = (y_coord-540)/cell_length;
+//            //std::cout << cells[x+i][y+j]->mapsize() << " ";
+//        }
+//        //std::cout << std::endl;
+//    }
+
+    //std::cout << "field draw begin\n";
     for (unsigned int i = 0; i < 17; i++)
     {
         for (unsigned int j = 0; j < 10; j++)
         {
             int x = (x_coord-960)/cell_length;
             int y = (y_coord-540)/cell_length;
+            //std::cout << cells[x+i][y+j]->mapsize() << " ";
             cells[x+i][y+j]->addPosition(x*cell_length-x_coord+960+cell_length*i, y*cell_length-y_coord+540+cell_length*j);
             cells[x+i][y+j]->draw(target, states);
             //std::cout << x*120-x_coord+960+120*i << " " << y*120-y_coord+540+120*j << std::endl;
         }
+        //std::cout << std::endl;
     }
+    //std::cout << "field draw end\n";
     if (true)
     {
         player_0->setPosition(900-(x_coord-player_0->x_coord), 480-(y_coord-player_0->y_coord));
