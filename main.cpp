@@ -109,7 +109,7 @@ int main()
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"T", &object_tree});
+    field_block.insert({"tree", &object_tree});
 
     Texture object_stump;
     if (!object_stump.loadFromFile("Images/stump.png"))
@@ -124,7 +124,7 @@ int main()
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"P", &object_portal});
+    field_block.insert({"portal", &object_portal});
 
     Clock frameClock;
 

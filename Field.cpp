@@ -87,21 +87,34 @@ void Field::move_player(int direction, int value)
     }
 }
 
-void Field::action(Texture* texture)
+std::pair <int, int> Field::get_player_cell_coord()
 {
-    //std::cout << player_0->x_coord << " " << player_0->y_coord << std::endl;
     int x = player_0->x_coord-60;
     int y = player_0->y_coord-60;
     x /= 120;
     y /= 120;
-    if (cells[x][y]->hasObject("T"))
+    return std::make_pair(x, y);
+}
+
+void Field::action(Texture* texture)
+{
+    //std::cout << player_0->x_coord << " " << player_0->y_coord << std::endl;
+    std::pair <int, int> player_cell_coords = get_player_cell_coord();
+    int x = player_cell_coords.first;
+    int y = player_cell_coords.second;
+    if (cells[x][y]->hasObject("tree"))
     {
-        cells[x][y]->action_change("T", texture);
+        cells[x][y]->action_change("tree", texture);
     }
-    if (cells[x][y]->hasObject("P"))
+    if (cells[x][y]->hasObject("portal"))
     {
 
     }
+}
+
+void Field::add_object_to_cell(std::string type_name, int x, int y, Texture* texture)
+{
+    cells[x][y]->addObject(texture, type_name, 1);
 }
 
 void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
@@ -128,14 +141,45 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
     ofs << final_obj;
     ofs.close();*/
 
-    //bool rass = true;
+    //int rass = 5;
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
-            std::string z = "";
-            z = Locations["map"][x][y]["type"].asString();
-            cells[x][y] = new_cell((*field_block)[z], z);
+            std::string cell_type = Locations["map"][x][y]["type"].asString();
+            cells[x][y] = new_cell((*field_block)[cell_type], cell_type);
+
+            std::string object_type = "";
+            if (Locations["big_objects"][x][y].isArray())
+            {
+                unsigned int cell_object_size = Locations["big_objects"][x][y].size();
+                for (unsigned int i = 0; i < cell_object_size; i++)
+                {
+                    if (Locations["big_objects"][x][y][i].isObject())
+                    {
+                        std::string object_type = Locations["big_objects"][x][y][0]["type"].asString();
+                        std::string object_depth_level = Locations["big_objects"][x][y][0]["depth_level"].asString();
+                        cells[x][y]->addObject((*field_block)[object_type], object_type, 1);
+                    }
+                }
+                /*if (rass)
+                {
+                    std::cout << cell_object_size << std::endl;
+                    //std::cout << object_type << " " << object_depth_level << std::endl;
+                    rass--;
+                }*/
+            }
+            /*if (x == 2 && y == 2)
+            {
+                std::string object_type = Locations["big_objects"][x][y]["type"].asString();
+                std::string object_depth_level = Locations["big_objects"][x][y]["depth_level"].asString();
+                //cells[x][y]->addObject((*field_block)[object_type], object_type, 1);
+                if (rass)
+                {
+                    std::cout << object_type << " " << object_depth_level << std::endl;
+                    rass--;
+                }
+            }*/
 //            std::cout << z << " ";
 //            if (z == "T")
 //            {
@@ -143,10 +187,10 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
 //                cells[x][y]->addObject((*field_block)[z], z);
 //                continue;
 //            }
-            if (z == "8")
+            if (cell_type == "8")
             {
                 //std::cout << "go " << x << " "<< y << "\n";
-                cells[x][y]->addObject((*field_block)["T"], "T");
+                //cells[x][y]->addObject((*field_block)["tree"], "tree", 1);
                 //std::cout << "cell " << x << " "<< y << "mapsize is " << cells[x][y]->mapsize() << "\n";
                 //Locations["big_objects"][x][y][0]["type"] = "tree";
                 //Locations["big_objects"][x][y][0]["depth_level"] = 1;
@@ -154,10 +198,7 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
             else
             {
                 //Locations["big_objects"][x][y];
-                if (Locations["big_objects"][x][y][0].isObject())
-                {
-                    std::cout << "true";// << std::endl;
-                }
+                //assert (Locations["big_objects"][x][y][0].isObject());
 
             }
             //FJSLIFGBFALSIFHBFSKUAVHBALDFBSALDYBSAKFHSLKANJFaaaaaaaaaaaaaaaaaa
@@ -175,6 +216,25 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
 //    std::ofstream ofs("Locations/loc_1.json");
 //    ofs << Locations;
 //    ofs.close();
+}
+
+void Field::save_field(int num)
+{
+    std::string path = "Locations/loc_";
+    path += std::to_string(num);
+    path += ".json";
+
+    Json::Value Location;
+    for (unsigned int x = 0; x < cells.size(); x++)
+    {
+        for (unsigned int y = 0; y < cells[x].size(); y++)
+        {
+            cells[x][y]->save_cell(x, y, Location);
+        }
+    }
+    std::ofstream ofs(path);
+    ofs << Location;
+    ofs.close();
 }
 
 void Field::draw(RenderTarget& target, RenderStates states) const

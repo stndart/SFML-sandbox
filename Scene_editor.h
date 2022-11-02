@@ -18,6 +18,7 @@ class Scene_editor : public Scene_Field
         std::string s_input;
         bool if_input;
         void command(std::string data);
+        void save_map();
         void draw(RenderTarget& target, RenderStates states) const override;
 };
 

@@ -6,21 +6,18 @@ Scene_editor::Scene_editor(std::string name, std::map <std::string, Texture*> *f
     s_input = "";
 }
 
-void Scene_editor::command(std::string data)
-{
-
-}
-
 void Scene_editor::update(Event& event)
 {
     //std::cout << event.key.code << " ";
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
     {
-        if (s_input != "")
-        {
-            std::cout << s_input << std::endl;
-        }
+        std::string data = s_input;
         s_input = "";
+        if (data != "")
+        {
+            std::cout << data << std::endl;
+            command(data);
+        }
         if_input = !if_input;
     }
     if (event.type == sf::Event::KeyPressed && !if_input)
@@ -99,6 +96,74 @@ void Scene_editor::update(Time deltaTime)
     // empty
 }
 
+void Scene_editor::command(std::string data)
+{
+    std::vector <std::string> s(1);
+    for (unsigned int i = 0; i < data.size(); i++)
+    {
+        if (data[i] != ' ')
+        {
+            s[s.size()-1] += data[i];
+        }
+        else
+        {
+            s.push_back("");
+        }
+    }
+    /*for (unsigned int i = 0; i < s.size(); i++)
+    {
+        std::cout << s[i] << std::endl;
+    }*/
+    if (s[0] == "save_map")
+    {
+        save_map();
+    }
+    else if (s[0] == "add")
+    {
+        if (s.size() < 5)
+        {
+            s_input = "not enough arguments";
+            return;
+        }
+        if (s[1] != "object")
+        {
+            s_input = "this isn't an object";
+            return;
+        }
+        int x = -1;
+        int y = -1;
+        if (s[2] == "~" && s[3] == "~")
+        {
+            std::pair <int, int> player_coords = field[current_field]->get_player_cell_coord();
+            x = player_coords.first;
+            y = player_coords.second;
+        }
+        else
+        {
+            x = stoi(s[2]);
+            y = stoi(s[3]);
+        }
+        if (x <= 0 || y <= 0)
+        {
+            s_input = "out of field's range";
+            return;
+        }
+        if (field_block->find(s[4]) == field_block->end())
+        {
+            s_input = "can't find the texture";
+            return;
+        }
+        field[current_field]->add_object_to_cell(s[4], x, y, (*field_block)[s[4]]);
+    }
+}
+
+void Scene_editor::save_map()
+{
+    for (unsigned int i = 0; i < field_size; i++)
+    {
+        field[i]->save_field(i);
+    }
+}
 void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 {
     /*if (background)

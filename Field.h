@@ -5,6 +5,7 @@
 #include <map>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
+#include <cassert>
 #include "AnimatedSprite.h"
 #include "Cell.h"
 #include "Player.h"
@@ -31,8 +32,11 @@ public:
     void addPlayer(unsigned int length, unsigned int width, Texture* player_texture);
     void field_resize(unsigned int length, unsigned int width);         // CHECK
     void move_player(int direction, int value);
+    std::pair <int, int> get_player_cell_coord();
     void action(Texture* texture);
+    void add_object_to_cell(std::string type_name, int x, int y, Texture* texture);
     void someTextures(std::map <std::string, Texture*> *field_block, int num);
+    void save_field(int num);
     void draw(RenderTarget& target, RenderStates states) const override; //not in private
 
     //TEMP

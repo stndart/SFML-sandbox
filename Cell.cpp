@@ -64,10 +64,11 @@ bool Cell::hasObject(std::string name)
     return false;
 }
 
-void Cell::addObject(Texture* texture, std::string name)
+void Cell::addObject(Texture* texture, std::string name, int depth_level)
 {
     Cell_object* object1 = new Cell_object(name, texture);
     object1->addTexCoords(IntRect(0, 0, 120, 120));
+    object1->depth_level = depth_level;
     objects[name] = object1;
     //std::cout << objects.size() << " ";
 }
@@ -80,8 +81,30 @@ void Cell::removeObject(std::string name)
 void Cell::action_change(std::string name, Texture* texture)
 {
     removeObject(name);
-    addObject(texture, name);
+    addObject(texture, "S", 1);
 }
+
+void Cell::save_cell(unsigned int x, unsigned int y, Json::Value& Location)
+{
+    Location["map"][x][y]["type"] = name;
+    if (objects.size() == 0)
+    {
+        Location["big_objects"][x][y];
+    }
+    auto current_object = objects.begin();
+    int i = 0;
+    while (current_object != objects.end())
+    {
+        Location["big_objects"][x][y][i]["type"] = current_object->second->type_name;
+        Location["big_objects"][x][y][i]["depth_level"] = current_object->second->depth_level;
+        current_object++;
+        i++;
+    }
+}
+
+
+
+
 
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {

@@ -6,6 +6,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "AnimatedSprite.h"
 #include "Cell_object.h"
+#include "json/json.h"
 
 using namespace sf;
 
@@ -24,9 +25,12 @@ public:
     void addTexCoords(IntRect rect);
     void addPosition(float x, float y);
     bool hasObject(std::string name);
-    void addObject(Texture* texture, std::string name);
+    void addObject(Texture* texture, std::string name, int depth_level);
     void removeObject(std::string name);
     void action_change(std::string name, Texture* texture);
+    void save_cell(unsigned int x, unsigned int y, Json::Value& Location);
+
+
     void draw(RenderTarget& target, RenderStates states) const override;
 
     // TEMP
