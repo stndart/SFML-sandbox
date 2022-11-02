@@ -1,24 +1,24 @@
 # depslib dependency file v1.0
-1630005916 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\main.cpp
+1630005916 source:D:\GBI\SFML-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
 	"AnimatedSprite.h"
 	"VisualEffect.h"
 
-1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\cell.h
+1592223602 D:\GBI\SFML-sandbox\cell.h
 	<SFML/System/Vector2.hpp>
 	<vector>
 	"Object.h"
 	"Item.h"
 
-1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\object.h
+1592223602 D:\GBI\SFML-sandbox\object.h
 	<string>
 
-1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\item.h
+1592223602 D:\GBI\SFML-sandbox\item.h
 	<string>
 
-1630005632 c:\users\svyat.000\desktop\gbs\sfml sandbox\animatedsprite.h
+1630005632 D:\GBI\SFML-sandbox\animatedsprite.h
 	<SFML/Graphics/RenderTarget.hpp>
 	<SFML/System/Time.hpp>
 	<SFML/Graphics/Drawable.hpp>
@@ -28,54 +28,54 @@
 	<string>
 	"Animation.h"
 
-1592223550 c:\users\svyat.000\desktop\gbs\sfml sandbox\animation.h
+1592223550 D:\GBI\SFML-sandbox\animation.h
 	<vector>
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1630005658 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\animatedsprite.cpp
+1630005658 source:D:\GBI\SFML-sandbox\animatedsprite.cpp
 	"AnimatedSprite.h"
 
-1592223550 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\animation.cpp
+1592223550 source:D:\GBI\SFML-sandbox\animation.cpp
 	"Animation.h"
 
-1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\cell.cpp
+1592223602 source:D:\GBI\SFML-sandbox\cell.cpp
 	"Cell.h"
 
-1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\field.cpp
+1592223602 source:D:\GBI\SFML-sandbox\field.cpp
 	"Field.h"
 
-1592223550 c:\users\svyat.000\desktop\gbs\sfml sandbox\field.h
+1592223550 D:\GBI\SFML-sandbox\field.h
 	<iostream>
 	"Cell.h"
 
-1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\inventory.cpp
+1592223602 source:D:\GBI\SFML-sandbox\inventory.cpp
 	"Inventory.h"
 
-1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\inventory.h
+1592223602 D:\GBI\SFML-sandbox\inventory.h
 	<vector>
 	"Item.h"
 
-1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\item.cpp
+1592223602 source:D:\GBI\SFML-sandbox\item.cpp
 	"Item.h"
 
-1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\object.cpp
+1592223602 source:D:\GBI\SFML-sandbox\object.cpp
 	"Object.h"
 
-1592223602 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\player.cpp
+1592223602 source:D:\GBI\SFML-sandbox\player.cpp
 	"Player.h"
 
-1592223602 c:\users\svyat.000\desktop\gbs\sfml sandbox\player.h
+1592223602 D:\GBI\SFML-sandbox\player.h
 	<SFML/System/Vector2.hpp>
 	<string>
 	"Inventory.h"
 
-1629988274 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\scene.cpp
+1629988274 source:D:\GBI\SFML-sandbox\scene.cpp
 
-1630006031 source:c:\users\svyat.000\desktop\gbs\sfml sandbox\visualeffect.cpp
+1630006031 source:D:\GBI\SFML-sandbox\visualeffect.cpp
 	"VisualEffect.h"
 
-1630006707 c:\users\svyat.000\desktop\gbs\sfml sandbox\visualeffect.h
+1630006707 D:\GBI\SFML-sandbox\visualeffect.h
 	<SFML/System/Time.hpp>
 	<iostream>
 	<string>
@@ -122,15 +122,15 @@
 	"VisualEffect.h"
 	"Scene.h"
 
-1630265345 source:d:\gbi\sfml-sandbox\animation.cpp
+1667416946 source:d:\gbi\sfml-sandbox\animation.cpp
 	"Animation.h"
 
-1630265345 d:\gbi\sfml-sandbox\animation.h
+1667416946 d:\gbi\sfml-sandbox\animation.h
 	<vector>
 	<SFML/Graphics/Rect.hpp>
 	<SFML/Graphics/Texture.hpp>
 
-1667403711 source:d:\gbi\sfml-sandbox\main.cpp
+1667416946 source:d:\gbi\sfml-sandbox\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<conio.h>
@@ -141,7 +141,7 @@
 	"Scene_Field.h"
 	"Scene_editor.h"
 
-1634326041 d:\gbi\sfml-sandbox\animatedsprite.h
+1667416946 d:\gbi\sfml-sandbox\animatedsprite.h
 	<SFML/Graphics/RenderTarget.hpp>
 	<SFML/System/Time.hpp>
 	<SFML/Graphics/Drawable.hpp>
@@ -151,22 +151,22 @@
 	<string>
 	"Animation.h"
 
-1630265021 d:\gbi\sfml-sandbox\visualeffect.h
+1667416946 d:\gbi\sfml-sandbox\visualeffect.h
 	<SFML/System/Time.hpp>
 	<iostream>
 	<string>
 	"AnimatedSprite.h"
 
-1652084042 source:d:\gbi\sfml-sandbox\scene.cpp
+1667416946 source:d:\gbi\sfml-sandbox\scene.cpp
 	"Scene.h"
 
-1634327555 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
+1667416946 source:d:\gbi\sfml-sandbox\animatedsprite.cpp
 	"AnimatedSprite.h"
 
-1630265021 source:d:\gbi\sfml-sandbox\visualeffect.cpp
+1667416946 source:d:\gbi\sfml-sandbox\visualeffect.cpp
 	"VisualEffect.h"
 
-1652084090 d:\gbi\sfml-sandbox\scene.h
+1667416946 d:\gbi\sfml-sandbox\scene.h
 	<vector>
 	<SFML/Graphics/Sprite.hpp>
 	<SFML/Window/Event.hpp>
@@ -178,26 +178,26 @@
 	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 
-1667388815 source:d:\gbi\sfml-sandbox\cell.cpp
+1667416946 source:d:\gbi\sfml-sandbox\cell.cpp
 	"Cell.h"
 	<iostream>
 	<typeinfo>
 
-1667388179 d:\gbi\sfml-sandbox\cell.h
+1667416946 d:\gbi\sfml-sandbox\cell.h
 	<map>
 	<SFML/Graphics/Sprite.hpp>
 	"AnimatedSprite.h"
 	"Cell_object.h"
 	"json/json.h"
 
-1667405491 source:d:\gbi\sfml-sandbox\field.cpp
+1667416946 source:d:\gbi\sfml-sandbox\field.cpp
 	"Field.h"
 	<iostream>
 	<fstream>
 	<string>
 	"json/json.h"
 
-1667405546 d:\gbi\sfml-sandbox\field.h
+1667416946 d:\gbi\sfml-sandbox\field.h
 	<vector>
 	<map>
 	<SFML/Graphics/Sprite.hpp>
@@ -207,32 +207,32 @@
 	"Cell.h"
 	"Player.h"
 
-1667384897 d:\gbi\sfml-sandbox\scene_field.h
+1667416946 d:\gbi\sfml-sandbox\scene_field.h
 	<map>
 	"Scene.h"
 	"Field.h"
 
-1667144432 source:d:\gbi\sfml-sandbox\scene_field.cpp
+1667416946 source:d:\gbi\sfml-sandbox\scene_field.cpp
 	"Scene_Field.h"
 
-1652095359 d:\gbi\sfml-sandbox\player.h
+1667416946 d:\gbi\sfml-sandbox\player.h
 	<SFML/Graphics/Sprite.hpp>
 	<SFML/Window/Event.hpp>
 	"AnimatedSprite.h"
 
-1652086740 source:d:\gbi\sfml-sandbox\player.cpp
+1667416946 source:d:\gbi\sfml-sandbox\player.cpp
 	"Player.h"
 	<iostream>
 	<typeinfo>
 
-1665869187 source:d:\gbi\sfml-sandbox\cell_object.cpp
+1667416946 source:d:\gbi\sfml-sandbox\cell_object.cpp
 	"Cell_object.h"
 
-1665864354 d:\gbi\sfml-sandbox\cell_object.h
+1667416946 d:\gbi\sfml-sandbox\cell_object.h
 	<SFML/Graphics/Sprite.hpp>
 	"AnimatedSprite.h"
 
-1664096585 source:d:\gbi\sfml-sandbox\jsoncpp.cpp
+1667416946 source:d:\gbi\sfml-sandbox\jsoncpp.cpp
 	"json/json.h"
 	<json/config.h>
 	<clocale>
@@ -284,7 +284,7 @@
 	<float.h>
 	<ieeefp.h>
 
-1664096585 d:\gbi\sfml-sandbox\json\json.h
+1667416946 d:\gbi\sfml-sandbox\json\json.h
 	<cstring>
 	<memory>
 	<cstddef>
@@ -321,13 +321,13 @@
 	<sstream>
 	"config.h"
 
-1667401954 d:\gbi\sfml-sandbox\scene_editor.h
+1667416946 d:\gbi\sfml-sandbox\scene_editor.h
 	<SFML/Graphics/Text.hpp>
 	<string>
 	<cassert>
 	"Scene_Field.h"
 	"Field.h"
 
-1667405738 source:d:\gbi\sfml-sandbox\scene_editor.cpp
+1667416946 source:d:\gbi\sfml-sandbox\scene_editor.cpp
 	"Scene_editor.h"
 

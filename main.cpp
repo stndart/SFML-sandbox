@@ -4,6 +4,8 @@
 #include <conio.h>
 #include <map>
 
+#include <filesystem>
+
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
@@ -71,7 +73,14 @@ int main()
 
     map <string, Texture*> field_block;
 
-    Texture grass_block_texture;
+    filesystem::path Inputpath;
+
+    for (auto& p : filesystem::directory_iterator(inputPath))
+    {
+        std::string path = p.filesystem::path::generic_string();
+    }
+
+    /*Texture grass_block_texture;
     if (!grass_block_texture.loadFromFile("Images/grass.png"))
     {
         cout << "Failed to load texture\n";
@@ -124,7 +133,7 @@ int main()
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"portal", &object_portal});
+    field_block.insert({"portal", &object_portal});*/
 
     Clock frameClock;
 
