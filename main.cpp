@@ -3,7 +3,7 @@
 
 #include <conio.h>
 #include <map>
-
+#include <cassert>
 #include <filesystem>
 
 #include "AnimatedSprite.h"
@@ -11,6 +11,8 @@
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
+
+#include "extra_algorithms.cpp"
 
 using namespace sf;
 using namespace std;
@@ -25,6 +27,25 @@ void Motion()
         cout << "click" << endl;
         break;
     }
+}
+
+std::string re_name(std::string path)
+{
+    std::string result = "";
+    for (unsigned int i = 0; i < path.size(); i++)
+    {
+        if (path[i] == '/')
+        {
+            result = "";
+            continue;
+        }
+        else if (path[i] == '.')
+        {
+            break;
+        }
+        else result += path[i];
+    }
+    return result;
 }
 
 int main()
@@ -73,47 +94,87 @@ int main()
 
     map <string, Texture*> field_block;
 
-    filesystem::path Inputpath;
+///-------------------------------------------------------------------------------------------
 
-    for (auto& p : filesystem::directory_iterator(inputPath))
+    std::string inputPath = "Images/CELLS/";
+
+    for (auto& p : std::filesystem::directory_iterator(inputPath))
     {
-        std::string path = p.filesystem::path::generic_string();
+        std::filesystem::path path;
+        path = p;
+        std::string tempStr;
+        tempStr = path.generic_string();
+        cout << inputPath << ": " << tempStr << ", ";
+
+        Texture* cur_texture = new Texture;
+        if (!cur_texture->loadFromFile(tempStr))
+        {
+            cout << "Failed to load texture\n";
+            return 1;
+        }
+        std::string name = re_name(tempStr);
+        cout << name << endl;
+        field_block.insert({name, cur_texture});
     }
+
+    inputPath = "Images/CELL_objects/";
+    for (auto& p : std::filesystem::directory_iterator(inputPath))
+    {
+        std::filesystem::path path;
+        path = p;
+        std::string tempStr;
+        tempStr = path.generic_string();
+        cout << inputPath << ": ";
+
+        Texture* cur_texture = new Texture;
+        if (!cur_texture->loadFromFile(tempStr))
+        {
+            cout << "Failed to load texture\n";
+            return 1;
+        }
+        std::string name = re_name(tempStr);
+        cout << name << endl;
+        field_block.insert({name, cur_texture});
+    }
+
+    //return 0;
+
+///-------------------------------------------------------------------------------------------
 
     /*Texture grass_block_texture;
-    if (!grass_block_texture.loadFromFile("Images/grass.png"))
+    if (!grass_block_texture.loadFromFile("Images/CELLS/grass.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"G", &grass_block_texture});
+    field_block.insert({"grass", &grass_block_texture});
 
     Texture border_block_texture;
-    if (!border_block_texture.loadFromFile("Images/border.png"))
+    if (!border_block_texture.loadFromFile("Images/CELLS/border.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"B", &border_block_texture});
+    field_block.insert({"border", &border_block_texture});
 
     Texture grass_8_block_texture;
-    if (!grass_8_block_texture.loadFromFile("Images/grass_8.png"))
+    if (!grass_8_block_texture.loadFromFile("Images/CELLS/grass_8.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"8", &grass_8_block_texture});
+    field_block.insert({"grass_8", &grass_8_block_texture});
 
     Texture null_block;
-    if (!null_block.loadFromFile("Images/null.png"))
+    if (!null_block.loadFromFile("Images/CELLS/null.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"N", &null_block});
+    field_block.insert({"null", &null_block});
 
     Texture object_tree;
-    if (!object_tree.loadFromFile("Images/tree.png"))
+    if (!object_tree.loadFromFile("Images/CELL_objects/tree.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
@@ -121,14 +182,14 @@ int main()
     field_block.insert({"tree", &object_tree});
 
     Texture object_stump;
-    if (!object_stump.loadFromFile("Images/stump.png"))
+    if (!object_stump.loadFromFile("Images/CELL_objects/stump.png"))
     {
         cout << "Failed to load texture\n";
         return 1;
     }
-    field_block.insert({"S", &object_stump});
+    field_block.insert({"stump", &object_stump});
     Texture object_portal;
-    if (!object_portal.loadFromFile("Images/portal.png"))
+    if (!object_portal.loadFromFile("Images/CELL_objects/portal.png"))
     {
         cout << "Failed to load texture\n";
         return 1;

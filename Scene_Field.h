@@ -13,6 +13,9 @@ protected:
     int current_field;
     std::map <std::string, Texture*> *field_block;
     void draw(RenderTarget& target, RenderStates states) const override;
+
+    /// UserInterface UI; // implement UserInterface to do
+
 public:
     std::string name;
     unsigned int field_size = 2;

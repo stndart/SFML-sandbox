@@ -23,7 +23,6 @@ private:
     double y_coord;
     int turn_length;
     int cell_length;
-    /// UserInterface UI; // implement UserInterface to do
 public:
     std::string name;
     Field(int length, int width, std::string name);

@@ -50,40 +50,13 @@
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
 				}
 			],
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
-				}
-			],
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
 				}
 			],
 			null,
@@ -110,7 +83,34 @@
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "stump"
 				}
 			],
 			[
@@ -200,7 +200,7 @@
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
 				}
 			],
 			null,
@@ -227,7 +227,7 @@
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
 				}
 			],
 			null,
@@ -255,7 +255,7 @@
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
 				}
 			],
 			null,
@@ -293,7 +293,7 @@
 			[
 				{
 					"depth_level" : 1,
-					"type" : "S"
+					"type" : "stump"
 				}
 			],
 			null,
@@ -541,1242 +541,1242 @@
 	[
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "8"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "G"
+				"type" : "grass"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			},
 			{
-				"type" : "B"
+				"type" : "border"
 			}
 		]
 	]

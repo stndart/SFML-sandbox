@@ -126,22 +126,8 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
     Json::Value Locations;
     std::ifstream ifs(path);
     ifs >> Locations;
-    /*for (unsigned int x = 0; x < cells.size(); x++)
-    {
-        for (unsigned int y = 0; y < cells[x].size(); y++)
-        {
-            std::string letter_string = "";
-            letter_string = obj;
-            obj[x][y]["type"] = letter_string;
-        }
-    }
-    std::ofstream ofs("Locations/loc_1.json");
-    Json::Value final_obj;
-    final_obj["map"] = obj;
-    ofs << final_obj;
-    ofs.close();*/
 
-    //int rass = 5;
+
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
@@ -162,60 +148,10 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
                         cells[x][y]->addObject((*field_block)[object_type], object_type, 1);
                     }
                 }
-                /*if (rass)
-                {
-                    std::cout << cell_object_size << std::endl;
-                    //std::cout << object_type << " " << object_depth_level << std::endl;
-                    rass--;
-                }*/
             }
-            /*if (x == 2 && y == 2)
-            {
-                std::string object_type = Locations["big_objects"][x][y]["type"].asString();
-                std::string object_depth_level = Locations["big_objects"][x][y]["depth_level"].asString();
-                //cells[x][y]->addObject((*field_block)[object_type], object_type, 1);
-                if (rass)
-                {
-                    std::cout << object_type << " " << object_depth_level << std::endl;
-                    rass--;
-                }
-            }*/
-//            std::cout << z << " ";
-//            if (z == "T")
-//            {
-//                cells[x][y] = new_cell((*field_block)["G"], z);
-//                cells[x][y]->addObject((*field_block)[z], z);
-//                continue;
-//            }
-            if (cell_type == "8")
-            {
-                //std::cout << "go " << x << " "<< y << "\n";
-                //cells[x][y]->addObject((*field_block)["tree"], "tree", 1);
-                //std::cout << "cell " << x << " "<< y << "mapsize is " << cells[x][y]->mapsize() << "\n";
-                //Locations["big_objects"][x][y][0]["type"] = "tree";
-                //Locations["big_objects"][x][y][0]["depth_level"] = 1;
-            }
-            else
-            {
-                //Locations["big_objects"][x][y];
-                //assert (Locations["big_objects"][x][y][0].isObject());
-
-            }
-            //FJSLIFGBFALSIFHBFSKUAVHBALDFBSALDYBSAKFHSLKANJFaaaaaaaaaaaaaaaaaa
-            /*if ((x+1)%8 == 0 && (y+1)%8 == 0)
-            {
-                cells[x][y] = new_cell((*field_block)["8"], "grass_8");
-            }
-            else
-            {
-                cells[x][y] = new_cell((*field_block)["G"], "grass");
-            }*/
         }
     }
     std::cout << std::endl;
-//    std::ofstream ofs("Locations/loc_1.json");
-//    ofs << Locations;
-//    ofs.close();
 }
 
 void Field::save_field(int num)
