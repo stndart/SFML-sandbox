@@ -4,13 +4,13 @@
 	<Project>
 		<Option title="SFML sandbox" />
 		<Option pch_mode="2" />
-		<Option compiler="gcc" />
+		<Option compiler="msys2_mingw-w64-x86_64_g" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/SFML sandbox" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="msys2_mingw-w64-x86_64_g" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="../SFML-sandbox" />
@@ -20,7 +20,7 @@
 				<Option output="bin/Release/SFML sandbox" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="msys2_mingw-w64-x86_64_g" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="../SFML-sandbox" />
@@ -53,14 +53,11 @@
 		<Unit filename="Scene_editor.h" />
 		<Unit filename="VisualEffect.cpp" />
 		<Unit filename="VisualEffect.h" />
+		<Unit filename="extra_algorithms.h" />
 		<Unit filename="json/json-forwards.h" />
 		<Unit filename="json/json.h" />
 		<Unit filename="jsoncpp.cpp" />
 		<Unit filename="main.cpp" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

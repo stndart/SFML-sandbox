@@ -2,17 +2,17 @@
 #include <iostream>
 #include <typeinfo>
 
-Cell::Cell(std::string name) : name(name)
+Cell::Cell(std::string name) : type_name(name)
 {
 
 }
 
-Cell::Cell(std::string name, Texture* texture) : background(texture), name(name)
+Cell::Cell(std::string name, Texture* texture) : background(texture), type_name(name)
 {
 
 }
 
-Cell::Cell(std::string name, Texture* texture, Texture* texture1) : background(texture), name(name)
+Cell::Cell(std::string name, Texture* texture, Texture* texture1) : background(texture), type_name(name)
 {
     /*
     Cell_object* object1 = new Cell_object("tree", texture1);
@@ -20,9 +20,10 @@ Cell::Cell(std::string name, Texture* texture, Texture* texture1) : background(t
     */
 }
 
-void Cell::addTexture(Texture* texture)
+void Cell::change_texture(std::string name, Texture* texture)
 {
     background = texture;
+    type_name = name;
 }
 
 void Cell::addTexCoords(IntRect rect)
@@ -81,12 +82,15 @@ void Cell::removeObject(std::string name)
 void Cell::action_change(std::string name, Texture* texture)
 {
     removeObject(name);
-    addObject(texture, "S", 1);
+    if (name == "tree")
+    {
+        addObject(texture, "stump", 1);
+    }
 }
 
 void Cell::save_cell(unsigned int x, unsigned int y, Json::Value& Location)
 {
-    Location["map"][x][y]["type"] = name;
+    Location["map"][x][y]["type"] = type_name;
     if (objects.size() == 0)
     {
         Location["big_objects"][x][y];
@@ -108,8 +112,8 @@ void Cell::save_cell(unsigned int x, unsigned int y, Json::Value& Location)
 
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
-    //std::cout << "Who asked " << name << " to draw?\n";
-    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
+    //std::cout << "Who asked " << type_name << " to draw?\n";
+    //std::cout << type_name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
     if (background)
     {
         states.transform *= getTransform();
@@ -118,10 +122,7 @@ void Cell::draw(RenderTarget& target, RenderStates states) const
         //std::cout << getPosition().x << " " << getPosition().y << std::endl;
     }
 
-    if (name == "8")
-    {
-        //std::cout <<  objects.size() << " ";
-    }
+
     for (auto it = objects.begin(); it != objects.end(); it++)
     {
         it->second->draw(target, states);
@@ -131,8 +132,7 @@ void Cell::draw(RenderTarget& target, RenderStates states) const
 
 Cell* new_cell(Texture* bg, std::string name)
 {
-    Cell* cell = new Cell(name);
-    cell->addTexture(bg);
+    Cell* cell = new Cell(name, bg);
     cell->addTexCoords(IntRect(0, 0, 120, 120));
 
     return cell;

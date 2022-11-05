@@ -41,7 +41,7 @@ void Scene_Field::update(Event& event)
             field[current_field]->move_player(1, -1);
             break;
         case sf::Keyboard::Space:
-            field[current_field]->action((*field_block)["S"]);
+            field[current_field]->action((*field_block)["stump"]);
             break;
         case sf::Keyboard::Tab:
             change_current_field((current_field+1)%2);

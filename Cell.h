@@ -17,11 +17,11 @@ private:
     const Texture* background;
     std::map <std::string, Cell_object*> objects;
 public:
-    std::string name;
+    std::string type_name;
     Cell(std::string name);
     Cell(std::string name, Texture* background);
     Cell(std::string name, Texture* background, Texture* texture1);
-    void addTexture(Texture* texture);
+    void change_texture(std::string name, Texture* texture);
     void addTexCoords(IntRect rect);
     void addPosition(float x, float y);
     bool hasObject(std::string name);

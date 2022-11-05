@@ -12,7 +12,7 @@
 #include "Scene_Field.h"
 #include "Scene_editor.h"
 
-#include "extra_algorithms.cpp"
+#include "extra_algorithms.h"
 
 using namespace sf;
 using namespace std;
@@ -27,25 +27,6 @@ void Motion()
         cout << "click" << endl;
         break;
     }
-}
-
-std::string re_name(std::string path)
-{
-    std::string result = "";
-    for (unsigned int i = 0; i < path.size(); i++)
-    {
-        if (path[i] == '/')
-        {
-            result = "";
-            continue;
-        }
-        else if (path[i] == '.')
-        {
-            break;
-        }
-        else result += path[i];
-    }
-    return result;
 }
 
 int main()
@@ -116,6 +97,7 @@ int main()
         cout << name << endl;
         field_block.insert({name, cur_texture});
     }
+    cout << endl;
 
     inputPath = "Images/CELL_objects/";
     for (auto& p : std::filesystem::directory_iterator(inputPath))
@@ -136,65 +118,11 @@ int main()
         cout << name << endl;
         field_block.insert({name, cur_texture});
     }
+    cout << endl;
 
-    //return 0;
 
 ///-------------------------------------------------------------------------------------------
 
-    /*Texture grass_block_texture;
-    if (!grass_block_texture.loadFromFile("Images/CELLS/grass.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"grass", &grass_block_texture});
-
-    Texture border_block_texture;
-    if (!border_block_texture.loadFromFile("Images/CELLS/border.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"border", &border_block_texture});
-
-    Texture grass_8_block_texture;
-    if (!grass_8_block_texture.loadFromFile("Images/CELLS/grass_8.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"grass_8", &grass_8_block_texture});
-
-    Texture null_block;
-    if (!null_block.loadFromFile("Images/CELLS/null.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"null", &null_block});
-
-    Texture object_tree;
-    if (!object_tree.loadFromFile("Images/CELL_objects/tree.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"tree", &object_tree});
-
-    Texture object_stump;
-    if (!object_stump.loadFromFile("Images/CELL_objects/stump.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"stump", &object_stump});
-    Texture object_portal;
-    if (!object_portal.loadFromFile("Images/CELL_objects/portal.png"))
-    {
-        cout << "Failed to load texture\n";
-        return 1;
-    }
-    field_block.insert({"portal", &object_portal});*/
 
     Clock frameClock;
 

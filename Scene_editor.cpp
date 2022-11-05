@@ -37,7 +37,7 @@ void Scene_editor::update(Event& event)
             field[current_field]->move_player(1, -1);
             break;
         case sf::Keyboard::Space:
-            field[current_field]->action((*field_block)["S"]);
+            field[current_field]->action((*field_block)["stump"]);
             break;
         case sf::Keyboard::Tab:
             change_current_field((current_field+1)%2);
@@ -66,7 +66,7 @@ void Scene_editor::update(Event& event)
             std::cout << std::endl;
         }*/
         //assert(s_input.size() == 6);
-        s_input.pop_back();
+        if (s_input.size() > 0) s_input.pop_back();
         //assert(s_input.size() == 5);
         //std::cout << s_input << std::endl;
     }
@@ -125,35 +125,83 @@ void Scene_editor::command(std::string data)
             s_input = "not enough arguments";
             return;
         }
-        if (s[1] != "object")
+        if (s[1] == "object")
         {
-            s_input = "this isn't an object";
-            return;
-        }
-        int x = -1;
-        int y = -1;
-        if (s[2] == "~" && s[3] == "~")
-        {
-            std::pair <int, int> player_coords = field[current_field]->get_player_cell_coord();
-            x = player_coords.first;
-            y = player_coords.second;
+            int x = -1;
+            int y = -1;
+            if (s[2] == "~" && s[3] == "~")
+            {
+                std::pair <int, int> player_coords = field[current_field]->get_player_cell_coord();
+                x = player_coords.first;
+                y = player_coords.second;
+            }
+            else
+            {
+                x = stoi(s[2]);
+                y = stoi(s[3]);
+            }
+            if (x <= 0 || y <= 0)
+            {
+                s_input = "out of field's range";
+                return;
+            }
+            if (field_block->find(s[4]) == field_block->end())
+            {
+                s_input = "can't find the texture";
+                return;
+            }
+            field[current_field]->add_object_to_cell(s[4], x, y, (*field_block)[s[4]]);
         }
         else
         {
-            x = stoi(s[2]);
-            y = stoi(s[3]);
-        }
-        if (x <= 0 || y <= 0)
-        {
-            s_input = "out of field's range";
+            s_input = "can't find an object";
             return;
         }
-        if (field_block->find(s[4]) == field_block->end())
+    }
+    else if (s[0] == "change")
+    {
+        if (s.size() < 5)
         {
-            s_input = "can't find the texture";
+            s_input = "not enough arguments";
             return;
         }
-        field[current_field]->add_object_to_cell(s[4], x, y, (*field_block)[s[4]]);
+        if (s[1] == "cell")
+        {
+            int x = -1;
+            int y = -1;
+            if (s[2] == "~" && s[3] == "~")
+            {
+                std::pair <int, int> player_coords = field[current_field]->get_player_cell_coord();
+                x = player_coords.first;
+                y = player_coords.second;
+            }
+            else
+            {
+                x = stoi(s[2]);
+                y = stoi(s[3]);
+            }
+            if (x <= 0 || y <= 0)
+            {
+                s_input = "out of field's range";
+                return;
+            }
+            if (field_block->find(s[4]) == field_block->end())
+            {
+                s_input = "can't find the texture";
+                return;
+            }
+            field[current_field]->change_cell_texture(s[4], x, y, (*field_block)[s[4]]);
+        }
+        else
+        {
+            s_input = "can't find this";
+            return;
+        }
+    }
+    else
+    {
+        s_input = "Invalid command";
+        return;
     }
 }
 

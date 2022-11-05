@@ -47,18 +47,8 @@
 		],
 		[
 			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
+			null,
+			null,
 			null,
 			null,
 			null,
@@ -80,12 +70,7 @@
 		[
 			null,
 			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
+			null,
 			null,
 			null,
 			null,
@@ -107,12 +92,7 @@
 		[
 			null,
 			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
+			null,
 			[
 				{
 					"depth_level" : 1,
@@ -197,39 +177,7 @@
 			null,
 			null,
 			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
 			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
 			null,
 			null,
 			null,
@@ -252,12 +200,29 @@
 			null,
 			null,
 			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
 			null,
 			null,
 			null,
@@ -290,38 +255,6 @@
 			null,
 			null,
 			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "stump"
-				}
-			],
-			null,
-			[
-				{
-					"depth_level" : 1,
-					"type" : "tree"
-				}
-			],
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
 			null,
 			null,
 			null,
@@ -345,8 +278,45 @@
 			null,
 			null,
 			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_empty"
+				}
+			],
 			null,
 			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_blue_berries"
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_red_berries"
+				}
+			],
 			null,
 			null,
 			null,

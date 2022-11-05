@@ -59,8 +59,45 @@ void Field::field_resize(unsigned int length, unsigned int width)         // CHE
     }
 }
 
+/*Cell* Field::get_cell_by_coord(unsigned int x, unsigned int y)
+{
+    x /= 120;
+    y /= 120;
+    return cells[x][y];
+}*/
+
+bool Field::can_move_player(int direction, int value)
+{
+    double xz[2], yz[2];
+    xz[0] = player_0->x_coord+1;
+    xz[1] = player_0->x_coord-1;
+    yz[0] = player_0->y_coord+1;
+    yz[1] = player_0->y_coord-1;
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            double x = xz[i];
+            double y = yz[j];
+            int x_new = int((x + direction*value*(turn_length+1))/120);
+            int y_new = int((y + ((direction+1)%2)*(-value)*(turn_length+1))/120);
+            //std::cout << "new coords: " << x_new << " " << y_new << std::endl;
+
+            Cell* cell_new = cells[x_new][y_new];
+            if (cell_new->type_name == "border")
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void Field::move_player(int direction, int value)
 {
+    if (!can_move_player(direction, value)) {
+        return;
+    }
     if (direction == 0)
     {
         if ((y_coord - cell_length - value*turn_length >= 1080/2) && (y_coord - value*turn_length <= (cells[0].size()-1)*cell_length-1080/2) && player_0->y_coord == y_coord)
@@ -106,7 +143,11 @@ void Field::action(Texture* texture)
     {
         cells[x][y]->action_change("tree", texture);
     }
-    if (cells[x][y]->hasObject("portal"))
+    else if (cells[x][y]->hasObject("stump"))
+    {
+        cells[x][y]->action_change("stump", texture);
+    }
+    else if (cells[x][y]->hasObject("portal"))
     {
 
     }
@@ -115,6 +156,11 @@ void Field::action(Texture* texture)
 void Field::add_object_to_cell(std::string type_name, int x, int y, Texture* texture)
 {
     cells[x][y]->addObject(texture, type_name, 1);
+}
+
+void Field::change_cell_texture(std::string name, int x, int y, Texture* texture)
+{
+    cells[x][y]->change_texture(name, texture);
 }
 
 void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)

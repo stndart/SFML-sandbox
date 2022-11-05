@@ -30,10 +30,13 @@ public:
     void addCell(Texture* texture, unsigned int x, unsigned int y);
     void addPlayer(unsigned int length, unsigned int width, Texture* player_texture);
     void field_resize(unsigned int length, unsigned int width);         // CHECK
+    //Cell* get_cell_by_coord(unsigned int x, unsigned int y);
+    bool can_move_player(int direction, int value);
     void move_player(int direction, int value);
     std::pair <int, int> get_player_cell_coord();
     void action(Texture* texture);
     void add_object_to_cell(std::string type_name, int x, int y, Texture* texture);
+    void change_cell_texture(std::string name, int x, int y, Texture* texture);
     void someTextures(std::map <std::string, Texture*> *field_block, int num);
     void save_field(int num);
     void draw(RenderTarget& target, RenderStates states) const override; //not in private
