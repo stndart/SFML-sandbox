@@ -25,7 +25,12 @@
 		],
 		[
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "chamomile"
+				}
+			],
 			null,
 			null,
 			null,
@@ -277,7 +282,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
 			[
 				{
 					"depth_level" : 1,
@@ -287,7 +297,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "chamomile"
+				}
+			],
 			null,
 			null,
 			null,
@@ -304,7 +319,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_red_berries"
+				}
+			],
 			[
 				{
 					"depth_level" : 1,

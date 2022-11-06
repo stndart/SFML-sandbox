@@ -30,7 +30,7 @@ void Scene::addSprite(AnimatedSprite* sprite)
     sprites.push_back(sprite);
 }
 
-void Scene::update(Event& event)
+void Scene::update(Event& event, std::string& command_main)
 {
     if (event.type == Event::MouseButtonPressed){
         switch (event.mouseButton.button)
@@ -83,6 +83,7 @@ void Scene::update(Event& event)
                 if (s->getGlobalBounds().contains(curPos))
                 {
                     s->onClick(false);
+                    command_main = "editor_scene";
                 }
             }
             break;
@@ -147,7 +148,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
 
     main_menu.addSprite(button);
 
-    FloatRect b;
+    /*FloatRect b;
     b = button->getLocalBounds();
     std::cout << "local bounds " << b.left << " " << b.top << " | " << b.width << " " << b.height << std::endl;
     b = button->getGlobalBounds();
@@ -155,7 +156,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
     Vector2f o = button->getOrigin();
     std::cout << "origin " << o.x << " " << o.y << std::endl;
     Vector2f p = button->getPosition();
-    std::cout << "position " << p.x << " " << p.y << std::endl;
+    std::cout << "position " << p.x << " " << p.y << std::endl;*/
 
     return main_menu;
 }

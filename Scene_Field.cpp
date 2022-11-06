@@ -22,7 +22,7 @@ void Scene_Field::change_current_field(int num)
     field[num]->someTextures(field_block, num);
 }
 
-void Scene_Field::update(Event& event)
+void Scene_Field::update(Event& event, std::string& command_main)
 {
     if (event.type == sf::Event::KeyPressed)
     {

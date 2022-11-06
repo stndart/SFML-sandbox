@@ -23,7 +23,7 @@ public:
     void add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num);
     void change_current_field(int num);
-    virtual void update(Event& event);
+    virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
     void someTextures(int num);
     void save_map();

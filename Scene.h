@@ -21,7 +21,7 @@ public:
     Scene(std::string name);
     void addTexture(Texture* texture, IntRect rect);
     void addSprite(AnimatedSprite* sprite);
-    virtual void update(Event& event);
+    virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
 };
 

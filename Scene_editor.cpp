@@ -6,7 +6,7 @@ Scene_editor::Scene_editor(std::string name, std::map <std::string, Texture*> *f
     s_input = "";
 }
 
-void Scene_editor::update(Event& event)
+void Scene_editor::update(Event& event, std::string& command_main)
 {
     //std::cout << event.key.code << " ";
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
