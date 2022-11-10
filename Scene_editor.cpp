@@ -78,17 +78,47 @@ void Scene_editor::update(Event& event, std::string& command_main)
             s_input += letter;
         }
     }
-    /*if (event.type == Event::MouseButtonReleased) // ?
-    {
+    if (event.type == Event::MouseButtonPressed){
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
+            for (auto b : buttons)
+            {
+                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+                if (b->contains(curPos))
+                {
+                    b->push_button();
+                    pushed_buttons.push_back(b);
+                    break;
+                }
+            }
             break;
 
         default:
             break;
         }
-    }*/
+    }
+    if (event.type == Event::MouseButtonReleased)
+    {
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            while (pushed_buttons.size() > 0)
+            {
+                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
+                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
+                {
+                    command_main = answer;
+                }
+                pushed_buttons.pop_back();
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
 void Scene_editor::update(Time deltaTime)
@@ -240,6 +270,7 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         text.setPosition(0, 0);
         target.draw(text);
     }
+    draw_scene_buttons(target, states);
 }
 
 Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,

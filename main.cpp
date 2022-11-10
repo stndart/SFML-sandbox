@@ -73,11 +73,37 @@ int main()
         return 1;
     }
 
+/********************************************************************************************/
+    map <string, Texture*> UI_block;
+
+    std::string inputPath = "Images/UI/";
+
+    for (auto& p : std::filesystem::directory_iterator(inputPath))
+    {
+        std::filesystem::path path;
+        path = p;
+        std::string tempStr;
+        tempStr = path.generic_string();
+        cout << inputPath << ": " << tempStr << ", ";
+
+        Texture* cur_texture = new Texture;
+        if (!cur_texture->loadFromFile(tempStr))
+        {
+            cout << "Failed to load texture\n";
+            return 1;
+        }
+        std::string name = re_name(tempStr);
+        cout << name << endl;
+        UI_block.insert({name, cur_texture});
+    }
+    cout << endl;
+
+/********************************************************************************************/
     map <string, Texture*> field_block;
 
 ///-------------------------------------------------------------------------------------------
 
-    std::string inputPath = "Images/CELLS/";
+    /*std::string*/ inputPath = "Images/CELLS/";
 
     for (auto& p : std::filesystem::directory_iterator(inputPath))
     {
@@ -98,6 +124,8 @@ int main()
         field_block.insert({name, cur_texture});
     }
     cout << endl;
+
+///-------------------------------------------------------------------------------------------
 
     inputPath = "Images/CELL_objects/";
     for (auto& p : std::filesystem::directory_iterator(inputPath))
@@ -128,6 +156,7 @@ int main()
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
+        main_menu.addButton("ESCAPE" ,UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1870, 30);
     ///--------------------------------------------------------
     Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
         field_scene.someTextures(0);
@@ -136,6 +165,7 @@ int main()
     Scene_editor editor_scene = new_editor_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
         editor_scene.someTextures(0);
         editor_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
+        editor_scene.addButton("main_menu" ,UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1870, 30);
 
 
     cout << "field made\n";
@@ -164,6 +194,14 @@ int main()
                 if (command_main == "editor_scene")
                 {
                     Current_Scene = &editor_scene;
+                }
+                else if (command_main == "ESCAPE")
+                {
+                    window.close();
+                }
+                else if (command_main == "main_menu")
+                {
+                    Current_Scene = &main_menu;
                 }
             }
         }

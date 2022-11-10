@@ -37,6 +37,8 @@
 		<Unit filename="AnimatedSprite.h" />
 		<Unit filename="Animation.cpp" />
 		<Unit filename="Animation.h" />
+		<Unit filename="Button.cpp" />
+		<Unit filename="Button.h" />
 		<Unit filename="Cell.cpp" />
 		<Unit filename="Cell.h" />
 		<Unit filename="Cell_object.cpp" />

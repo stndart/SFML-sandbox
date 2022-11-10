@@ -30,6 +30,13 @@ void Scene::addSprite(AnimatedSprite* sprite)
     sprites.push_back(sprite);
 }
 
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y)
+{
+    Button* new_button = new Button(name, texture_default, texture_released);
+    new_button->change_position(sf::Vector2f{x, y});
+    buttons.push_back(new_button);
+}
+
 void Scene::update(Event& event, std::string& command_main)
 {
     if (event.type == Event::MouseButtonPressed){
@@ -53,6 +60,16 @@ void Scene::update(Event& event, std::string& command_main)
                 if (s->getGlobalBounds().contains(curPos))
                 {
                     s->onClick(true);
+                }
+            }
+            for (auto b : buttons)
+            {
+                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+                if (b->contains(curPos))
+                {
+                    b->push_button();
+                    pushed_buttons.push_back(b);
+                    break;
                 }
             }
             break;
@@ -86,6 +103,16 @@ void Scene::update(Event& event, std::string& command_main)
                     command_main = "editor_scene";
                 }
             }
+            while (pushed_buttons.size() > 0)
+            {
+                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
+                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
+                {
+                    command_main = answer;
+                }
+                pushed_buttons.pop_back();
+            }
             break;
 
         default:
@@ -104,7 +131,7 @@ void Scene::update(Time deltaTime)
     }
 }
 
-void Scene::draw(RenderTarget& target, RenderStates states) const
+void Scene::draw_scene_back(RenderTarget& target, RenderStates states) const
 {
     //std::cout << "Who asked " << name << " to draw?\n";
     //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
@@ -115,9 +142,23 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
     }
+}
+
+void Scene::draw_scene_buttons(RenderTarget& target, RenderStates states) const
+{
     for (std::size_t i = 0; i < sprites.size(); ++i)
         if (sprites[i])
             target.draw(*sprites[i]);
+
+    for (std::size_t i = 0; i < buttons.size(); ++i)
+        if (buttons[i])
+            target.draw(*buttons[i]);
+}
+
+void Scene::draw(RenderTarget& target, RenderStates states) const
+{
+    draw_scene_back(target, states);
+    draw_scene_buttons(target, states);
 }
 
 Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
