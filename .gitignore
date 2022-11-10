@@ -17,6 +17,8 @@
 # Build
 /bin/*
 /obj/*
+/SFML/*
+/json/*
 
 # Resources
 
@@ -24,8 +26,4 @@
 *.txt
 *.cbp
 *.depend
-<<<<<<< HEAD
 *.layout
-=======
-*.layout
->>>>>>> 6f95ace (sfml_local_fix)
