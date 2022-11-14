@@ -15,8 +15,10 @@ Field::Field(int length, int width, std::string name) : background(NULL), name(n
 {
     cell_length_x = 120;
     cell_length_y = 120;
-    cell_0_screen_x = (length + 1) * cell_length_x / 2;
-    cell_0_screen_y = (width  + 1) * cell_length_y / 2;
+//    cell_0_screen_x = (length + 1) * cell_length_x / 2;
+//    cell_0_screen_y = (width  + 1) * cell_length_y / 2;
+    cell_0_screen_x = 0;
+    cell_0_screen_y = 0;
 }
 
 void Field::addTexture(Texture* texture, IntRect rect)
@@ -182,6 +184,15 @@ void Field::save_field(int num)
     ofs.close();
 }
 
+void Field::update(Time deltaTime)
+{
+    if (player_0)
+    {
+        cell_0_screen_x = player_0->x_cell_coord * cell_length_x;
+        cell_0_screen_y = player_0->y_cell_coord * cell_length_y;
+    }
+}
+
 void Field::draw(RenderTarget& target, RenderStates states) const
 {
     if (background)
@@ -191,13 +202,11 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         target.draw(m_vertices, 4, Quads, states);
     }
 
-//    int center_cell_x = (cell_0_screen_x - 960) / cell_length_x + 3;
-//    int center_cell_y = (cell_0_screen_y - 540) / cell_length_y + 3;
     int center_cell_x = cell_0_screen_x / cell_length_x;
     int center_cell_y = cell_0_screen_y / cell_length_y;
     double cell_screen_x, cell_screen_y;
     /// „то за магические 5 и 8? я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
-    for (int i = center_cell_x - 8; i < center_cell_x + 8; ++i)
+    for (int i = center_cell_x - 8; i < center_cell_x + 9; ++i)
         for (int j = center_cell_y - 5; j < center_cell_y + 5; ++j)
         {
             // borders check

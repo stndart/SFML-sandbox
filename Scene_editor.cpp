@@ -123,7 +123,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
 
 void Scene_editor::update(Time deltaTime)
 {
-    // empty
+    field[current_field]->update(deltaTime);
 }
 
 void Scene_editor::command(std::string data)

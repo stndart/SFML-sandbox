@@ -65,7 +65,7 @@ void Scene_Field::update(Event& event, std::string& command_main)
 
 void Scene_Field::update(Time deltaTime)
 {
-    // empty
+    field[current_field]->update(deltaTime);
 }
 
 void Scene_Field::someTextures(int num)
