@@ -2,7 +2,9 @@
 #include <iostream>
 #include <typeinfo>
 
-Player::Player(std::string name, Texture* texture) : background(texture), name(name)
+Player::Player(std::string name, Texture* texture) : background(texture), name(name),
+x_cell_coord(0), y_cell_coord(0),
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 {
 
 }

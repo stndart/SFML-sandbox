@@ -14,8 +14,9 @@ private:
     Texture* background;
 public:
     std::string name;
-    double x_coord;
-    double y_coord;
+    unsigned int x_cell_coord, y_cell_coord;
+    double x_cell_movement_coord, y_cell_movement_coord;
+    bool movement_animation;
     Player(std::string name, Texture* background);
     void addTexCoords(IntRect rect);
     void draw(RenderTarget& target, RenderStates states) const override;
