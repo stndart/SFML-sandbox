@@ -1,13 +1,14 @@
 #include "AnimatedSprite.h"
 
-AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped) : name(name),
-    m_isPaused(paused), m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), m_isLooped(looped), m_texture(NULL)
+AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) : name(name),
+    m_isPaused(paused), m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0),
+    m_isLooped(looped), isReversed(false), isReversible(reversible), m_texture(NULL)
 {
 
 }
 
 AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) : name(name),
-    m_isPaused(true), m_frameTime(seconds(0.2f)), m_currentFrame(0), m_isLooped(true)
+    m_isPaused(true), m_frameTime(seconds(0.2f)), m_currentFrame(0), m_isLooped(true), isReversed(false), isReversible(false)
 {
     m_texture = &texture;
     m_animation = new Animation();
@@ -58,6 +59,16 @@ void AnimatedSprite::setLooped(bool looped)
     m_isLooped = looped;
 }
 
+void AnimatedSprite::setReversed(bool reversed)
+{
+    m_isReversed = reversed;
+}
+
+void AnimatedSprite::setReversible(bool reversible)
+{
+    m_isReversible = reversible;
+}
+
 void AnimatedSprite::setColor(const Color& color)
 {
     // Update the vertices' color
@@ -85,6 +96,16 @@ FloatRect AnimatedSprite::getGlobalBounds() const
 bool AnimatedSprite::isLooped() const
 {
     return m_isLooped;
+}
+
+bool AnimatedSprite::isReversed() const
+{
+    return m_isReversed;
+}
+
+bool AnimatedSprite::isReversible() const
+{
+    return m_isReversible;
 }
 
 bool AnimatedSprite::isPlaying() const
@@ -144,47 +165,72 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 
 void AnimatedSprite::update(Time deltaTime)
 {
-    //std::cout << name << " update pos " << getPosition().x << " " << getPosition().y << std::endl;
-
     // if not paused and we have a valid animation
-
     if (!m_isPaused && m_animation)
     {
         // add delta time
-        m_currentTime = deltaTime;
+        m_currentTime += deltaTime;
 
         // if current time is bigger then the frame time advance one frame
         while (m_currentTime >= m_frameTime)
         {
-            // shift time by one frame, but keep the remainder
+            // shift time by one frame back, but keep the remainder
             m_currentTime = microseconds(m_currentTime.asMicroseconds() - m_frameTime.asMicroseconds());
 
+            // check if shifting frames makes sense
+            if (m_animation->getSize() < 2) break;
             // get next Frame index
-            if (m_currentFrame + 1 < m_animation->getSize()) {
-                m_currentFrame++;
+            int nextFrame;
+            if (m_isReversed)
+                nextFrame = m_currentFrame + 1;
+            else
+                nextFrame = m_currentFrame - 1;
+            if (nextFrame < m_animation->getSize() && nextFrame >= 0) {
+                m_currentFrame = nextFrame;
             }
             else
             {
-                // animation has ended
-                //m_currentFrame = 0; // reset to start
-
-                if (!m_isLooped)
+                // animation has reached last frame
+                if (m_isReversed)
                 {
-                    m_isPaused = true;
-                    break;
+                    if (m_isLooped)
+                    {
+                        // since frame 0 is already displayed and we need to reverse
+                        m_currentFrame = 1;
+                        m_isReversed = false;
+                    }
+                    else
+                    {
+                        m_isReversed = false;
+                        m_currentFrame = 0;
+                        m_isPaused = true;
+                        break;
+                    }
                 }
-
+                else
+                {
+                    if (m_isReversible)
+                    {
+                        // since last frame is already displayed and we need to reverse
+                        m_currentFrame = m_animation->getSize() - 2;
+                        m_isReversed = true;
+                    }
+                    else if (m_isLooped)
+                    {
+                        m_currentFrame = 0;
+                    }
+                    else
+                    {
+                        m_isPaused = true;
+                        break;
+                    }
+                }
             }
 
             // set the current frame, not reseting the time
             setFrame(m_currentFrame, false);
         }
     }
-}
-
-void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
-{
-    draw(target, states);
 }
 
 void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const

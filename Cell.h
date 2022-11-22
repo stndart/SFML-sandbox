@@ -30,7 +30,7 @@ public:
     void save_cell(unsigned int x, unsigned int y, Json::Value& Location);
 
 
-    void draw(RenderTarget& target, RenderStates states) const override;
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
 
     // TEMP
     int mapsize()

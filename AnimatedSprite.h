@@ -30,6 +30,8 @@ public:
     virtual void pause();
     virtual void stop();
     virtual void setLooped(bool looped);
+    virtual void setReversible(bool reversible);
+    virtual void setReversed(bool reversed);
     virtual void setColor(const Color& color);
     virtual Animation* getAnimation();
     virtual void move(const Vector2f &offset);
@@ -38,10 +40,12 @@ public:
     FloatRect getLocalBounds() const;
     FloatRect getGlobalBounds() const;
     bool isLooped() const;
+    bool isReversed() const;
+    bool isReversible() const;
     bool isPlaying() const;
     Time getFrameTime() const;
     void setFrame(std::size_t newFrame, bool resetTime = true);
-    virtual void redraw(RenderTarget& target, RenderStates states) const;
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
 
     void onClick(bool pressed);
 
@@ -53,12 +57,15 @@ private:
     Animation* m_animation;
     Time m_frameTime; //time for 1 frame
     std::size_t m_currentFrame;
+    // replays animation from the beginning after the end is reached
     bool m_isLooped;
+    // if animation is played backwards
+    bool m_isReversed;
+    // animation extends after its end with itself backwards.
+    // m_isLooped in this case indicates if animation sways once or multiple times
+    bool m_isReversible;
     Texture* m_texture;
     Vertex m_vertices[4];
-
-    virtual void draw(RenderTarget& target, RenderStates states) const override;
-
 };
 
 #endif // ANIMATEDSPRITE_INCLUDE

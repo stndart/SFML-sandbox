@@ -22,13 +22,14 @@ protected:
 
     void draw_scene_back(RenderTarget& target, RenderStates states) const;
     void draw_scene_buttons(RenderTarget& target, RenderStates states) const;
-    void draw(RenderTarget& target, RenderStates states) const override;
 public:
     std::string name;
     Scene(std::string name);
     void addTexture(Texture* texture, IntRect rect);
     void addSprite(AnimatedSprite* sprite);
     void addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y);
+
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
     virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
 };

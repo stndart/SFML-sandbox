@@ -38,8 +38,8 @@ public:
     void someTextures(std::map <std::string, Texture*> &field_block, int num);
     void save_field(int num);
 
-    void draw(RenderTarget& target, RenderStates states) const override;
-    void update(Time deltaTime);
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
+    virtual void update(Time deltaTime);
 
     //TEMP
     int mapsize(int x, int y)

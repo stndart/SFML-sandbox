@@ -15,6 +15,7 @@ public:
     Cell_object(std::string name, Texture* texture);
     ~Cell_object();
     void addTexCoords(IntRect rect);
-    void draw(RenderTarget& target, RenderStates states) const override;
+
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 #endif // CELL_OBJECT_INCLUDE

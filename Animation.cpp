@@ -40,11 +40,13 @@ std::size_t Animation::getSize() const
     return m_frames.size();
 }
 
+// return frame coordinates of n frame
 const IntRect& Animation::getFrame(std::size_t n) const
 {
     return m_frames[n];
 }
 
+// return spritesheet index of n frame
 int Animation::getTextureIndex(std::size_t n) const
 {
     return texture_index[n];

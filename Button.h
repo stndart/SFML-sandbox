@@ -22,7 +22,7 @@ class Button : public sf::Drawable, public sf::Transformable
         sf::Sprite* sprite_default;
         sf::Sprite* sprite_pushed;
 
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 #endif // BUTTON_H_INCLUDED
