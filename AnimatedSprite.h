@@ -45,6 +45,7 @@ public:
     virtual Time getFrameTime() const;
     virtual void setFrame(std::size_t newFrame, bool resetTime = true);
     virtual void setPosition(const Vector2f &position);
+    virtual Vector2f getPosition() const;
     virtual void update(Time deltaTime);
     virtual void redraw(RenderTarget& target, RenderStates states) const;
     virtual void draw(RenderTarget& target, RenderStates states) const override;

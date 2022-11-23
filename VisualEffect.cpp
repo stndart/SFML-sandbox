@@ -36,12 +36,14 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : Anim
         break;
     }
 
+    m_currentTime = offset;
     now = start;
 }
 
 VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, State start, State finish) : AnimatedSprite("default veffect"),
     duration(duration), offset(offset), start(start), finish(finish), sprite(sprite)
 {
+    m_currentTime = offset;
     now = start;
     //std::cout << name << " now owns " << sprite->name << std::endl;
 }
@@ -181,6 +183,11 @@ State curstate(State start, State finish, Time duration, Time now)
     return mid;
 }
 
+Vector2f VisualEffect::getPosition() const
+{
+    return sprite->getPosition();
+}
+
 void VisualEffect::update(Time deltaTime)
 {
     std::cout << "VE is paused? " << m_isPaused << std::endl;
@@ -195,7 +202,7 @@ void VisualEffect::update(Time deltaTime)
 
         Time midTime = offset + duration / 2.0f;
 
-        if (m_currentTime > offset && m_currentTime < offset + duration)
+        if (m_currentTime < offset + duration)
         {
             State s;
             State mid = midstate(start, finish, duration);
@@ -216,7 +223,7 @@ void VisualEffect::update(Time deltaTime)
             scale(now.scale);
             setColor(now.color);
         }
-        if (m_currentTime >= offset + duration)
+        else
         {
             move(-now.pos);
             rotate(-now.rotation);

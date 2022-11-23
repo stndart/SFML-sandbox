@@ -25,6 +25,11 @@ void Player::setPosition(const Vector2f &position)
     sprite->setPosition(position);
 }
 
+Vector2f Player::getPosition() const
+{
+    return sprite->getPosition();
+}
+
 void Player::update(Time deltaTime)
 {
     sprite->update(deltaTime);

@@ -155,8 +155,6 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_vertices[2].texCoords = Vector2f(right, bottom);
         m_vertices[3].texCoords = Vector2f(right, top);
 
-        std::cout << "new frame " << newFrame << std::endl;
-
         m_texture = m_animation->getSpriteSheet(m_animation->getTextureIndex(newFrame));
     }
 
@@ -167,6 +165,11 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 void AnimatedSprite::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
+}
+
+Vector2f AnimatedSprite::getPosition() const
+{
+    return Transformable::getPosition();
 }
 
 void AnimatedSprite::update(Time deltaTime)

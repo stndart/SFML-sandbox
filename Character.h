@@ -38,6 +38,7 @@ class Character : public Drawable, public Transformable
         // direction = -1 if unspecified, then automatic
         void movement(Vector2f shift, int direction=-1, string animation_name="", Time duration=seconds(2));
         virtual void setPosition(const Vector2f &position);
+        virtual Vector2f getPosition() const;
 
         virtual void update(Time deltaTime);
         virtual void draw(RenderTarget& target, RenderStates states) const override;

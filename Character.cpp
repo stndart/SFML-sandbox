@@ -8,6 +8,7 @@ Character::Character()
 Character::Character(string name, Texture &texture_default, IntRect frame0) : name(name), animated(false), is_moving(false), facing_direction(0)
 {
     base_sprite = new AnimatedSprite(name, texture_default, frame0);
+    base_sprite->setFrameTime(seconds(0.05));
     sprite = base_sprite;
     idle_animation = "idle_animation_0";
     next_animation = {""};
@@ -134,11 +135,17 @@ void Character::setPosition(const Vector2f &position)
     // base_sprite->setPosition(position); // redundant
 }
 
+Vector2f Character::getPosition() const
+{
+    return sprite->getPosition();
+}
+
 void Character::update(Time deltaTime)
 {
     //cout << "Character update is moving? " << is_moving << " VE? " << (sprite != base_sprite) << endl;
     if (!is_moving)
     {
+        base_sprite->pause();
         if (sprite != base_sprite)
         {
             sprite->pause();

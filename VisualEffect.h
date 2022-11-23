@@ -63,6 +63,7 @@ public:
     void setLooped(bool looped) override;
     void setColor(const Color& color) override;
     void setPosition(const Vector2f &position) override;
+    Vector2f getPosition() const override;
     virtual void update(Time deltaTime) override;
     virtual void redraw(RenderTarget& target, RenderStates states) const override;
     virtual void draw(RenderTarget& target, RenderStates states) const override;

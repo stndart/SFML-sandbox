@@ -274,20 +274,10 @@ void Field::update(Time deltaTime)
         {
             cell_center_x = player_0->x_cell_coord;
             cell_center_y = player_0->y_cell_coord;
-            view_changed = true;
         }
 
-        double player_screen_x, player_screen_y;
-        player_screen_x = player_0->x_cell_coord * cell_length_x;
-        player_screen_y = player_0->y_cell_coord * cell_length_y;
-
-        if (player_0->movement_animation)
-        {
-            player_screen_x += player_0->x_cell_movement_coord;
-            player_screen_y += player_0->y_cell_movement_coord;
-        }
         player_0->update(deltaTime);
-        //player_0->setPosition(Vector2f(player_screen_x, player_screen_y));
+        view_changed = true;
 
     }
 

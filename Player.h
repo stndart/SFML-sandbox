@@ -23,6 +23,7 @@ public:
 
     void move_player(Vector2f shift, int direction=-1);
     void setPosition(const Vector2f &position);
+    Vector2f getPosition() const;
     void update(Time deltaTime);
     void draw(RenderTarget& target, RenderStates states) const override;
 
