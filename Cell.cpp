@@ -54,10 +54,10 @@ bool Cell::hasObject(std::string name)
 Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
 {
     Cell_object* new_object = new Cell_object(name, texture);
-    /// Что за магическое число 120?
+    /// Р§С‚Рѕ Р·Р° РјР°РіРёС‡РµСЃРєРѕРµ С‡РёСЃР»Рѕ 120?
     new_object->addTexCoords(IntRect(0, 0, 120, 120));
     new_object->depth_level = depth_level;
-    /// TODO: обработать, если objects[name] уже существует
+    /// TODO: РѕР±СЂР°Р±РѕС‚Р°С‚СЊ, РµСЃР»Рё objects[name] СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
     objects[name] = new_object;
     return new_object;
 }
@@ -69,9 +69,9 @@ void Cell::removeObject(std::string name)
 
 void Cell::action_change(std::string name, Texture* texture)
 {
-    /// TODO: запихнуть все именные действия в json
-    /// Что-то вроде "choptree" = remove: "tree", add: "stump"
-    /// Этот метод превратится в "заменить %a на %b"
+    /// TODO: Р·Р°РїРёС…РЅСѓС‚СЊ РІСЃРµ РёРјРµРЅРЅС‹Рµ РґРµР№СЃС‚РІРёСЏ РІ json
+    /// Р§С‚Рѕ-С‚Рѕ РІСЂРѕРґРµ "choptree" = remove: "tree", add: "stump"
+    /// Р­С‚РѕС‚ РјРµС‚РѕРґ РїСЂРµРІСЂР°С‚РёС‚СЃСЏ РІ "Р·Р°РјРµРЅРёС‚СЊ %a РЅР° %b"
     removeObject(name);
     if (name == "tree")
     {

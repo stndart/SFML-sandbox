@@ -159,7 +159,7 @@ void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Textur
     cells_changed = true;
 }
 
-/// Спасибо, очень понятная функция, особенно из-за названия и комментариев
+/// РЎРїР°СЃРёР±Рѕ, РѕС‡РµРЅСЊ РїРѕРЅСЏС‚РЅР°СЏ С„СѓРЅРєС†РёСЏ, РѕСЃРѕР±РµРЅРЅРѕ РёР·-Р·Р° РЅР°Р·РІР°РЅРёСЏ Рё РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
 void Field::someTextures(std::map <std::string, Texture*> &field_block, int num)
 {
     std::string path = "Locations/loc_";
@@ -298,7 +298,7 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
     int center_cell_x = cell_0_screen_x / cell_length_x;
     int center_cell_y = cell_0_screen_y / cell_length_y;
-    /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
+    /// Р§С‚Рѕ Р·Р° РјР°РіРёС‡РµСЃРєРёРµ 5 Рё 8? РЇ Р·РЅР°СЋ, С‡С‚Рѕ СЌС‚Рѕ 16/2 Рё 10/2, Р° 10 Рё 16 - С‡С‚Рѕ С‚Р°РєРѕРµ?
     for (int i = center_cell_x - 8; i < center_cell_x + 9; ++i)
         for (int j = center_cell_y - 5; j < center_cell_y + 5; ++j)
         {
