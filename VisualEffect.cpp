@@ -46,6 +46,18 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, S
     //std::cout << name << " now owns " << sprite->name << std::endl;
 }
 
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos) : AnimatedSprite("default motion effect"),
+    duration(duration), offset(offset), sprite(sprite)
+{
+    float T = duration.asMicroseconds();
+    Vector2f speed = (finish_pos - start_pos) / T;
+    start = {0, Color(255, 255, 255, 0),
+        start_pos, speed, Vector2f(1, 1)};
+    finish = {0, Color(255, 255, 255, 0),
+        finish_pos, speed, Vector2f(1, 1)};
+    now = start;
+}
+
 void VisualEffect::play()
 {
     m_isPaused = false;
@@ -103,12 +115,27 @@ void VisualEffect::scale(const Vector2f &factor)
         sprite->scale(factor);
 }
 
+bool VisualEffect::isPlaying() const
+{
+    return !m_isPaused;
+}
+
+void VisualEffect::setPosition(const Vector2f &position)
+{
+    AnimatedSprite::setPosition(position);
+    sprite->setPosition(position);
+}
 
 Animation* VisualEffect::getAnimation()
 {
     if (sprite)
         return sprite->getAnimation();
     return NULL;
+}
+
+void VisualEffect::setAnimation(Animation& animation)
+{
+    sprite->setAnimation(animation);
 }
 
 Vector2f midspeed(State start, State finish, Time duration)
@@ -156,10 +183,13 @@ State curstate(State start, State finish, Time duration, Time now)
 
 void VisualEffect::update(Time deltaTime)
 {
+    std::cout << "VE is paused? " << m_isPaused << std::endl;
+
+    if (sprite)
+        sprite->update(deltaTime);
+
     if (!m_isPaused)
     {
-        if (sprite)
-            sprite->update(deltaTime);
 
         m_currentTime += deltaTime;
 
@@ -198,6 +228,8 @@ void VisualEffect::update(Time deltaTime)
             rotate(now.rotation);
             scale(now.scale);
             setColor(now.color);
+
+            m_isPaused = true;
         }
     }
 }

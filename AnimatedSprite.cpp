@@ -2,13 +2,13 @@
 
 AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) : name(name),
     m_isPaused(paused), m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0),
-    m_isLooped(looped), isReversed(false), isReversible(reversible), m_texture(NULL)
+    m_isLooped(looped), m_isReversed(false), m_isReversible(reversible), m_texture(NULL)
 {
 
 }
 
 AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) : name(name),
-    m_isPaused(true), m_frameTime(seconds(0.2f)), m_currentFrame(0), m_isLooped(true), isReversed(false), isReversible(false)
+    m_isPaused(true), m_frameTime(seconds(0.2f)), m_currentFrame(0), m_isLooped(true), m_isReversed(false), m_isReversible(false)
 {
     m_texture = &texture;
     m_animation = new Animation();
@@ -135,7 +135,6 @@ void AnimatedSprite::scale(const Vector2f &factor)
 
 void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 {
-    std::cout << "I'm done. SetFrame" << std::endl;
     if (m_animation)
     {
         //calculate new vertex positions and texture coordiantes
@@ -156,6 +155,8 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_vertices[2].texCoords = Vector2f(right, bottom);
         m_vertices[3].texCoords = Vector2f(right, top);
 
+        std::cout << "new frame " << newFrame << std::endl;
+
         m_texture = m_animation->getSpriteSheet(m_animation->getTextureIndex(newFrame));
     }
 
@@ -163,14 +164,22 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_currentTime = Time::Zero;
 }
 
+void AnimatedSprite::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+}
+
 void AnimatedSprite::update(Time deltaTime)
 {
+    std::cout << "==animated sprite playing? " << (!m_isPaused && m_animation) << " with curframe " << m_currentFrame << std::endl;
+
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
         // add delta time
         m_currentTime += deltaTime;
 
+        std::cout << "current time " << m_currentTime.asMicroseconds() << " and frame time " << m_frameTime.asMicroseconds() << std::endl;
         // if current time is bigger then the frame time advance one frame
         while (m_currentTime >= m_frameTime)
         {
@@ -178,13 +187,20 @@ void AnimatedSprite::update(Time deltaTime)
             m_currentTime = microseconds(m_currentTime.asMicroseconds() - m_frameTime.asMicroseconds());
 
             // check if shifting frames makes sense
-            if (m_animation->getSize() < 2) break;
+            if (m_animation->getSize() < 2)
+            {
+                std::cout << "too small\n";
+                break;
+            }
             // get next Frame index
-            int nextFrame;
-            if (m_isReversed)
+            size_t nextFrame;
+            if (!m_isReversed)
                 nextFrame = m_currentFrame + 1;
             else
                 nextFrame = m_currentFrame - 1;
+
+            std::cout << "next frame " << nextFrame << std::endl;
+
             if (nextFrame < m_animation->getSize() && nextFrame >= 0) {
                 m_currentFrame = nextFrame;
             }
@@ -204,6 +220,7 @@ void AnimatedSprite::update(Time deltaTime)
                         m_isReversed = false;
                         m_currentFrame = 0;
                         m_isPaused = true;
+                        std::cout << "last first frame reached\n";
                         break;
                     }
                 }
@@ -222,30 +239,40 @@ void AnimatedSprite::update(Time deltaTime)
                     else
                     {
                         m_isPaused = true;
+                        std::cout << "last frame reached\n";
                         break;
                     }
                 }
             }
 
             // set the current frame, not reseting the time
+            std::cout << "set frame " << m_currentFrame << std::endl;
             setFrame(m_currentFrame, false);
         }
     }
+    std::cout << "update out\n";
+}
+
+void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
+{
+    draw(target, states);
 }
 
 void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 {
     //std::cout << "Who asked " << name << " to draw?\n";
-    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
+    std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
 
     if (m_animation && m_texture)
     {
+        std::cout << "drawing " << m_texture << std::endl;
         states.transform *= getTransform();
         states.texture = m_texture;
         target.draw(m_vertices, 4, Quads, states);
     }
-}
 
+    std::cout << "draw out\n";
+}
 void AnimatedSprite::onClick(bool pressed)
 {
     if (pressed)

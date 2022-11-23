@@ -19,10 +19,9 @@ class AnimatedSprite : public Drawable, public Transformable
 public:
     std::string name; /// TEMP
 
-    explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true);
+    explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true, bool reversible = false);
     AnimatedSprite(std::string name, Texture& texture, IntRect frame0);
 
-    virtual void update(Time deltaTime);
     void setAnimation(Animation& animation);
     void setFrameTime(Time time);
     virtual void play();
@@ -39,12 +38,15 @@ public:
     virtual void scale(const Vector2f &factor);
     FloatRect getLocalBounds() const;
     FloatRect getGlobalBounds() const;
-    bool isLooped() const;
-    bool isReversed() const;
-    bool isReversible() const;
-    bool isPlaying() const;
-    Time getFrameTime() const;
-    void setFrame(std::size_t newFrame, bool resetTime = true);
+    virtual bool isLooped() const;
+    virtual bool isReversed() const;
+    virtual bool isReversible() const;
+    virtual bool isPlaying() const;
+    virtual Time getFrameTime() const;
+    virtual void setFrame(std::size_t newFrame, bool resetTime = true);
+    virtual void setPosition(const Vector2f &position);
+    virtual void update(Time deltaTime);
+    virtual void redraw(RenderTarget& target, RenderStates states) const;
     virtual void draw(RenderTarget& target, RenderStates states) const override;
 
     void onClick(bool pressed);

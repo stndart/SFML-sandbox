@@ -32,7 +32,7 @@ int Animation::addSpriteSheet(Texture& texture)
 
 Texture* Animation::getSpriteSheet(int i)
 {
-    return textures[i];
+    return textures[texture_index[i]];
 }
 
 std::size_t Animation::getSize() const

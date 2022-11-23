@@ -20,6 +20,9 @@ private:
     Vertex m_vertices[4];
     double cell_0_screen_x, cell_0_screen_y;
     double cell_length_x, cell_length_y;
+    unsigned int cell_center_x, cell_center_y;
+    View current_view;
+    bool view_changed, cells_changed;
 public:
     std::string name;
     Player* player_0;
@@ -37,6 +40,8 @@ public:
     void change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture);
     void someTextures(std::map <std::string, Texture*> &field_block, int num);
     void save_field(int num);
+    void place_characters();
+    void update_view_center();
 
     virtual void draw(RenderTarget& target, RenderStates states) const override;
     virtual void update(Time deltaTime);
