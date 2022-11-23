@@ -33,7 +33,7 @@ int main()
 {
     // setup window
     Vector2i screenDimensions(1920, 1080);
-    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");//, sf::Style::Fullscreen);
+    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
     window.setFramerateLimit(60);
 
     // load textures

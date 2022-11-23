@@ -237,16 +237,34 @@ void Field::place_characters()
     update_view_center();
 }
 
+Vector2f Field::check_view_bounds(Vector2f view_center)
+{
+    double view_center_x = view_center.x;
+    double view_center_y = view_center.y;
+    if ((cells.size() - 1) * cell_length_x - view_center_x < 960)
+        view_center_x = ((cells.size() - 1) - 960 / cell_length_x) * cell_length_x;
+    if (-1 * cell_length_x + view_center_x < 960)
+        view_center_x = (1 + 960 / cell_length_x) * cell_length_x;
+
+    if ((cells[0].size() - 1) * cell_length_y - view_center_y < 540)
+        view_center_y = ((cells[0].size() - 1) - 540 / cell_length_y) * cell_length_y;
+    if (-1 * cell_length_y + view_center_y < 540)
+        view_center_y = (1 + 540 / cell_length_y) * cell_length_y;
+
+    return Vector2f(view_center_x, view_center_y);
+}
+
 void Field::update_view_center()
 {
-    double view_center_x = cell_center_x * cell_length_x;
-    double view_center_y = cell_center_y * cell_length_y;
+    Vector2f view_center = Vector2f(cell_center_x * cell_length_x,
+                                    cell_center_y * cell_length_y);
     if (player_0)
     {
-        view_center_x = player_0->getPosition().x;
-        view_center_y = player_0->getPosition().y;
+        view_center = player_0->getPosition();
     }
-    current_view.setCenter(Vector2f(view_center_x, view_center_y));
+    view_center = check_view_bounds(view_center);
+
+    current_view.setCenter(view_center);
     view_changed = false;
 }
 
@@ -276,6 +294,10 @@ void Field::update(Time deltaTime)
             cell_center_y = player_0->y_cell_coord;
         }
 
+        Vector2f cell_0_screen = check_view_bounds(Vector2f(cell_0_screen_x, cell_0_screen_y));
+        cell_0_screen_x = cell_0_screen.x;
+        cell_0_screen_y = cell_0_screen.y;
+
         player_0->update(deltaTime);
         view_changed = true;
 
@@ -299,8 +321,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     int center_cell_x = cell_0_screen_x / cell_length_x;
     int center_cell_y = cell_0_screen_y / cell_length_y;
     /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
-    for (int i = center_cell_x - 8; i < center_cell_x + 9; ++i)
-        for (int j = center_cell_y - 5; j < center_cell_y + 5; ++j)
+    for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+        for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
         {
             // borders check
             if (i < 0 || i >= (int)cells.size())

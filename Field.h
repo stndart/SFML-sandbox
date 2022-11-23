@@ -23,6 +23,7 @@ private:
     unsigned int cell_center_x, cell_center_y;
     View current_view;
     bool view_changed, cells_changed;
+    Vector2f check_view_bounds(Vector2f view_center);
 public:
     std::string name;
     Player* player_0;
