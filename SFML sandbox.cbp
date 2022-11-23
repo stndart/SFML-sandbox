@@ -43,6 +43,8 @@
 		<Unit filename="Cell.h" />
 		<Unit filename="Cell_object.cpp" />
 		<Unit filename="Cell_object.h" />
+		<Unit filename="Character.cpp" />
+		<Unit filename="Character.h" />
 		<Unit filename="Field.cpp" />
 		<Unit filename="Field.h" />
 		<Unit filename="Player.cpp" />

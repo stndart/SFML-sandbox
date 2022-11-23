@@ -25,16 +25,16 @@ void Scene_editor::update(Event& event, std::string& command_main)
         switch (event.key.code)
         {
         case sf::Keyboard::W:
-            field[current_field]->move_player(0, 1);
+            field[current_field]->move_player(3);
             break;
         case sf::Keyboard::D:
-            field[current_field]->move_player(1, 1);
+            field[current_field]->move_player(0);
             break;
         case sf::Keyboard::S:
-            field[current_field]->move_player(0, -1);
+            field[current_field]->move_player(1);
             break;
         case sf::Keyboard::A:
-            field[current_field]->move_player(1, -1);
+            field[current_field]->move_player(2);
             break;
         case sf::Keyboard::Space:
             field[current_field]->action((*field_block)["stump"]);
@@ -123,7 +123,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
 
 void Scene_editor::update(Time deltaTime)
 {
-    // empty
+    field[current_field]->update(deltaTime);
 }
 
 void Scene_editor::command(std::string data)
@@ -161,9 +161,8 @@ void Scene_editor::command(std::string data)
             int y = -1;
             if (s[2] == "~" && s[3] == "~")
             {
-                std::pair <int, int> player_coords = field[current_field]->get_player_cell_coord();
-                x = player_coords.first;
-                y = player_coords.second;
+                x = field[current_field]->player_0->x_cell_coord;
+                y = field[current_field]->player_0->y_cell_coord;
             }
             else
             {
@@ -180,7 +179,7 @@ void Scene_editor::command(std::string data)
                 s_input = "can't find the texture";
                 return;
             }
-            field[current_field]->add_object_to_cell(s[4], x, y, (*field_block)[s[4]]);
+            field[current_field]->add_object_to_cell(x, y, s[4], (*field_block)[s[4]]);
         }
         else
         {
@@ -201,9 +200,8 @@ void Scene_editor::command(std::string data)
             int y = -1;
             if (s[2] == "~" && s[3] == "~")
             {
-                std::pair <int, int> player_coords = field[current_field]->get_player_cell_coord();
-                x = player_coords.first;
-                y = player_coords.second;
+                x = field[current_field]->player_0->x_cell_coord;
+                y = field[current_field]->player_0->y_cell_coord;
             }
             else
             {
@@ -220,7 +218,7 @@ void Scene_editor::command(std::string data)
                 s_input = "can't find the texture";
                 return;
             }
-            field[current_field]->change_cell_texture(s[4], x, y, (*field_block)[s[4]]);
+            field[current_field]->change_cell_texture(x, y, s[4], (*field_block)[s[4]]);
         }
         else
         {

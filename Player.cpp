@@ -2,38 +2,59 @@
 #include <iostream>
 #include <typeinfo>
 
-Player::Player(std::string name, Texture* texture) : background(texture), name(name)
+Player::Player(std::string name, Texture* texture, IntRect frame0) : name(name),
+x_cell_coord(0), y_cell_coord(0),
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 {
-
+    sprite = new Character(name, *texture, frame0);
 }
 
-void Player::addTexCoords(IntRect rect)
+void Player::move_player(Vector2f shift, int direction)
 {
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
+    sprite->movement(shift, direction);
+}
 
-    float left = static_cast<float>(rect.left) + 0.0001f;
-    float right = left + static_cast<float>(rect.width);
-    float top = static_cast<float>(rect.top);
-    float bottom = top + static_cast<float>(rect.height);
+bool Player::is_moving() const
+{
+    return sprite->isMoving();
+}
 
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+void Player::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+    sprite->setPosition(position);
+}
+
+Vector2f Player::getPosition() const
+{
+    return sprite->getPosition();
+}
+
+void Player::update(Time deltaTime)
+{
+    sprite->update(deltaTime);
 }
 
 void Player::draw(RenderTarget& target, RenderStates states) const
 {
-    //std::cout << "Who asked " << name << " to draw?\n";
-    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
+    sprite->draw(target, states);
+}
 
-    if (background)
-    {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
-    }
+void Player::add_animation(string animation_name, Animation* p_animation)
+{
+    sprite->add_animation(animation_name, p_animation);
+}
+void Player::set_animation(string animation_name)
+{
+    sprite->set_animation(animation_name);
+}
+void Player::set_next_animation(string animation_name)
+{
+    sprite->set_next_animation(animation_name);
+}
+void Player::set_idle_animation(string animation_name)
+{
+    sprite->idle_animation = animation_name;
+    sprite->sprite->setLooped(true);
+    sprite->set_animation(animation_name);
 }

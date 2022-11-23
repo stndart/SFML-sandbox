@@ -21,8 +21,11 @@ public:
     int getTextureIndex(std::size_t n) const;
 
 private:
+    // frames coordinates on spritesheet list
     std::vector<IntRect> m_frames;
+    // spritesheet list
     std::vector<Texture*> textures;
+    // frames spritesheet index list
     std::vector<int> texture_index;
 };
 

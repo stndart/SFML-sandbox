@@ -20,18 +20,17 @@ public:
     std::string type_name;
     Cell(std::string name);
     Cell(std::string name, Texture* background);
-    Cell(std::string name, Texture* background, Texture* texture1);
     void change_texture(std::string name, Texture* texture);
     void addTexCoords(IntRect rect);
-    void addPosition(float x, float y);
+    void set_position_recursive(double x, double y);
     bool hasObject(std::string name);
-    void addObject(Texture* texture, std::string name, int depth_level);
+    Cell_object* addObject(std::string name, Texture* texture, int depth_level);
     void removeObject(std::string name);
     void action_change(std::string name, Texture* texture);
     void save_cell(unsigned int x, unsigned int y, Json::Value& Location);
 
 
-    void draw(RenderTarget& target, RenderStates states) const override;
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
 
     // TEMP
     int mapsize()
@@ -39,7 +38,5 @@ public:
         return objects.size();
     }
 };
-
-Cell* new_cell(Texture* bg, std::string name);
 
 #endif // CELL_INCLUDE

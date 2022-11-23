@@ -19,7 +19,7 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 void Scene_Field::change_current_field(int num)
 {
     current_field = num;
-    field[num]->someTextures(field_block, num);
+    field[num]->someTextures(*field_block, num);
 }
 
 void Scene_Field::update(Event& event, std::string& command_main)
@@ -29,16 +29,16 @@ void Scene_Field::update(Event& event, std::string& command_main)
         switch (event.key.code)
         {
         case sf::Keyboard::W:
-            field[current_field]->move_player(0, 1);
+            field[current_field]->move_player(3);
             break;
         case sf::Keyboard::D:
-            field[current_field]->move_player(1, 1);
+            field[current_field]->move_player(0);
             break;
         case sf::Keyboard::S:
-            field[current_field]->move_player(0, -1);
+            field[current_field]->move_player(1);
             break;
         case sf::Keyboard::A:
-            field[current_field]->move_player(1, -1);
+            field[current_field]->move_player(2);
             break;
         case sf::Keyboard::Space:
             field[current_field]->action((*field_block)["stump"]);
@@ -65,13 +65,13 @@ void Scene_Field::update(Event& event, std::string& command_main)
 
 void Scene_Field::update(Time deltaTime)
 {
-    // empty
+    field[current_field]->update(deltaTime);
 }
 
 void Scene_Field::someTextures(int num)
 {
     //std::cout << "draw another map" << std::endl;
-    field[num]->someTextures(field_block, num);
+    field[num]->someTextures(*field_block, num);
 }
 
 void Scene_Field::draw(RenderTarget& target, RenderStates states) const

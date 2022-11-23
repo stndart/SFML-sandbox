@@ -9,15 +9,7 @@ Cell::Cell(std::string name) : type_name(name)
 
 Cell::Cell(std::string name, Texture* texture) : background(texture), type_name(name)
 {
-
-}
-
-Cell::Cell(std::string name, Texture* texture, Texture* texture1) : background(texture), type_name(name)
-{
-    /*
-    Cell_object* object1 = new Cell_object("tree", texture1);
-    objects.push_back(object1);
-    */
+    addTexCoords(IntRect(0, 0, 120, 120));
 }
 
 void Cell::change_texture(std::string name, Texture* texture)
@@ -44,34 +36,30 @@ void Cell::addTexCoords(IntRect rect)
     m_vertices[3].texCoords = Vector2f(right, top);
 }
 
-void Cell::addPosition(float x, float y)
+void Cell::set_position_recursive(double x, double y)
 {
     setPosition(x, y);
-    for (auto it = objects.begin(); it != objects.end(); it++)
+    for (auto obj : objects)
     {
-        it->second->setPosition(0, 0);
-        //std::cout << x << " " << y << std::endl;
+        obj.second->setPosition(0, 0);
     }
 }
 
 bool Cell::hasObject(std::string name)
 {
-    auto it = objects.find(name);
-    if (it != objects.end())
-    {
-        //std::cout << "[" << name << "] = [" << objects.size() << "]" << std::endl;
-        return true;
-    }
-    return false;
+    auto obj = objects.find(name);
+    return obj != objects.end();
 }
 
-void Cell::addObject(Texture* texture, std::string name, int depth_level)
+Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
 {
-    Cell_object* object1 = new Cell_object(name, texture);
-    object1->addTexCoords(IntRect(0, 0, 120, 120));
-    object1->depth_level = depth_level;
-    objects[name] = object1;
-    //std::cout << objects.size() << " ";
+    Cell_object* new_object = new Cell_object(name, texture);
+    /// Что за магическое число 120?
+    new_object->addTexCoords(IntRect(0, 0, 120, 120));
+    new_object->depth_level = depth_level;
+    /// TODO: обработать, если objects[name] уже существует
+    objects[name] = new_object;
+    return new_object;
 }
 
 void Cell::removeObject(std::string name)
@@ -81,59 +69,46 @@ void Cell::removeObject(std::string name)
 
 void Cell::action_change(std::string name, Texture* texture)
 {
+    /// TODO: запихнуть все именные действия в json
+    /// Что-то вроде "choptree" = remove: "tree", add: "stump"
+    /// Этот метод превратится в "заменить %a на %b"
     removeObject(name);
     if (name == "tree")
     {
-        addObject(texture, "stump", 1);
+        addObject("stump", texture, 1);
     }
 }
 
-void Cell::save_cell(unsigned int x, unsigned int y, Json::Value& Location)
+void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Location)
 {
-    Location["map"][x][y]["type"] = type_name;
+    Location["map"][cell_x][cell_y]["type"] = type_name;
     if (objects.size() == 0)
     {
-        Location["big_objects"][x][y];
+        Location["big_objects"][cell_x][cell_y];
     }
-    auto current_object = objects.begin();
-    int i = 0;
-    while (current_object != objects.end())
+
+    unsigned int i = 0;
+    for (auto obj : objects)
     {
-        Location["big_objects"][x][y][i]["type"] = current_object->second->type_name;
-        Location["big_objects"][x][y][i]["depth_level"] = current_object->second->depth_level;
-        current_object++;
+        std::string tname = obj.second->type_name;
+        int zindex = obj.second->depth_level;
+        Location["big_objects"][cell_x][cell_y][i]["type"] = tname;
+        Location["big_objects"][cell_x][cell_y][i]["depth_level"] = zindex;
         i++;
     }
 }
 
-
-
-
-
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
-    //std::cout << "Who asked " << type_name << " to draw?\n";
-    //std::cout << type_name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
     if (background)
     {
         states.transform *= getTransform();
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
-        //std::cout << getPosition().x << " " << getPosition().y << std::endl;
     }
 
-
-    for (auto it = objects.begin(); it != objects.end(); it++)
+    for (auto obj : objects)
     {
-        it->second->draw(target, states);
-        //std::cout << it->second->type_name << std::endl;
+        obj.second->draw(target, states);
     }
-}
-
-Cell* new_cell(Texture* bg, std::string name)
-{
-    Cell* cell = new Cell(name, bg);
-    cell->addTexCoords(IntRect(0, 0, 120, 120));
-
-    return cell;
 }

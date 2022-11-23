@@ -19,7 +19,8 @@ class Scene_editor : public Scene_Field
         bool if_input;
         void command(std::string data);
         void save_map();
-        void draw(RenderTarget& target, RenderStates states) const override;
+
+        virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 
 Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,

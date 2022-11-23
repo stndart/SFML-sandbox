@@ -7,14 +7,25 @@
 
 bool isdrawed = false;
 
+int direction_x[4] = {1, 0, -1, 0};
+int direction_y[4] = {0, 1, 0, -1};
+
 
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
-    x_coord = length/2 * 120 + 60;
-    y_coord = width/2 * 120 + 60;
-    turn_length = 60;
-    cell_length = 120;
-    //std::cout << x_coord << " " << y_coord << std::endl;
+    current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
+    view_changed = true;
+    cells_changed = false;
+
+    cell_center_x = 0;
+    cell_center_y = 0;
+
+    cell_length_x = 120;
+    cell_length_y = 120;
+//    cell_0_screen_x = (length + 1) * cell_length_x / 2;
+//    cell_0_screen_y = (width  + 1) * cell_length_y / 2;
+    cell_0_screen_x = 0;
+    cell_0_screen_y = 0;
 }
 
 void Field::addTexture(Texture* texture, IntRect rect)
@@ -35,19 +46,31 @@ void Field::addTexture(Texture* texture, IntRect rect)
     m_vertices[1].texCoords = Vector2f(left, bottom);
     m_vertices[2].texCoords = Vector2f(right, bottom);
     m_vertices[3].texCoords = Vector2f(right, top);
+
+    current_view.setSize(rect.width, rect.height);
+    view_changed = true;
 }
 
 void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 {
-    cells[x][y] = new_cell(texture, "new_cell");
+    cells[x][y] = new Cell("new_cell", texture);
+    cells_changed = true;
 }
 
-void Field::addPlayer(unsigned int length, unsigned int width, Texture* player_texture)
+void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y)
 {
-    player_0 = new Player("default_player", player_texture);
-    player_0->x_coord = x_coord;
-    player_0->y_coord = y_coord;
-    player_0->addTexCoords(IntRect(0, 0, 120, 120));
+    player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
+    Animation* idle_animation = new Animation();
+    idle_animation->addSpriteSheet(*player_texture);
+    idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
+    idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
+    player_0->add_animation("idle_animation", idle_animation);
+    player_0->set_idle_animation("idle_animation");
+
+    player_0->x_cell_coord = cell_x;
+    player_0->y_cell_coord = cell_y;
+
+    update_view_center();
 }
 
 void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
@@ -57,113 +80,87 @@ void Field::field_resize(unsigned int length, unsigned int width)         // CHE
     {
         cells[i].resize(width);
     }
+    cells_changed = true;
 }
 
-/*Cell* Field::get_cell_by_coord(unsigned int x, unsigned int y)
+bool Field::is_player_movable(int direction)
 {
-    x /= 120;
-    y /= 120;
-    return cells[x][y];
-}*/
+    int cell_x = player_0->x_cell_coord;
+    int cell_y = player_0->y_cell_coord;
+    if (cells[cell_x][cell_y]->type_name == "border")
+        return false;  /// Player is stuck
 
-bool Field::can_move_player(int direction, int value)
-{
-    double xz[2], yz[2];
-    xz[0] = player_0->x_coord+1;
-    xz[1] = player_0->x_coord-1;
-    yz[0] = player_0->y_coord+1;
-    yz[1] = player_0->y_coord-1;
-    for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {
-            double x = xz[i];
-            double y = yz[j];
-            int x_new = int((x + direction*value*(turn_length+1))/120);
-            int y_new = int((y + ((direction+1)%2)*(-value)*(turn_length+1))/120);
-            //std::cout << "new coords: " << x_new << " " << y_new << std::endl;
+    cell_x += direction_x[direction];
+    cell_y += direction_y[direction];
+    if (cells[cell_x][cell_y]->type_name == "border")
+        return false;  /// Next cell is border
 
-            Cell* cell_new = cells[x_new][y_new];
-            if (cell_new->type_name == "border")
-            {
-                return false;
-            }
-        }
-    }
     return true;
 }
 
-void Field::move_player(int direction, int value)
+/// Change player cell_coords
+void Field::move_player(int direction)
 {
-    if (!can_move_player(direction, value)) {
+    /// If player is unmovable - don't move
+    if (!is_player_movable(direction))
         return;
-    }
-    if (direction == 0)
-    {
-        if ((y_coord - cell_length - value*turn_length >= 1080/2) && (y_coord - value*turn_length <= (cells[0].size()-1)*cell_length-1080/2) && player_0->y_coord == y_coord)
-        {
-            y_coord -= value*turn_length;
-        }
-        if ((player_0->y_coord - value*turn_length >= cell_length*1.5) && (player_0->y_coord - value*turn_length <= (cells[0].size()-1.5)*cell_length))
-        {
-            player_0->y_coord -= value*turn_length;
-        }
-        else return;
-    }
-    else if (direction == 1)
-    {
-        if ((x_coord - cell_length + value*turn_length >= 1920/2) && (x_coord + value*turn_length <= (cells.size()-1)*cell_length-1920/2) && player_0->x_coord == x_coord)
-        {
-            x_coord += value*turn_length;
-        }
-        if ((player_0->x_coord + value*turn_length >= cell_length*1.5) && (player_0->x_coord + value*turn_length <= (cells[0].size()-1.5)*cell_length))
-        {
-            player_0->x_coord += value*turn_length;
-        }
-        else return;
-    }
-}
 
-std::pair <int, int> Field::get_player_cell_coord()
-{
-    int x = player_0->x_coord-60;
-    int y = player_0->y_coord-60;
-    x /= 120;
-    y /= 120;
-    return std::make_pair(x, y);
+    /// If player is moving - don't give new movement
+    if (player_0->is_moving())
+        return;
+
+    int cell_x = player_0->x_cell_coord;
+    int cell_y = player_0->y_cell_coord;
+    cell_x += direction_x[direction];
+    cell_y += direction_y[direction];
+
+    /// Instantly change cells_coords
+    /// Animation is to catch up
+    player_0->x_cell_coord = cell_x;
+    player_0->y_cell_coord = cell_y;
+
+    double movement_x = direction_x[direction] * cell_length_x;
+    double movement_y = direction_y[direction] * cell_length_y;
+
+    player_0->move_player(Vector2f(movement_x, movement_y), direction);
 }
 
 void Field::action(Texture* texture)
 {
     //std::cout << player_0->x_coord << " " << player_0->y_coord << std::endl;
-    std::pair <int, int> player_cell_coords = get_player_cell_coord();
-    int x = player_cell_coords.first;
-    int y = player_cell_coords.second;
-    if (cells[x][y]->hasObject("tree"))
+    int cell_x = player_0->x_cell_coord;
+    int cell_y = player_0->y_cell_coord;
+    Cell* target_cell = cells[cell_x][cell_y];
+    if (target_cell->hasObject("tree"))
     {
-        cells[x][y]->action_change("tree", texture);
+        target_cell->action_change("tree", texture);
     }
-    else if (cells[x][y]->hasObject("stump"))
+    else if (target_cell->hasObject("stump"))
     {
-        cells[x][y]->action_change("stump", texture);
+        target_cell->action_change("stump", texture);
     }
-    else if (cells[x][y]->hasObject("portal"))
+    else if (target_cell->hasObject("portal"))
     {
 
     }
+
+    cells_changed = true;
 }
 
-void Field::add_object_to_cell(std::string type_name, int x, int y, Texture* texture)
+void Field::add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture)
 {
-    cells[x][y]->addObject(texture, type_name, 1);
+    cells[cell_x][cell_y]->addObject(type_name, texture, 1);
+    cells_changed = true;
 }
 
-void Field::change_cell_texture(std::string name, int x, int y, Texture* texture)
+void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture)
 {
-    cells[x][y]->change_texture(name, texture);
+    cells[cell_x][cell_y]->change_texture(name, texture);
+    cells_changed = true;
 }
 
-void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
+/// Спасибо, очень понятная функция, особенно из-за названия и комментариев
+void Field::someTextures(std::map <std::string, Texture*> &field_block, int num)
 {
     std::string path = "Locations/loc_";
     path += std::to_string(num);
@@ -179,7 +176,7 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
             std::string cell_type = Locations["map"][x][y]["type"].asString();
-            cells[x][y] = new_cell((*field_block)[cell_type], cell_type);
+            cells[x][y] = new Cell(cell_type, field_block[cell_type]);
 
             std::string object_type = "";
             if (Locations["big_objects"][x][y].isArray())
@@ -191,7 +188,7 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
                     {
                         std::string object_type = Locations["big_objects"][x][y][0]["type"].asString();
                         std::string object_depth_level = Locations["big_objects"][x][y][0]["depth_level"].asString();
-                        cells[x][y]->addObject((*field_block)[object_type], object_type, 1);
+                        cells[x][y]->addObject(object_type, field_block[object_type], 1);
                     }
                 }
             }
@@ -200,6 +197,7 @@ void Field::someTextures(std::map <std::string, Texture*> *field_block, int num)
     std::cout << std::endl;
 }
 
+/// Saves field to "/Locations/loc_%d.json"
 void Field::save_field(int num)
 {
     std::string path = "Locations/loc_";
@@ -219,75 +217,147 @@ void Field::save_field(int num)
     ofs.close();
 }
 
+void Field::place_characters()
+{
+    if (player_0)
+    {
+        double player_screen_x, player_screen_y;
+        player_screen_x = player_0->x_cell_coord * cell_length_x;
+        player_screen_y = player_0->y_cell_coord * cell_length_y;
+
+        if (player_0->movement_animation)
+        {
+            player_screen_x += player_0->x_cell_movement_coord;
+            player_screen_y += player_0->y_cell_movement_coord;
+        }
+        player_0->setPosition(Vector2f(player_screen_x, player_screen_y));
+    }
+
+    //for (auto c : characters)
+    update_view_center();
+}
+
+Vector2f Field::check_view_bounds(Vector2f view_center)
+{
+    double view_center_x = view_center.x;
+    double view_center_y = view_center.y;
+    if ((cells.size() - 1) * cell_length_x - view_center_x < 960)
+        view_center_x = ((cells.size() - 1) - 960 / cell_length_x) * cell_length_x;
+    if (-1 * cell_length_x + view_center_x < 960)
+        view_center_x = (1 + 960 / cell_length_x) * cell_length_x;
+
+    if ((cells[0].size() - 1) * cell_length_y - view_center_y < 540)
+        view_center_y = ((cells[0].size() - 1) - 540 / cell_length_y) * cell_length_y;
+    if (-1 * cell_length_y + view_center_y < 540)
+        view_center_y = (1 + 540 / cell_length_y) * cell_length_y;
+
+    return Vector2f(view_center_x, view_center_y);
+}
+
+void Field::update_view_center()
+{
+    Vector2f view_center = Vector2f(cell_center_x * cell_length_x,
+                                    cell_center_y * cell_length_y);
+    if (player_0)
+    {
+        view_center = player_0->getPosition();
+    }
+    view_center = check_view_bounds(view_center);
+
+    current_view.setCenter(view_center);
+    view_changed = false;
+}
+
+void Field::update(Time deltaTime)
+{
+    if (cells_changed)
+    {
+        double cell_screen_x, cell_screen_y;
+        for (unsigned int i = 0; i < cells.size(); ++i)
+            for (unsigned int j = 0; j < cells[i].size(); ++j)
+            {
+                cell_screen_x = i * cell_length_x;
+                cell_screen_y = j * cell_length_y;
+                cells[i][j]->set_position_recursive(cell_screen_x, cell_screen_y);
+            }
+
+        cells_changed = false;
+    }
+
+    if (player_0)
+    {
+        cell_0_screen_x = player_0->x_cell_coord * cell_length_x;
+        cell_0_screen_y = player_0->y_cell_coord * cell_length_y;
+        if (cell_center_x != player_0->x_cell_coord || cell_center_y != player_0->y_cell_coord)
+        {
+            cell_center_x = player_0->x_cell_coord;
+            cell_center_y = player_0->y_cell_coord;
+        }
+
+        Vector2f cell_0_screen = check_view_bounds(Vector2f(cell_0_screen_x, cell_0_screen_y));
+        cell_0_screen_x = cell_0_screen.x;
+        cell_0_screen_y = cell_0_screen.y;
+
+        player_0->update(deltaTime);
+        view_changed = true;
+
+    }
+
+    if (view_changed)
+        update_view_center();
+}
+
 void Field::draw(RenderTarget& target, RenderStates states) const
 {
-//    if (isdrawed)
-//        return;
-//    isdrawed = true;
+    target.setView(current_view);
 
-    //std::cout << "Who asked " << name << " to draw?\n";
-    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
-
-    /*if (background)
+    if (background)
     {
         states.transform *= getTransform();
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
-    }*/
-
-    //std::cout << "field draw pre\n";
-//    for (unsigned int i = 0; i < 17; i++)
-//    {
-//        for (unsigned int j = 0; j < 10; j++)
-//        {
-//            int x = (x_coord-960)/cell_length;
-//            int y = (y_coord-540)/cell_length;
-//            //std::cout << cells[x+i][y+j]->mapsize() << " ";
-//        }
-//        //std::cout << std::endl;
-//    }
-
-    //std::cout << "field draw begin\n";
-    for (unsigned int i = 0; i < 17; i++)
-    {
-        for (unsigned int j = 0; j < 10; j++)
-        {
-            int x = (x_coord-960)/cell_length;
-            int y = (y_coord-540)/cell_length;
-            //std::cout << cells[x+i][y+j]->mapsize() << " ";
-            cells[x+i][y+j]->addPosition(x*cell_length-x_coord+960+cell_length*i, y*cell_length-y_coord+540+cell_length*j);
-            cells[x+i][y+j]->draw(target, states);
-            //std::cout << x*120-x_coord+960+120*i << " " << y*120-y_coord+540+120*j << std::endl;
-        }
-        //std::cout << std::endl;
     }
-    //std::cout << "field draw end\n";
-    if (true)
+
+    int center_cell_x = cell_0_screen_x / cell_length_x;
+    int center_cell_y = cell_0_screen_y / cell_length_y;
+    /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
+    for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+        for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
+        {
+            // borders check
+            if (i < 0 || i >= (int)cells.size())
+                continue;
+            if (j < 0 || j >= (int)cells[i].size())
+                continue;
+
+            cells[i][j]->draw(target, states);
+        }
+
+    if (player_0)
     {
-        player_0->setPosition(900-(x_coord-player_0->x_coord), 480-(y_coord-player_0->y_coord));
-        //std::cout << player_0->getPosition().x << " " << player_0->getPosition().y << std::endl;
         player_0->draw(target, states);
     }
 }
 
-Field* new_field(Texture* bg, unsigned int length, unsigned int width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
+Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
 {
-    Field* field = new Field(length, width, "Main field");
+    Field* field = new Field(cell_length, cell_width, "Main field");
     field->addTexture(bg, IntRect(0, 0, 1920, 1080));
     field->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
-    field->field_resize(length, width);
+    field->field_resize(cell_length, cell_width);
 
-    for (unsigned int x = 0; x < length; x++)
+    for (unsigned int x = 0; x < cell_length; x++)
     {
-        for (unsigned int y = 0; y < width; y++)
+        for (unsigned int y = 0; y < cell_width; y++)
         {
 
             field->addCell(cell_texture, x, y);
         }
     }
 
-    field->addPlayer(length, width, player_texture);
+    field->addPlayer(player_texture, cell_length / 2, cell_width / 2);
+    field->place_characters();
 
     return field;
 }
