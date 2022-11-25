@@ -83,7 +83,7 @@ void Character::set_next_animation(string animation_name)
 
 void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
 {
-    cout << "is moving " << is_moving << " animated " << animated << " playing " << sprite->isPlaying() << endl;
+    //cout << "is moving " << is_moving << " animated " << animated << " playing " << sprite->isPlaying() << endl;
     if (is_moving)
         return;
 
@@ -105,7 +105,7 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
         }
     }
 
-    cout << "------move " << direction << " with shift " << shift.x << " " << shift.y << endl;
+    //cout << "------move " << direction << " with shift " << shift.x << " " << shift.y << endl;
 
     if (animation_name.length() == 0)
     {
@@ -149,7 +149,7 @@ void Character::update(Time deltaTime)
         if (sprite != base_sprite)
         {
             sprite->pause();
-            cout << "DELETED\n";
+            //cout << "DELETED\n";
             delete sprite;
             sprite = base_sprite;
         }

@@ -93,6 +93,18 @@
 			null,
 			null,
 			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
 			null,
 			null,
 			null,
@@ -102,6 +114,252 @@
 			null,
 			null,
 			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_empty"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_blue_berries"
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_red_berries"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			null,
+			null,
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
 			null,
 			null,
 			null,
@@ -196,205 +454,12 @@
 			null,
 			null,
 			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
 			null
 		],
 		[
@@ -446,1242 +511,1242 @@
 	[
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass_8"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "grass"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		],
 		[
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			},
 			{
-				"type" : "new_cell"
+				"type" : "border"
 			}
 		]
 	]

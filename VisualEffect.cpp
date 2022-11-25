@@ -192,7 +192,7 @@ Vector2f VisualEffect::getPosition() const
 
 void VisualEffect::update(Time deltaTime)
 {
-    std::cout << "VE is paused? " << m_isPaused << std::endl;
+    //std::cout << "VE is paused? " << m_isPaused << std::endl;
 
     if (sprite)
         sprite->update(deltaTime);
