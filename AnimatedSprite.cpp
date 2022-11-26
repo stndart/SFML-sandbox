@@ -172,9 +172,32 @@ Vector2f AnimatedSprite::getPosition() const
     return Transformable::getPosition();
 }
 
+Time AnimatedSprite::animation_remaining_time() const
+{
+    if (m_currentFrame == 0)
+        return seconds(0);
+
+    int remains = 0;
+    if (m_animation && isPlaying())
+    {
+        int full_time = m_frameTime.asMicroseconds() * m_animation->getSize();
+        if (m_isReversible)
+            full_time *= 2;
+        int cur_time = m_currentTime.asMicroseconds() % full_time;
+        remains += full_time - cur_time;
+    }
+
+    return microseconds(remains);
+}
+
+Time AnimatedSprite::movement_remaining_time() const
+{
+    return seconds(0);
+}
+
 void AnimatedSprite::update(Time deltaTime)
 {
-    std::cout << "==animated sprite playing? " << (!m_isPaused && m_animation) << " with curframe " << m_currentFrame << std::endl;
+    //std::cout << "==animated sprite playing? " << (!m_isPaused && m_animation) << " with curframe " << m_currentFrame << std::endl;
 
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
@@ -182,7 +205,7 @@ void AnimatedSprite::update(Time deltaTime)
         // add delta time
         m_currentTime += deltaTime;
 
-        std::cout << "current time " << m_currentTime.asMicroseconds() << " and frame time " << m_frameTime.asMicroseconds() << std::endl;
+        //std::cout << "current time " << m_currentTime.asMicroseconds() << " and frame time " << m_frameTime.asMicroseconds() << std::endl;
         // if current time is bigger then the frame time advance one frame
         while (m_currentTime >= m_frameTime)
         {
@@ -192,7 +215,7 @@ void AnimatedSprite::update(Time deltaTime)
             // check if shifting frames makes sense
             if (m_animation->getSize() < 2)
             {
-                std::cout << "too small\n";
+                //std::cout << "too small\n";
                 break;
             }
             // get next Frame index
@@ -202,7 +225,7 @@ void AnimatedSprite::update(Time deltaTime)
             else
                 nextFrame = m_currentFrame - 1;
 
-            std::cout << "next frame " << nextFrame << std::endl;
+            //std::cout << "next frame " << nextFrame << std::endl;
 
             if (nextFrame < m_animation->getSize() && nextFrame >= 0) {
                 m_currentFrame = nextFrame;
@@ -223,7 +246,7 @@ void AnimatedSprite::update(Time deltaTime)
                         m_isReversed = false;
                         m_currentFrame = 0;
                         m_isPaused = true;
-                        std::cout << "last first frame reached\n";
+                        //std::cout << "last first frame reached\n";
                         break;
                     }
                 }
@@ -249,11 +272,11 @@ void AnimatedSprite::update(Time deltaTime)
             }
 
             // set the current frame, not reseting the time
-            std::cout << "set frame " << m_currentFrame << std::endl;
+            //std::cout << "set frame " << m_currentFrame << std::endl;
             setFrame(m_currentFrame, false);
         }
     }
-    std::cout << "update out\n";
+    //std::cout << "update out\n";
 }
 
 void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
@@ -264,17 +287,17 @@ void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
 void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 {
     //std::cout << "Who asked " << name << " to draw?\n";
-    std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
+    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
 
     if (m_animation && m_texture)
     {
-        std::cout << "drawing " << m_texture << std::endl;
+        //std::cout << "drawing " << m_texture << std::endl;
         states.transform *= getTransform();
         states.texture = m_texture;
         target.draw(m_vertices, 4, Quads, states);
     }
 
-    std::cout << "draw out\n";
+    //std::cout << "draw out\n";
 }
 void AnimatedSprite::onClick(bool pressed)
 {

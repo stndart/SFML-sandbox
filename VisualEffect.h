@@ -64,6 +64,9 @@ public:
     void setColor(const Color& color) override;
     void setPosition(const Vector2f &position) override;
     Vector2f getPosition() const override;
+    virtual Time animation_remaining_time() const override;
+    virtual Time movement_remaining_time() const override;
+
     virtual void update(Time deltaTime) override;
     virtual void redraw(RenderTarget& target, RenderStates states) const override;
     virtual void draw(RenderTarget& target, RenderStates states) const override;

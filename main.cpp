@@ -6,13 +6,13 @@
 #include <cassert>
 #include <filesystem>
 
+#include "extra_algorithms.h"
+
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
-
-#include "extra_algorithms.h"
 
 using namespace sf;
 using namespace std;

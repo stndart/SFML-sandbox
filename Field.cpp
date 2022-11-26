@@ -263,6 +263,7 @@ void Field::update_view_center()
         view_center = player_0->getPosition();
     }
     view_center = check_view_bounds(view_center);
+    //cout << "view center position " << view_center.x << " " << view_center.y << endl;
 
     current_view.setCenter(view_center);
     view_changed = false;
@@ -318,8 +319,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         target.draw(m_vertices, 4, Quads, states);
     }
 
-    int center_cell_x = cell_0_screen_x / cell_length_x;
-    int center_cell_y = cell_0_screen_y / cell_length_y;
+    int center_cell_x = current_view.getCenter().x / cell_length_x;
+    int center_cell_y = current_view.getCenter().y / cell_length_y;
     /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
     for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
         for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)

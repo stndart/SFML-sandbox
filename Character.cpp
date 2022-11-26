@@ -1,22 +1,5 @@
 #include "Character.h"
 
-Character::Character()
-{
-    // NONE;
-}
-
-Character::Character(string name, Texture &texture_default, IntRect frame0) : name(name), animated(false), is_moving(false), facing_direction(0)
-{
-    base_sprite = new AnimatedSprite(name, texture_default, frame0);
-    base_sprite->setFrameTime(seconds(0.05));
-    sprite = base_sprite;
-    idle_animation = "idle_animation_0";
-    next_animation = {""};
-    animations[idle_animation] = new Animation();
-    int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
-    animations[idle_animation]->addFrame(frame0, spritesheet_index);
-}
-
 string get_idle_animation_s(int direction)
 {
     string new_idle_anim = "idle_animation_";
@@ -29,6 +12,23 @@ string get_movement_animation_s(int direction)
     string new_move_anim = "movement_";
     new_move_anim += to_string(direction);
     return new_move_anim;
+}
+
+Character::Character()
+{
+    // NONE;
+}
+
+Character::Character(string name, Texture &texture_default, IntRect frame0) : name(name), moving(false), moving_enabled(false), animated(false), facing_direction(0)
+{
+    base_sprite = new AnimatedSprite(name, texture_default, frame0);
+    base_sprite->setFrameTime(seconds(0.05));
+    moving_sprite = base_sprite;
+    idle_animation = "idle_animation_0";
+    next_animations = deque<string>();
+    animations[idle_animation] = new Animation();
+    int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
+    animations[idle_animation]->addFrame(frame0, spritesheet_index);
 }
 
 void Character::set_facing_direction(int new_direction)
@@ -47,14 +47,24 @@ int Character::get_facing_direction() const
     return facing_direction;
 }
 
-bool Character::isAnimated() const
+bool Character::is_moving() const
 {
-    return animated;
+    return moving;
 }
 
-bool Character::isMoving() const
+bool Character::is_moving_enabled() const
 {
-    return is_moving;
+    return moving_enabled;
+}
+
+void Character::set_moving_enabled(bool enabled)
+{
+    moving_enabled = enabled;
+}
+
+bool Character::is_animated() const
+{
+    return animated;
 }
 
 void Character::add_animation(string animation_name, Animation* p_animation)
@@ -64,117 +74,124 @@ void Character::add_animation(string animation_name, Animation* p_animation)
 
 void Character::set_animation(string animation_name)
 {
-    sprite->play(*animations[animation_name]);
+    base_sprite->play(*animations[animation_name]);
     if (animation_name != idle_animation)
         animated = true;
 }
 
 void Character::set_next_animation(string animation_name)
 {
-    if (animated)
-    {
-        next_animation = animation_name;
-    }
-    else
-    {
-        set_animation(animation_name);
-    }
+    while (next_animations.size() > 0)
+        next_animations.pop_front();
+    next_animations.push_back(animation_name);
 }
 
-void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
+void Character::add_next_animation(string animation_name)
 {
-    cout << "is moving " << is_moving << " animated " << animated << " playing " << sprite->isPlaying() << endl;
-    if (is_moving)
-        return;
-
-    if (direction == -1)
-    {
-        if (abs(shift.x) > abs(shift.y))
-        {
-            if (shift.x > 0)
-                direction = 0;
-            else
-                direction = 2;
-        }
-        else
-        {
-            if (shift.y > 0)
-                direction = 3;
-            else
-                direction = 1;
-        }
-    }
-
-    cout << "------move " << direction << " with shift " << shift.x << " " << shift.y << endl;
-
-    if (animation_name.length() == 0)
-    {
-        animation_name = get_movement_animation_s(direction);
-        if (animations.count(animation_name) == 0)
-            animation_name = "movement";
-        if (animations.count(animation_name) == 0)
-            animation_name = "";
-    }
-
-    Vector2f start = base_sprite->getPosition();
-    Vector2f finish = start + shift;
-
-    sprite = new VisualEffect(base_sprite, seconds(0), seconds(0.2), start, finish);
-    if (animation_name.length() > 0)
-        sprite->setAnimation(*animations[animation_name]);
-
-    is_moving = true;
-    animated = true;
-    sprite->play();
+    next_animations.push_back(animation_name);
 }
 
 void Character::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
-    sprite->setPosition(position);
+    moving_sprite->setPosition(position);
     // base_sprite->setPosition(position); // redundant
 }
 
 Vector2f Character::getPosition() const
 {
-    return sprite->getPosition();
+    return moving_sprite->getPosition();
+}
+
+void Character::cancel_next_movement()
+{
+    next_movement_shift = Vector2f(0, 0);
+}
+
+void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
+{
+    cout << "is moving " << is_moving() << " animated " << is_animated() << " playing " << moving_sprite->isPlaying() << endl;
+    if (is_moving())
+    {
+        next_movement_shift = shift;
+        next_movement_direction = direction;
+        next_movement_animation_name = animation_name;
+        next_movement_duration = duration;
+    }
+
+    if (direction == -1)
+        direction = direction_from_shift(shift);
+
+    cout << "------move " << direction << " with shift " << shift.x << " " << shift.y << endl;
+
+    if (is_moving_enabled())
+    {
+        if (animation_name.length() == 0)
+        {
+            animation_name = get_movement_animation_s(direction);
+            if (animations.count(animation_name) == 0)
+                animation_name = "movement";
+            if (animations.count(animation_name) == 0)
+                animation_name = "";
+        }
+
+        Vector2f start = base_sprite->getPosition();
+        Vector2f finish = start + shift;
+
+        Time offset = -base_sprite->animation_remaining_time();
+        for (auto anim : next_animations)
+        {
+            offset -= base_sprite->getFrameTime() * (float)animations[anim]->getSize();
+        }
+        moving_sprite = new VisualEffect(base_sprite, offset, seconds(0.2), start, finish);
+        if (animation_name.length() > 0)
+            add_next_animation(animation_name);
+
+        moving = true;
+        moving_sprite->play();
+    }
+    else
+    {
+        moving_sprite->move(shift);
+    }
+}
+
+void Character::end_movement()
+{
+    if (!is_moving())
+        throw;
+
+    delete moving_sprite;
+    moving_sprite = base_sprite;
+    moving = false;
+
+    if (next_movement_shift != Vector2f(0, 0))
+    {
+        movement(next_movement_shift, next_movement_direction, next_movement_animation_name, next_movement_duration);
+        cancel_next_movement();
+    }
 }
 
 void Character::update(Time deltaTime)
 {
-    //cout << "Character update is moving? " << is_moving << " VE? " << (sprite != base_sprite) << endl;
-    if (!is_moving)
-    {
-        base_sprite->pause();
-        if (sprite != base_sprite)
+    if (!animated)
+        if (next_animations.size() > 0)
         {
-            sprite->pause();
-            cout << "DELETED\n";
-            delete sprite;
-            sprite = base_sprite;
+            set_animation(next_animations[0]);
+            next_animations.pop_front();
         }
+
+    if (is_moving())
+    {
+        cout << "ending movement " << moving_sprite->movement_remaining_time().asMilliseconds() << endl;
+        if (moving_sprite->movement_remaining_time() <= seconds(0))
+            end_movement();
     }
 
-    //cout << "Character animated? " << animated << " playing? " << sprite->isPlaying() << endl;
-    if (animated)
-    {
-        if (!sprite->isPlaying())
-        {
-            is_moving = false;
-
-            animated = false;
-            if (next_animation != "")
-            {
-                set_animation(next_animation);
-                next_animation = "";
-            }
-        }
-    }
-
-    sprite->update(deltaTime);
+    moving_sprite->update(deltaTime);
 }
 
 void Character::draw(RenderTarget& target, RenderStates states) const
 {
-    target.draw(*sprite);
+    target.draw(*moving_sprite);
 }

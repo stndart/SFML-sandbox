@@ -46,6 +46,9 @@ public:
     virtual void setFrame(std::size_t newFrame, bool resetTime = true);
     virtual void setPosition(const Vector2f &position);
     virtual Vector2f getPosition() const;
+    virtual Time animation_remaining_time() const;
+    virtual Time movement_remaining_time() const;
+
     virtual void update(Time deltaTime);
     virtual void redraw(RenderTarget& target, RenderStates states) const;
     virtual void draw(RenderTarget& target, RenderStates states) const override;
@@ -58,7 +61,7 @@ protected:
 
 private:
     Animation* m_animation;
-    Time m_frameTime; //time for 1 frame
+    Time m_frameTime; //time for one frame
     std::size_t m_currentFrame;
     // replays animation from the beginning after the end is reached
     bool m_isLooped;

@@ -58,6 +58,7 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, V
     finish = {0, Color(255, 255, 255),
         finish_pos, speed, Vector2f(1, 1)};
     now = start;
+    m_currentTime = offset;
 }
 
 void VisualEffect::play()
@@ -75,6 +76,7 @@ void VisualEffect::play(Animation& animation)
 
 void VisualEffect::pause()
 {
+    std::cout << "VE pause\n";
     m_isPaused = true;
     if (sprite)
         sprite->pause();
@@ -82,6 +84,7 @@ void VisualEffect::pause()
 
 void VisualEffect::stop()
 {
+    std::cout << "VE stop\n";
     m_isPaused = true;
     if (sprite)
         sprite->stop();
@@ -99,10 +102,10 @@ void VisualEffect::setColor(const Color& color)
         sprite->setColor(color);
 }
 
-void VisualEffect::move(const Vector2f &offset)
+void VisualEffect::move(const Vector2f &shift)
 {
     if (sprite)
-        sprite->move(offset);
+        sprite->move(shift);
 }
 
 void VisualEffect::rotate(float angle)
@@ -138,6 +141,18 @@ Animation* VisualEffect::getAnimation()
 void VisualEffect::setAnimation(Animation& animation)
 {
     sprite->setAnimation(animation);
+}
+
+Time VisualEffect::animation_remaining_time() const
+{
+    return sprite->animation_remaining_time();
+}
+
+Time VisualEffect::movement_remaining_time() const
+{
+    std::cout << "movement remains: mcur " << m_currentTime.asMilliseconds() << " dur " << duration.asMilliseconds() << std::endl;
+    Time remain = std::max(seconds(0), duration - m_currentTime);
+    return std::max(remain, sprite->movement_remaining_time());
 }
 
 Vector2f midspeed(State start, State finish, Time duration)
@@ -192,6 +207,7 @@ Vector2f VisualEffect::getPosition() const
 
 void VisualEffect::update(Time deltaTime)
 {
+    //std::cout << "VE update\n";
     std::cout << "VE is paused? " << m_isPaused << std::endl;
 
     if (sprite)
@@ -202,14 +218,17 @@ void VisualEffect::update(Time deltaTime)
 
         m_currentTime += deltaTime;
 
-        Time midTime = offset + duration / 2.0f;
+        Time midTime = duration / 2.0f;
 
-        if (m_currentTime < offset + duration)
+        if (m_currentTime < seconds(0))
+            return;
+
+        if (m_currentTime < duration)
         {
             State s;
             State mid = midstate(start, finish, duration);
             if (m_currentTime < midTime)
-                s = curstate(start, mid, duration / 2.0f, m_currentTime - offset);
+                s = curstate(start, mid, duration / 2.0f, m_currentTime);
             else
                 s = curstate(mid, finish, duration / 2.0f, m_currentTime - midTime);
 
@@ -238,6 +257,7 @@ void VisualEffect::update(Time deltaTime)
             scale(now.scale);
             setColor(now.color);
 
+            std::cout << "VE paused by end\n";
             m_isPaused = true;
         }
     }
