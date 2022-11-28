@@ -38,3 +38,7 @@ int direction_from_shift(sf::Vector2f shift)
     }
     return direction;
 }
+
+int direction_x[4] = {1, 0, -1, 0};
+int direction_y[4] = {0, 1, 0, -1};
+

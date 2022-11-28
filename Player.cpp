@@ -1,6 +1,4 @@
 #include "Player.h"
-#include <iostream>
-#include <typeinfo>
 
 Player::Player(std::string name, Texture* texture, IntRect frame0) : name(name),
 x_cell_coord(0), y_cell_coord(0),
@@ -8,7 +6,7 @@ x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 {
     sprite = new Character(name, *texture, frame0);
     sprite->set_moving_enabled(true);
-    movement_direction = deque<pair<int, Vector2f> >();
+    queued_movement_direction = deque<Movement>();
 }
 
 void Player::move_player(Vector2f shift, int direction)
@@ -24,29 +22,30 @@ bool Player::is_moving() const
 void Player::add_movement_direction(Vector2f shift, int direction)
 {
     //cout << "Player: adding movement direction\n";
-    movement_direction.push_back(pair<int, Vector2f>({direction, shift}));
+    Movement m = {direction, shift, false, false};
+    queued_movement_direction.push_back(m);
 
-    //cout << "Add mov dir size " << movement_direction.size() << endl;
+    //cout << "Add mov dir size " << queued_movement_direction.size() << endl;
 }
 
 void Player::release_movement_direction(int direction)
 {
-    auto mov_dir_iter = movement_direction.begin();
-    for (; mov_dir_iter != movement_direction.end(); mov_dir_iter++)
+    auto mov_dir_iter = queued_movement_direction.begin();
+    for (; mov_dir_iter != queued_movement_direction.end(); mov_dir_iter++)
     {
-        if (mov_dir_iter->first == direction)
+        if (mov_dir_iter->direction == direction)
         {
             break;
         }
     }
-    if (mov_dir_iter + 1 == movement_direction.end())
+    if (mov_dir_iter + 1 == queued_movement_direction.end())
     {
         //cout << "realeasing last\n";
         sprite->cancel_next_movement();
     }
-    movement_direction.erase(mov_dir_iter);
+    queued_movement_direction.erase(mov_dir_iter);
 
-    //cout << "Release mov dir size " << movement_direction.size() << endl;
+    //cout << "Release mov dir size " << queued_movement_direction.size() << endl;
 }
 
 void Player::setPosition(const Vector2f &position)
@@ -60,15 +59,53 @@ Vector2f Player::getPosition() const
     return sprite->getPosition();
 }
 
+void Player::reset_blocking_check()
+{
+    for (auto r_iter = queued_movement_direction.rbegin();
+        r_iter != queued_movement_direction.rend(); r_iter++)
+    {
+        r_iter->blocking_checked = false;
+    }
+}
+
 void Player::update(Time deltaTime)
 {
-    //cout << "checking next move: next move present? " << sprite->has_next_movement() << " mov dir size " << movement_direction.size() << endl;
-    if (!sprite->has_next_movement() && movement_direction.size() > 0)
+    cout << "checking next move: next move present? " << sprite->has_next_movement() << " mov dir size " << queued_movement_direction.size() << endl;
+
+    if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
     {
-        int mov_dir = movement_direction.back().first;
-        Vector2f mov_shift = movement_direction.back().second;
-        //cout << "MOVING direction " << mov_dir << " shift " << mov_shift.x << " " << mov_shift.y << endl;
-        sprite->movement(mov_shift, mov_dir);
+        sprite->switched_to_next_animation = false;
+        int mov_dir = sprite->get_current_direction();
+        x_cell_coord += direction_x[mov_dir];
+        y_cell_coord += direction_y[mov_dir];
+    }
+
+    if (!sprite->has_next_movement() && queued_movement_direction.size() > 0)
+    {
+        int mov_dir = -1;
+        Vector2f mov_shift = Vector2f(0, 0);
+        for (auto r_iter = queued_movement_direction.rbegin();
+             r_iter != queued_movement_direction.rend(); r_iter++)
+        {
+            cout << "checking... " << r_iter->direction << " is checked " << r_iter->blocking_checked << " and blocked " << r_iter->blocked << endl;
+            if (r_iter->blocking_checked && !r_iter->blocked)
+            {
+                mov_dir = r_iter->direction;
+                mov_shift = r_iter->shift;
+            }
+        }
+        if (mov_dir != -1)
+        {
+            cout << "MOVING direction " << mov_dir << " shift " << mov_shift.x << " " << mov_shift.y << endl;
+            if (!sprite->is_moving() && !sprite->has_next_movement())
+            {
+                x_cell_coord += direction_x[mov_dir];
+                y_cell_coord += direction_y[mov_dir];
+            }
+
+            sprite->movement(mov_shift, mov_dir);
+            reset_blocking_check();
+        }
     }
 
     sprite->update(deltaTime);

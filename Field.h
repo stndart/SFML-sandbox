@@ -3,12 +3,19 @@
 
 #include <vector>
 #include <map>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
+#include "json/json.h"
 #include <cassert>
+
 #include "AnimatedSprite.h"
 #include "Cell.h"
 #include "Player.h"
+#include "extra_algorithms.h"
 
 using namespace sf;
 

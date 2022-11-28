@@ -109,9 +109,19 @@ bool Character::has_next_movement() const
     return next_movement_shift != Vector2f(0, 0);
 }
 
+int Character::get_next_movement_direction() const
+{
+    return next_movement_direction;
+}
+
 void Character::cancel_next_movement()
 {
     next_movement_shift = Vector2f(0, 0);
+}
+
+int Character::get_current_direction() const
+{
+    return moving_direction;
 }
 
 void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
@@ -141,6 +151,7 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
             if (animations.count(animation_name) == 0)
                 animation_name = "";
         }
+        moving_direction = direction;
 
         Vector2f start = base_sprite->getPosition();
         Vector2f finish = start + shift;
@@ -178,9 +189,11 @@ void Character::end_movement()
     delete moving_sprite;
     moving_sprite = base_sprite;
     moving = false;
+    moving_direction = -1;
 
     if (next_movement_shift != Vector2f(0, 0))
     {
+        switched_to_next_animation = true;
         movement(next_movement_shift, next_movement_direction, next_movement_animation_name, next_movement_duration);
         cancel_next_movement();
     }

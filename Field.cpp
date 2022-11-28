@@ -1,15 +1,6 @@
 #include "Field.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-
-#include "json/json.h"
 
 bool isdrawed = false;
-
-int direction_x[4] = {1, 0, -1, 0};
-int direction_y[4] = {0, 1, 0, -1};
-
 
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
@@ -101,7 +92,7 @@ bool Field::is_player_movable(int direction)
 /// Change player cell_coords
 void Field::move_player(int direction)
 {
-    //cout << "Field: moving player\n";
+    cout << "Field: moving player\n";
 
     /// If player is unmovable - don't move
     if (!is_player_movable(direction))
@@ -111,15 +102,10 @@ void Field::move_player(int direction)
     if (player_0->is_moving())
         return;
 
-    int cell_x = player_0->x_cell_coord;
-    int cell_y = player_0->y_cell_coord;
-    cell_x += direction_x[direction];
-    cell_y += direction_y[direction];
-
     /// Instantly change cells_coords
     /// Animation is to catch up
-    player_0->x_cell_coord = cell_x;
-    player_0->y_cell_coord = cell_y;
+    player_0->x_cell_coord += direction_x[direction];
+    player_0->y_cell_coord += direction_y[direction];
 
     double movement_x = direction_x[direction] * cell_length_x;
     double movement_y = direction_y[direction] * cell_length_y;
@@ -275,6 +261,8 @@ Vector2f Field::check_view_bounds(Vector2f view_center)
 
 void Field::update_view_center()
 {
+    //cout << "Field view_update\n";
+
     Vector2f view_center = Vector2f(cell_center_x * cell_length_x,
                                     cell_center_y * cell_length_y);
     if (player_0)
@@ -290,6 +278,8 @@ void Field::update_view_center()
 
 void Field::update(Time deltaTime)
 {
+    cout << "Field update\n";
+
     if (cells_changed)
     {
         double cell_screen_x, cell_screen_y;
@@ -318,9 +308,27 @@ void Field::update(Time deltaTime)
         cell_0_screen_x = cell_0_screen.x;
         cell_0_screen_y = cell_0_screen.y;
 
+        if (player_0->queued_movement_direction.size() > 0)
+        {
+            cout << "Field check blocking\n";
+            cout << "Player coords " << player_0->x_cell_coord << " " << player_0->y_cell_coord << endl;
+            for (auto next_mov = player_0->queued_movement_direction.begin();
+                next_mov != player_0->queued_movement_direction.end(); next_mov++)
+            {
+                cout << "Field checking " << next_mov->direction << " ... ";
+                next_mov->blocking_checked = true;
+                next_mov->blocked = true;
+                if (is_player_movable(next_mov->direction))
+                {
+                    cout << next_mov->direction << " unblocked\n";
+                    next_mov->blocked = false;
+                }
+                cout << "blocked\n";
+            }
+        }
+
         player_0->update(deltaTime);
         view_changed = true;
-
     }
 
     if (view_changed)

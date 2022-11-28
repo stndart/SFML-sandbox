@@ -31,6 +31,9 @@ void Motion()
 
 int main()
 {
+    cout << direction_x[0] << " dir x\n";
+
+
     // setup window
     Vector2i screenDimensions(1920, 1080);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);

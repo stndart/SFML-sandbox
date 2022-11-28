@@ -1,22 +1,37 @@
 #ifndef PLAYER_INCLUDE
 #define PLAYER_INCLUDE
 
+#include <iostream>
+#include <typeinfo>
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
+#include "extra_algorithms.h"
+
 #include "AnimatedSprite.h"
 #include "Character.h"
 
 using namespace sf;
 
+struct Movement
+{
+    int direction;
+    Vector2f shift;
+    bool blocked;
+    bool blocking_checked;
+};
+
 class Player : public Drawable, public Transformable
 {
 private:
     Character* sprite;
-    deque<pair<int, Vector2f> > movement_direction;
+    void reset_blocking_check();
 
 public:
     std::string name;
     unsigned int x_cell_coord, y_cell_coord;
+    deque<Movement> queued_movement_direction;
+
     double x_cell_movement_coord, y_cell_movement_coord;
     bool movement_animation;
     Player(std::string name, Texture* texture, IntRect frame0);

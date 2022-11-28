@@ -42,7 +42,12 @@ class Character : public Drawable, public Transformable
         void add_next_animation(string animation_name);
 
         bool has_next_movement() const;
+        int get_next_movement_direction() const;
         void cancel_next_movement();
+        bool switched_to_next_animation;
+
+        int get_current_direction() const;
+
         // direction = -1 if unspecified, then automatic
         void movement(Vector2f shift, int direction=-1, string animation_name="", Time duration=seconds(2));
         void end_movement();
@@ -56,6 +61,7 @@ class Character : public Drawable, public Transformable
         bool moving_enabled;
         bool animated;
         int facing_direction; // standard 0 - right, 1 - down, 2 - left, 3 - up
+        int moving_direction;
 
         int next_movement_direction;
         Vector2f next_movement_shift;
