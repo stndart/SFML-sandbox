@@ -35,6 +35,7 @@ int main()
     Vector2i screenDimensions(1920, 1080);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
     window.setFramerateLimit(60);
+    window.setKeyRepeatEnabled(false);
 
     // load textures
 
@@ -185,9 +186,6 @@ int main()
                 window.close();
             }
             std::string command_main = "";
-            //main_menu.update(event, command_main);
-            //field_scene.update(event, command_main);
-            //editor_scene.update(event, command_main);
             Current_Scene->update(event, command_main);
             if (command_main.size() > 0)
             {
@@ -199,6 +197,10 @@ int main()
                 {
                     window.close();
                 }
+                else if (command_main == "field_scene")
+                {
+                    Current_Scene = &field_scene;
+                }
                 else if (command_main == "main_menu")
                 {
                     Current_Scene = &main_menu;
@@ -208,17 +210,10 @@ int main()
 
         Time frameTime = frameClock.restart();
 
-        //main_menu.update(frameTime);
-        //field_scene.update(frameTime);
-        //editor_scene.update(frameTime);
         Current_Scene->update(frameTime);
 
 
         window.clear();
-
-        //window.draw(main_menu);
-        //window.draw(field_scene);
-        //window.draw(editor_scene);
         window.draw(*Current_Scene);
 
         window.display();

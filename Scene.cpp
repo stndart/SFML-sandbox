@@ -100,7 +100,7 @@ void Scene::update(Event& event, std::string& command_main)
                 if (s->getGlobalBounds().contains(curPos))
                 {
                     s->onClick(false);
-                    command_main = "editor_scene";
+                    command_main = "field_scene";
                 }
             }
             while (pushed_buttons.size() > 0)
@@ -180,24 +180,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
     button->setPosition(Vector2f(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3));
     button->setFrameTime(milliseconds(1.0f));
 
-
-    /*Sprite* button = new Sprite(*new_button, IntRect(0, 0, 1000, 500));
-    button->setScale(0.5f, 0.5f);
-    button->setOrigin(button->getLocalBounds().width / 2.0f,
-                      button->getLocalBounds().height / 2.0f);
-    button->setPosition(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3);//*/
-
     main_menu.addSprite(button);
-
-    /*FloatRect b;
-    b = button->getLocalBounds();
-    std::cout << "local bounds " << b.left << " " << b.top << " | " << b.width << " " << b.height << std::endl;
-    b = button->getGlobalBounds();
-    std::cout << "bounds " << b.left << " " << b.top << " | " << b.width << " " << b.height << std::endl;
-    Vector2f o = button->getOrigin();
-    std::cout << "origin " << o.x << " " << o.y << std::endl;
-    Vector2f p = button->getPosition();
-    std::cout << "position " << p.x << " " << p.y << std::endl;*/
 
     return main_menu;
 }

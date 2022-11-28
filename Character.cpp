@@ -104,6 +104,11 @@ Vector2f Character::getPosition() const
     return moving_sprite->getPosition();
 }
 
+bool Character::has_next_movement() const
+{
+    return next_movement_shift != Vector2f(0, 0);
+}
+
 void Character::cancel_next_movement()
 {
     next_movement_shift = Vector2f(0, 0);
@@ -111,13 +116,14 @@ void Character::cancel_next_movement()
 
 void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
 {
-    cout << "is moving " << is_moving() << " animated " << is_animated() << " playing " << moving_sprite->isPlaying() << endl;
+    //cout << "is moving " << is_moving() << " animated " << is_animated() << " playing " << moving_sprite->isPlaying() << endl;
     if (is_moving())
     {
         next_movement_shift = shift;
         next_movement_direction = direction;
         next_movement_animation_name = animation_name;
         next_movement_duration = duration;
+        return;
     }
 
     if (direction == -1)

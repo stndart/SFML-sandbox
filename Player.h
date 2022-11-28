@@ -12,6 +12,7 @@ class Player : public Drawable, public Transformable
 {
 private:
     Character* sprite;
+    deque<pair<int, Vector2f> > movement_direction;
 
 public:
     std::string name;
@@ -20,6 +21,9 @@ public:
     bool movement_animation;
     Player(std::string name, Texture* texture, IntRect frame0);
     bool is_moving() const;
+
+    void add_movement_direction(Vector2f shift, int direction);
+    void release_movement_direction(int direction);
 
     void move_player(Vector2f shift, int direction=-1);
     void setPosition(const Vector2f &position);

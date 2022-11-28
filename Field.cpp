@@ -101,6 +101,8 @@ bool Field::is_player_movable(int direction)
 /// Change player cell_coords
 void Field::move_player(int direction)
 {
+    //cout << "Field: moving player\n";
+
     /// If player is unmovable - don't move
     if (!is_player_movable(direction))
         return;
@@ -123,6 +125,23 @@ void Field::move_player(int direction)
     double movement_y = direction_y[direction] * cell_length_y;
 
     player_0->move_player(Vector2f(movement_x, movement_y), direction);
+}
+
+void Field::set_player_movement_direction(int direction)
+{
+    /// TODO: add cell coords
+
+    //cout << "Field: adding movement direction\n";
+    double movement_x = direction_x[direction] * cell_length_x;
+    double movement_y = direction_y[direction] * cell_length_y;
+
+    player_0->add_movement_direction(Vector2f(movement_x, movement_y), direction);
+}
+
+void Field::release_player_movement_direction(int direction)
+{
+    /// TODO: add cell coords
+    player_0->release_movement_direction(direction);
 }
 
 void Field::action(Texture* texture)

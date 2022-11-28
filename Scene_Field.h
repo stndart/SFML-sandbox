@@ -34,6 +34,9 @@ public:
 
     virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
+
+    virtual void set_player_movement_direction(int direction);
+    virtual void release_player_movement_direction(int direction);
 };
 
 Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,

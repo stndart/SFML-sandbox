@@ -24,27 +24,52 @@ void Scene_Field::change_current_field(int num)
 
 void Scene_Field::update(Event& event, std::string& command_main)
 {
+    //std::cout << "Scene_Field update event\n";
     if (event.type == sf::Event::KeyPressed)
     {
         switch (event.key.code)
         {
         case sf::Keyboard::W:
-            field[current_field]->move_player(3);
+            field[current_field]->set_player_movement_direction(3);
+            //field[current_field]->move_player(3);
             break;
         case sf::Keyboard::D:
-            field[current_field]->move_player(0);
+            field[current_field]->set_player_movement_direction(0);
+            //field[current_field]->move_player(0);
             break;
         case sf::Keyboard::S:
-            field[current_field]->move_player(1);
+            field[current_field]->set_player_movement_direction(1);
+            //field[current_field]->move_player(1);
             break;
         case sf::Keyboard::A:
-            field[current_field]->move_player(2);
+            field[current_field]->set_player_movement_direction(2);
+            //field[current_field]->move_player(2);
             break;
         case sf::Keyboard::Space:
             field[current_field]->action((*field_block)["stump"]);
             break;
         case sf::Keyboard::Tab:
             change_current_field((current_field+1)%2);
+            break;
+        default:
+            break;
+        }
+    }
+    if (event.type == sf::Event::KeyReleased)
+    {
+        switch (event.key.code)
+        {
+        case sf::Keyboard::W:
+            field[current_field]->release_player_movement_direction(3);
+            break;
+        case sf::Keyboard::D:
+            field[current_field]->release_player_movement_direction(0);
+            break;
+        case sf::Keyboard::S:
+            field[current_field]->release_player_movement_direction(1);
+            break;
+        case sf::Keyboard::A:
+            field[current_field]->release_player_movement_direction(2);
             break;
         default:
             break;
@@ -61,6 +86,16 @@ void Scene_Field::update(Event& event, std::string& command_main)
             break;
         }
     }*/
+}
+
+void Scene_Field::set_player_movement_direction(int direction)
+{
+    field[current_field]->set_player_movement_direction(direction);
+}
+
+void Scene_Field::release_player_movement_direction(int direction)
+{
+    field[current_field]->release_player_movement_direction(direction);
 }
 
 void Scene_Field::update(Time deltaTime)

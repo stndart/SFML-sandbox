@@ -41,6 +41,7 @@ class Character : public Drawable, public Transformable
         void set_next_animation(string animation_name);
         void add_next_animation(string animation_name);
 
+        bool has_next_movement() const;
         void cancel_next_movement();
         // direction = -1 if unspecified, then automatic
         void movement(Vector2f shift, int direction=-1, string animation_name="", Time duration=seconds(2));
