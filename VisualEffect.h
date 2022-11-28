@@ -40,8 +40,6 @@ struct State
 class VisualEffect : public AnimatedSprite
 {
 private:
-    Time duration;
-    Time offset;
     State start;
     State finish;
     State now;
@@ -50,7 +48,7 @@ public:
     VisualEffect(AnimatedSprite *sprite, Preset p = RFADE, Time offset = seconds(0));
     VisualEffect(AnimatedSprite *sprite, Time offset, Time duration, State start, State finish);
     VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos);
-    void move(const Vector2f &offset) override;
+    void move(const Vector2f &shift) override;
     void rotate(float angle) override;
     void scale(const Vector2f &factor) override;
     Animation* getAnimation() override;

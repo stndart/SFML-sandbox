@@ -60,6 +60,7 @@ class Character : public Drawable, public Transformable
         Vector2f next_movement_shift;
         string next_movement_animation_name;
         Time next_movement_duration;
+        Time after_last_animation;
 
         map<string, Animation*> animations;
 };

@@ -29,6 +29,7 @@ Character::Character(string name, Texture &texture_default, IntRect frame0) : na
     animations[idle_animation] = new Animation();
     int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
     animations[idle_animation]->addFrame(frame0, spritesheet_index);
+    after_last_animation = seconds(0);
 }
 
 void Character::set_facing_direction(int new_direction)
@@ -122,7 +123,7 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
     if (direction == -1)
         direction = direction_from_shift(shift);
 
-    cout << "------move " << direction << " with shift " << shift.x << " " << shift.y << endl;
+    //cout << "------move " << direction << " with shift " << shift.x << " " << shift.y << endl;
 
     if (is_moving_enabled())
     {
@@ -138,7 +139,11 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
         Vector2f start = base_sprite->getPosition();
         Vector2f finish = start + shift;
 
-        Time offset = -base_sprite->animation_remaining_time();
+        Time offset = seconds(0);
+        if (animated)
+            offset = -base_sprite->animation_remaining_time();
+        if (offset == seconds(0))
+            offset = after_last_animation;
         for (auto anim : next_animations)
         {
             offset -= base_sprite->getFrameTime() * (float)animations[anim]->getSize();
@@ -148,6 +153,7 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
             add_next_animation(animation_name);
 
         moving = true;
+        //cout << "new sprite offset " << offset.asMilliseconds() << endl;
         moving_sprite->play();
     }
     else
@@ -160,6 +166,8 @@ void Character::end_movement()
 {
     if (!is_moving())
         throw;
+
+    after_last_animation = moving_sprite->time_after_stop();
 
     delete moving_sprite;
     moving_sprite = base_sprite;
@@ -183,8 +191,9 @@ void Character::update(Time deltaTime)
 
     if (is_moving())
     {
-        cout << "ending movement " << moving_sprite->movement_remaining_time().asMilliseconds() << endl;
-        if (moving_sprite->movement_remaining_time() <= seconds(0))
+        Time remain_mov = moving_sprite->movement_remaining_time();
+        //cout << "ending movement " << remain_mov.asMilliseconds() << endl;
+        if (remain_mov <= seconds(0))
             end_movement();
     }
 

@@ -1,7 +1,7 @@
 #include "VisualEffect.h"
 
 VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite("default veffect"),
-    offset(offset), sprite(sprite)
+    sprite(sprite)
 {
 
     switch (p)
@@ -40,17 +40,19 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : Anim
     now = start;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, State start, State finish) : AnimatedSprite("default veffect"),
-    duration(duration), offset(offset), start(start), finish(finish), sprite(sprite)
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish) : AnimatedSprite("default veffect"),
+    start(start), finish(finish), sprite(sprite)
 {
+    duration = m_duration;
     m_currentTime = offset;
     now = start;
     //std::cout << name << " now owns " << sprite->name << std::endl;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos) : AnimatedSprite("default motion effect"),
-    duration(duration), offset(offset), sprite(sprite)
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos) : AnimatedSprite("default motion effect"),
+    sprite(sprite)
 {
+    duration = m_duration;
     float T = duration.asMicroseconds();
     Vector2f speed = (finish_pos - start_pos) / T;
     start = {0, Color(255, 255, 255),
@@ -64,6 +66,7 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, V
 void VisualEffect::play()
 {
     m_isPaused = false;
+    passed_after_stop = seconds(0);
     if (sprite)
         sprite->play();
 }
@@ -150,7 +153,7 @@ Time VisualEffect::animation_remaining_time() const
 
 Time VisualEffect::movement_remaining_time() const
 {
-    std::cout << "movement remains: mcur " << m_currentTime.asMilliseconds() << " dur " << duration.asMilliseconds() << std::endl;
+    //std::cout << "movement remains: mcur " << m_currentTime.asMilliseconds() << " dur " << duration.asMilliseconds() << std::endl;
     Time remain = std::max(seconds(0), duration - m_currentTime);
     return std::max(remain, sprite->movement_remaining_time());
 }
@@ -207,15 +210,15 @@ Vector2f VisualEffect::getPosition() const
 
 void VisualEffect::update(Time deltaTime)
 {
-    //std::cout << "VE update\n";
-    std::cout << "VE is paused? " << m_isPaused << std::endl;
+    //std::cout << "VE is paused? " << m_isPaused << std::endl;
 
     if (sprite)
         sprite->update(deltaTime);
 
-    if (!m_isPaused)
+    if (m_isPaused)
+        passed_after_stop += deltaTime;
+    else
     {
-
         m_currentTime += deltaTime;
 
         Time midTime = duration / 2.0f;
@@ -257,8 +260,10 @@ void VisualEffect::update(Time deltaTime)
             scale(now.scale);
             setColor(now.color);
 
-            std::cout << "VE paused by end\n";
+            //std::cout << "VE paused by end\n";
             m_isPaused = true;
+
+            passed_after_stop = m_currentTime - duration;
         }
     }
 }
