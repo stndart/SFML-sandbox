@@ -1,15 +1,6 @@
 #include "Field.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-
-#include "json/json.h"
 
 bool isdrawed = false;
-
-int direction_x[4] = {1, 0, -1, 0};
-int direction_y[4] = {0, 1, 0, -1};
-
 
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
@@ -87,6 +78,8 @@ bool Field::is_player_movable(int direction)
 {
     int cell_x = player_0->x_cell_coord;
     int cell_y = player_0->y_cell_coord;
+    //cout << "Movable checking from coords " << cell_x << " " << cell_y << " direction " << direction << endl;
+
     if (cells[cell_x][cell_y]->type_name == "border")
         return false;  /// Player is stuck
 
@@ -101,6 +94,8 @@ bool Field::is_player_movable(int direction)
 /// Change player cell_coords
 void Field::move_player(int direction)
 {
+    cout << "Field: moving player\n";
+
     /// If player is unmovable - don't move
     if (!is_player_movable(direction))
         return;
@@ -109,20 +104,32 @@ void Field::move_player(int direction)
     if (player_0->is_moving())
         return;
 
-    int cell_x = player_0->x_cell_coord;
-    int cell_y = player_0->y_cell_coord;
-    cell_x += direction_x[direction];
-    cell_y += direction_y[direction];
-
     /// Instantly change cells_coords
     /// Animation is to catch up
-    player_0->x_cell_coord = cell_x;
-    player_0->y_cell_coord = cell_y;
+    player_0->x_cell_coord += direction_x[direction];
+    player_0->y_cell_coord += direction_y[direction];
 
     double movement_x = direction_x[direction] * cell_length_x;
     double movement_y = direction_y[direction] * cell_length_y;
 
     player_0->move_player(Vector2f(movement_x, movement_y), direction);
+}
+
+void Field::set_player_movement_direction(int direction)
+{
+    /// TODO: add cell coords
+
+    //cout << "Field: adding movement direction\n";
+    double movement_x = direction_x[direction] * cell_length_x;
+    double movement_y = direction_y[direction] * cell_length_y;
+
+    player_0->add_movement_direction(Vector2f(movement_x, movement_y), direction);
+}
+
+void Field::release_player_movement_direction(int direction)
+{
+    /// TODO: add cell coords
+    player_0->release_movement_direction(direction);
 }
 
 void Field::action(Texture* texture)
@@ -256,6 +263,8 @@ Vector2f Field::check_view_bounds(Vector2f view_center)
 
 void Field::update_view_center()
 {
+    //cout << "Field view_update\n";
+
     Vector2f view_center = Vector2f(cell_center_x * cell_length_x,
                                     cell_center_y * cell_length_y);
     if (player_0)
@@ -263,6 +272,7 @@ void Field::update_view_center()
         view_center = player_0->getPosition();
     }
     view_center = check_view_bounds(view_center);
+    //cout << "view center position " << view_center.x << " " << view_center.y << endl;
 
     current_view.setCenter(view_center);
     view_changed = false;
@@ -270,6 +280,8 @@ void Field::update_view_center()
 
 void Field::update(Time deltaTime)
 {
+    //cout << "== Field update\n";
+
     if (cells_changed)
     {
         double cell_screen_x, cell_screen_y;
@@ -298,9 +310,24 @@ void Field::update(Time deltaTime)
         cell_0_screen_x = cell_0_screen.x;
         cell_0_screen_y = cell_0_screen.y;
 
+        if (player_0->queued_movement_direction.size() > 0)
+        {
+            //cout << "Field check blocking\n";
+            for (auto next_mov = player_0->queued_movement_direction.begin();
+                next_mov != player_0->queued_movement_direction.end(); next_mov++)
+            {
+                ;
+                next_mov->blocking_checked = true;
+                next_mov->blocked = true;
+                if (is_player_movable(next_mov->direction))
+                {
+                    next_mov->blocked = false;
+                }
+            }
+        }
+
         player_0->update(deltaTime);
         view_changed = true;
-
     }
 
     if (view_changed)
@@ -318,8 +345,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         target.draw(m_vertices, 4, Quads, states);
     }
 
-    int center_cell_x = cell_0_screen_x / cell_length_x;
-    int center_cell_y = cell_0_screen_y / cell_length_y;
+    int center_cell_x = current_view.getCenter().x / cell_length_x;
+    int center_cell_y = current_view.getCenter().y / cell_length_y;
     /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
     for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
         for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)

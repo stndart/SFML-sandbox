@@ -57,6 +57,7 @@
 		<Unit filename="Scene_editor.h" />
 		<Unit filename="VisualEffect.cpp" />
 		<Unit filename="VisualEffect.h" />
+		<Unit filename="extra_algorithms.cpp" />
 		<Unit filename="extra_algorithms.h" />
 		<Unit filename="json/json-forwards.h" />
 		<Unit filename="json/json.h" />

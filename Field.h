@@ -3,12 +3,19 @@
 
 #include <vector>
 #include <map>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
+#include "json/json.h"
 #include <cassert>
+
 #include "AnimatedSprite.h"
 #include "Cell.h"
 #include "Player.h"
+#include "extra_algorithms.h"
 
 using namespace sf;
 
@@ -35,6 +42,8 @@ public:
     //Cell* get_cell_by_coord(unsigned int x, unsigned int y);
     bool is_player_movable(int direction);
     void move_player(int direction);
+    void set_player_movement_direction(int direction);
+    void release_player_movement_direction(int direction);
     std::pair <int, int> get_player_cell_coord(); // WHY?
     void action(Texture* texture);
     void add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture);

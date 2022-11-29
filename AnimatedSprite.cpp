@@ -1,15 +1,20 @@
 #include "AnimatedSprite.h"
 
 AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) : name(name),
-    m_isPaused(paused), m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0),
-    m_isLooped(looped), m_isReversed(false), m_isReversible(reversible), m_texture(NULL)
+    m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)), m_animation(NULL),
+    m_frameTime(frameTime), m_currentFrame(0),
+    m_isLooped(looped), m_isReversed(false), m_isReversible(reversible),
+    m_texture(NULL)
 {
 
 }
 
 AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) : name(name),
-    m_isPaused(true), m_frameTime(seconds(0.2f)), m_currentFrame(0), m_isLooped(true), m_isReversed(false), m_isReversible(false)
+    m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
+    m_frameTime(seconds(0.2f)), m_currentFrame(0),
+    m_isLooped(true), m_isReversed(false), m_isReversible(false)
 {
+
     m_texture = &texture;
     m_animation = new Animation();
     m_animation->addFrame(frame0);
@@ -23,6 +28,8 @@ void AnimatedSprite::setAnimation(Animation& animation)
     m_texture = m_animation->getSpriteSheet();
     m_currentFrame = 0;
     setFrame(m_currentFrame);
+
+    duration = m_frameTime * (float)m_animation->getSize();
 }
 
 void AnimatedSprite::setFrameTime(Time time)
@@ -172,6 +179,39 @@ Vector2f AnimatedSprite::getPosition() const
     return Transformable::getPosition();
 }
 
+Time AnimatedSprite::animation_remaining_time() const
+{
+    if (m_currentFrame == 0)
+        return seconds(0);
+
+    int remains = 0;
+    if (m_animation && isPlaying())
+    {
+        int full_time = m_frameTime.asMicroseconds() * m_animation->getSize();
+        if (m_isReversible)
+            full_time *= 2;
+        int cur_time = m_currentTime.asMicroseconds() % full_time;
+        remains += full_time - cur_time;
+    }
+
+    return microseconds(remains);
+}
+
+Time AnimatedSprite::movement_remaining_time() const
+{
+    return seconds(0);
+}
+
+Time AnimatedSprite::time_after_stop() const
+{
+    return passed_after_stop;
+}
+
+Time AnimatedSprite::get_duration() const
+{
+    return duration;
+}
+
 void AnimatedSprite::update(Time deltaTime)
 {
     //std::cout << "==animated sprite playing? " << (!m_isPaused && m_animation) << " with curframe " << m_currentFrame << std::endl;
@@ -276,6 +316,7 @@ void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 
     //std::cout << "draw out\n";
 }
+
 void AnimatedSprite::onClick(bool pressed)
 {
     if (pressed)

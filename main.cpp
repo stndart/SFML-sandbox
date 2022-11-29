@@ -6,13 +6,13 @@
 #include <cassert>
 #include <filesystem>
 
+#include "extra_algorithms.h"
+
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
-
-#include "extra_algorithms.h"
 
 using namespace sf;
 using namespace std;
@@ -31,10 +31,14 @@ void Motion()
 
 int main()
 {
+    cout << direction_x[0] << " dir x\n";
+
+
     // setup window
     Vector2i screenDimensions(1920, 1080);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
     window.setFramerateLimit(60);
+    window.setKeyRepeatEnabled(false);
 
     // load textures
 
@@ -185,9 +189,6 @@ int main()
                 window.close();
             }
             std::string command_main = "";
-            //main_menu.update(event, command_main);
-            //field_scene.update(event, command_main);
-            //editor_scene.update(event, command_main);
             Current_Scene->update(event, command_main);
             if (command_main.size() > 0)
             {
@@ -199,6 +200,10 @@ int main()
                 {
                     window.close();
                 }
+                else if (command_main == "field_scene")
+                {
+                    Current_Scene = &field_scene;
+                }
                 else if (command_main == "main_menu")
                 {
                     Current_Scene = &main_menu;
@@ -208,17 +213,10 @@ int main()
 
         Time frameTime = frameClock.restart();
 
-        //main_menu.update(frameTime);
-        //field_scene.update(frameTime);
-        //editor_scene.update(frameTime);
         Current_Scene->update(frameTime);
 
 
         window.clear();
-
-        //window.draw(main_menu);
-        //window.draw(field_scene);
-        //window.draw(editor_scene);
         window.draw(*Current_Scene);
 
         window.display();
