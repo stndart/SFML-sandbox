@@ -133,6 +133,7 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
         next_movement_direction = direction;
         next_movement_animation_name = animation_name;
         next_movement_duration = duration;
+        //cout << "Character movement scheduled direction " << direction << endl;
         return;
     }
 
@@ -194,6 +195,7 @@ void Character::end_movement()
     if (next_movement_shift != Vector2f(0, 0))
     {
         switched_to_next_animation = true;
+        //cout << "Scheduled direction became playing " << next_movement_direction << endl;
         movement(next_movement_shift, next_movement_direction, next_movement_animation_name, next_movement_duration);
         cancel_next_movement();
     }

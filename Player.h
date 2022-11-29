@@ -39,10 +39,12 @@ public:
 
     void add_movement_direction(Vector2f shift, int direction);
     void release_movement_direction(int direction);
+    bool has_queued_direction(int direction);
 
     void move_player(Vector2f shift, int direction=-1);
     void setPosition(const Vector2f &position);
     Vector2f getPosition() const;
+    bool check_block_and_move(Movement& mov); /// TEMP
     void update(Time deltaTime);
     void draw(RenderTarget& target, RenderStates states) const override;
 

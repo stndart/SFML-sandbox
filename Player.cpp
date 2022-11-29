@@ -38,14 +38,23 @@ void Player::release_movement_direction(int direction)
             break;
         }
     }
-    if (mov_dir_iter + 1 == queued_movement_direction.end())
+    if (mov_dir_iter == queued_movement_direction.begin())
     {
-        //cout << "realeasing last\n";
+        //cout << "Realeasing scheduled movement\n";
         sprite->cancel_next_movement();
     }
     queued_movement_direction.erase(mov_dir_iter);
 
-    //cout << "Release mov dir size " << queued_movement_direction.size() << endl;
+    //cout << "Released moving direction " << direction << " with remaining mov queue size " << queued_movement_direction.size() << endl;
+}
+
+bool Player::has_queued_direction(int direction)
+{
+    auto mov_dir_iter = queued_movement_direction.begin();
+    for (; mov_dir_iter != queued_movement_direction.end(); mov_dir_iter++)
+        if (mov_dir_iter->direction == direction)
+            return true;
+    return false;
 }
 
 void Player::setPosition(const Vector2f &position)
@@ -70,14 +79,17 @@ void Player::reset_blocking_check()
 
 void Player::update(Time deltaTime)
 {
-    cout << "checking next move: next move present? " << sprite->has_next_movement() << " mov dir size " << queued_movement_direction.size() << endl;
+    //cout << "Player checking next move: scheduled move present? " << sprite->has_next_movement() << " mov queue size " << queued_movement_direction.size() << endl;
 
     if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
     {
+        //cout << "Arrived at " << x_cell_coord << " " << y_cell_coord << endl;
         sprite->switched_to_next_animation = false;
         int mov_dir = sprite->get_current_direction();
+        //cout << "PLayer moving from " << x_cell_coord << " " << y_cell_coord << " as started movement\n";
         x_cell_coord += direction_x[mov_dir];
         y_cell_coord += direction_y[mov_dir];
+        reset_blocking_check();
     }
 
     if (!sprite->has_next_movement() && queued_movement_direction.size() > 0)
@@ -87,7 +99,7 @@ void Player::update(Time deltaTime)
         for (auto r_iter = queued_movement_direction.rbegin();
              r_iter != queued_movement_direction.rend(); r_iter++)
         {
-            cout << "checking... " << r_iter->direction << " is checked " << r_iter->blocking_checked << " and blocked " << r_iter->blocked << endl;
+            //cout << "Player checking direction " << r_iter->direction << " is checked " << r_iter->blocking_checked << " and blocked " << r_iter->blocked << endl;
             if (r_iter->blocking_checked && !r_iter->blocked)
             {
                 mov_dir = r_iter->direction;
@@ -96,9 +108,10 @@ void Player::update(Time deltaTime)
         }
         if (mov_dir != -1)
         {
-            cout << "MOVING direction " << mov_dir << " shift " << mov_shift.x << " " << mov_shift.y << endl;
+            //cout << "-- MOVING direction " << mov_dir << " shift " << mov_shift.x << " " << mov_shift.y << " from " << x_cell_coord << " " << y_cell_coord << endl;
             if (!sprite->is_moving() && !sprite->has_next_movement())
             {
+                //cout << "moving from " << x_cell_coord << " " << y_cell_coord << " as brand new movement\n";
                 x_cell_coord += direction_x[mov_dir];
                 y_cell_coord += direction_y[mov_dir];
             }

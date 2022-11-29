@@ -78,6 +78,8 @@ bool Field::is_player_movable(int direction)
 {
     int cell_x = player_0->x_cell_coord;
     int cell_y = player_0->y_cell_coord;
+    //cout << "Movable checking from coords " << cell_x << " " << cell_y << " direction " << direction << endl;
+
     if (cells[cell_x][cell_y]->type_name == "border")
         return false;  /// Player is stuck
 
@@ -278,7 +280,7 @@ void Field::update_view_center()
 
 void Field::update(Time deltaTime)
 {
-    cout << "Field update\n";
+    //cout << "== Field update\n";
 
     if (cells_changed)
     {
@@ -310,20 +312,17 @@ void Field::update(Time deltaTime)
 
         if (player_0->queued_movement_direction.size() > 0)
         {
-            cout << "Field check blocking\n";
-            cout << "Player coords " << player_0->x_cell_coord << " " << player_0->y_cell_coord << endl;
+            //cout << "Field check blocking\n";
             for (auto next_mov = player_0->queued_movement_direction.begin();
                 next_mov != player_0->queued_movement_direction.end(); next_mov++)
             {
-                cout << "Field checking " << next_mov->direction << " ... ";
+                ;
                 next_mov->blocking_checked = true;
                 next_mov->blocked = true;
                 if (is_player_movable(next_mov->direction))
                 {
-                    cout << next_mov->direction << " unblocked\n";
                     next_mov->blocked = false;
                 }
-                cout << "blocked\n";
             }
         }
 

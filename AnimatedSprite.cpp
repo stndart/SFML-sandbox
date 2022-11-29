@@ -282,7 +282,7 @@ void AnimatedSprite::update(Time deltaTime)
                     else
                     {
                         m_isPaused = true;
-                        std::cout << "last frame reached\n";
+                        //std::cout << "last frame reached\n";
                         break;
                     }
                 }
