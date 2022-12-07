@@ -55,6 +55,10 @@
 		<Unit filename="Scene_Field.h" />
 		<Unit filename="Scene_editor.cpp" />
 		<Unit filename="Scene_editor.h" />
+		<Unit filename="UI_element.cpp" />
+		<Unit filename="UI_element.h" />
+		<Unit filename="UI_layout.cpp" />
+		<Unit filename="UI_layout.h" />
 		<Unit filename="VisualEffect.cpp" />
 		<Unit filename="VisualEffect.h" />
 		<Unit filename="extra_algorithms.cpp" />

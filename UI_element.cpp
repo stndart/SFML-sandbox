@@ -24,11 +24,16 @@ bool UI_element::contains(sf::Vector2f curPos)
     return r;
 }
 
-void UI_element::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void UI_element::draw_element(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if (sprite)
     {
         sprite->setPosition(Frame_scale.left, Frame_scale.top);
         target.draw(*sprite);
     }
+}
+
+void UI_element::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    draw_element(target, states);
 }
