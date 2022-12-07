@@ -6,12 +6,12 @@
 
 class UI_label : public UI_element
 {
+    private:
+        sf::Text text;
     public:
         UI_label();
         UI_label(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, std::string text_input);
-
-    private:
-        sf::Text text;
+        void set_text(std::string input_text);
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 

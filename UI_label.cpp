@@ -15,19 +15,17 @@ UI_label::UI_label() : UI_element()
     text.setPosition(0, 0);
 }
 
-UI_label::UI_label(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, std::string text_input) : UI_label(),
-UI_element(name, Input_scale, texture_sp)
+UI_label::UI_label(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, std::string text_input) : UI_label()
 {
-
+    UI_element(name, Input_scale, texture_sp);
 }
 
 void UI_label::set_text(std::string input_text)
 {
-    text.setString(s_input);
+    text.setString(input_text);
 }
 
-void UI_element::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void UI_label::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     draw_element(target, states);
-    if ()
 }
