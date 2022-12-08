@@ -57,6 +57,8 @@
 		<Unit filename="Scene_editor.h" />
 		<Unit filename="UI_element.cpp" />
 		<Unit filename="UI_element.h" />
+		<Unit filename="UI_label.cpp" />
+		<Unit filename="UI_label.h" />
 		<Unit filename="UI_layout.cpp" />
 		<Unit filename="UI_layout.h" />
 		<Unit filename="VisualEffect.cpp" />

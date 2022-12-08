@@ -121,6 +121,7 @@ void Scene_Field::draw(RenderTarget& target, RenderStates states) const
     {
         field[current_field]->draw(target, states);
     }
+    draw_scene_Interface(target, states);
 }
 
 Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,

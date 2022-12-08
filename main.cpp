@@ -13,6 +13,9 @@
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
+#include "UI_element.h"
+#include "UI_label.h"
+#include "UI_button.h"
 
 using namespace sf;
 using namespace std;
@@ -155,6 +158,19 @@ int main()
 
 ///-------------------------------------------------------------------------------------------
 
+    vector <UI_element*> main_ui_elements;
+    {
+        IntRect m1;
+        m1.left = 0;
+        m1.top = 0;
+        Vector2u v = UI_block["horizontal_column"]->getSize();
+        m1.width = v.x;
+        m1.height = v.y;
+        UI_element* element1 = new UI_element("horizontal", m1, UI_block["horizontal_column"]);
+        main_ui_elements.push_back(element1);
+    }
+
+///-------------------------------------------------------------------------------------------
     cout << endl;
 
     Clock frameClock;
@@ -170,6 +186,7 @@ int main()
         editor_scene.someTextures(0);
         editor_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
         editor_scene.addButton("main_menu" ,UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1870, 30);
+        editor_scene.addUI_element(main_ui_elements);
 
 
     cout << "field made\n";
