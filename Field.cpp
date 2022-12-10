@@ -94,7 +94,7 @@ bool Field::is_player_movable(int direction)
 /// Change player cell_coords
 void Field::move_player(int direction)
 {
-    cout << "Field: moving player\n";
+    //cout << "Field: moving player\n";
 
     /// If player is unmovable - don't move
     if (!is_player_movable(direction))
@@ -336,6 +336,7 @@ void Field::update(Time deltaTime)
 
 void Field::draw(RenderTarget& target, RenderStates states) const
 {
+    View previous_view = target.getView();
     target.setView(current_view);
 
     if (background)
@@ -364,6 +365,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     {
         player_0->draw(target, states);
     }
+
+    target.setView(previous_view);
 }
 
 Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
