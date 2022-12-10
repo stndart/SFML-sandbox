@@ -55,6 +55,8 @@
 		<Unit filename="Scene_Field.h" />
 		<Unit filename="Scene_editor.cpp" />
 		<Unit filename="Scene_editor.h" />
+		<Unit filename="UI_button.cpp" />
+		<Unit filename="UI_button.h" />
 		<Unit filename="UI_element.cpp" />
 		<Unit filename="UI_element.h" />
 		<Unit filename="UI_label.cpp" />

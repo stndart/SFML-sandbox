@@ -21,6 +21,7 @@
 /json/*
 
 # Resources
+/Images/archive/*
 
 # notes
 *.txt

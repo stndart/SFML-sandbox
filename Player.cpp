@@ -85,7 +85,7 @@ void Player::update(Time deltaTime)
     {
         //cout << "Arrived at " << x_cell_coord << " " << y_cell_coord << endl;
         sprite->switched_to_next_animation = false;
-        int mov_dir = sprite->get_current_direction();
+        int mov_dir = sprite->get_current_direction(); /// ????
         //cout << "PLayer moving from " << x_cell_coord << " " << y_cell_coord << " as started movement\n";
         x_cell_coord += direction_x[mov_dir];
         y_cell_coord += direction_y[mov_dir];

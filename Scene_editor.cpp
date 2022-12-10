@@ -252,6 +252,7 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
     {
         field[current_field]->draw(target, states);
     }
+    draw_scene_Interface(target, states);
     if (s_input != "")
     {
         Font font;
@@ -269,7 +270,6 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         target.draw(text);
     }
     draw_scene_buttons(target, states);
-    draw_scene_Interface(target, states);
 }
 
 Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
