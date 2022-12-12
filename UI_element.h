@@ -20,8 +20,8 @@ class UI_element : public sf::Drawable, public sf::Transformable
         void change_position(sf::Vector2f Pos);
         bool contains(sf::Vector2f curPos);
 
-        void push();
-        std::string release();
+        virtual void push() const;
+        virtual std::string release() const;
 
 
     protected:

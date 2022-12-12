@@ -207,6 +207,19 @@ int main()
         m4.height = v4.y;
         UI_element* element4 = new UI_element("vertical", m4, UI_block["vertical_column"]);
         main_ui_elements.push_back(element4);
+
+//////////////////////////////////////////////////////////////////
+
+        IntRect mb1;
+        mb1.left = 1820;
+        mb1.top = 0;
+        Vector2u vb1 = UI_block["ESCAPE"]->getSize();
+        mb1.width = vb1.x;
+        mb1.height = vb1.y;
+
+        Button* b1 = new Button("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"]);
+        UI_button* elementb1 = new UI_button("main_menu", mb1, UI_block["ESCAPE_null"], b1);
+        main_ui_elements.push_back(elementb1);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +231,7 @@ int main()
     Clock frameClock;
 
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-        main_menu.addButton("ESCAPE" ,UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1870, 30);
+        main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
     ///--------------------------------------------------------
     Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
         field_scene.someTextures(0);
@@ -227,7 +240,7 @@ int main()
     Scene_editor editor_scene = new_editor_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
         editor_scene.someTextures(0);
         editor_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
-        editor_scene.addButton("main_menu" ,UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1870, 30);
+        //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
         editor_scene.addUI_element(main_ui_elements);
 
 

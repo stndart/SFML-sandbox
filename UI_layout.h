@@ -13,6 +13,7 @@ class UI_layout : public sf::Drawable, public sf::Transformable
 
         void addElement(UI_element* new_element);
         bool contains(sf::Vector2f curPos);
+        bool get_isClicked();
         void push_click(sf::Vector2f curPos);
         std::string release_click();
         //std::string cursor(sf::Vector2f curPos);

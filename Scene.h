@@ -36,6 +36,7 @@ public:
     void addSprite(AnimatedSprite* sprite);
     void addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y);
     void addUI_element(std::vector<UI_element*> &new_ui_elements);
+    bool UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main);
 
     virtual void draw(RenderTarget& target, RenderStates states) const override;
     virtual void update(Event& event, std::string& command_main);

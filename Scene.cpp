@@ -47,12 +47,37 @@ void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
     }
 }
 
+bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main)
+{
+    if (event.type == Event::MouseButtonPressed)
+    {
+        if (Interface->contains(curPos))
+        {
+            Interface->push_click(curPos);
+            return true;
+        }
+    }
+    else if (event.type == Event::MouseButtonReleased)
+    {
+        if (Interface->get_isClicked())
+        {
+            std::string ans = Interface->release_click();
+            if (Interface->contains(curPos)) command_main = ans;
+            return true;
+        }
+    }
+    return false;
+}
+
 void Scene::update(Event& event, std::string& command_main)
 {
-    if (event.type == Event::MouseButtonPressed){
+    if (event.type == Event::MouseButtonPressed)
+    {
+        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
+            if (UI_update_mouse(curPos, event, command_main)) return;
             for (auto s : sprites)
             {
                 ///FloatRect curRect = s->getGlobalBounds();
@@ -60,7 +85,6 @@ void Scene::update(Event& event, std::string& command_main)
                 ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
                 ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
 
-                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
 
                 /*std::cout << event.mouseButton.x << " - " << event.mouseButton.y << std::endl;
                 std::cout << curPos.x << " " << curPos.y << std::endl;
@@ -74,7 +98,6 @@ void Scene::update(Event& event, std::string& command_main)
             }
             for (auto b : buttons)
             {
-                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
                 if (b->contains(curPos))
                 {
                     b->push_button();
@@ -90,9 +113,11 @@ void Scene::update(Event& event, std::string& command_main)
     }
     if (event.type == Event::MouseButtonReleased)
     {
+        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
+            if (UI_update_mouse(curPos, event, command_main)) return;
             for (auto s : sprites)
             {
 
@@ -100,7 +125,6 @@ void Scene::update(Event& event, std::string& command_main)
                 ///Vector2f curPos = Vector2f(Mouse::getPosition());
                 ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
                 ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
-                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
 
                 /*std::cout << event.mouseButton.x << " - " << event.mouseButton.y << std::endl;
                 std::cout << curPos.x << " " << curPos.y << std::endl;
@@ -115,7 +139,6 @@ void Scene::update(Event& event, std::string& command_main)
             }
             while (pushed_buttons.size() > 0)
             {
-                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
                 std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
                 if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
                 {

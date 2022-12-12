@@ -4,14 +4,14 @@
 #include "UI_element.h"
 #include "Button.h"
 
-class UI_button : UI_element
+class UI_button : public UI_element
 {
     public:
         UI_button();
         UI_button(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, Button* new_button);
 
-        void push();
-        std::string release();
+        virtual void push() const override;
+        virtual std::string release() const override;
 
         void change_position(sf::Vector2f Pos);
 

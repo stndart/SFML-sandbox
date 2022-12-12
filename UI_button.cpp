@@ -10,15 +10,18 @@ UI_button::UI_button(std::string name, sf::IntRect Input_scale, sf::Texture* tex
     UI_element(name, Input_scale, texture_sp), button(new_button)
 {
     isClickable = true;
+    sf::Vector2f coord_button = {(float)Input_scale.left, (float)Input_scale.top};
+    button->change_position(coord_button);
 }
 
-void UI_button::push()
+void UI_button::push() const
 {
     button->push_button();
 }
 
-std::string UI_button::release()
+std::string UI_button::release() const
 {
+    //std::cout << "push" << std::endl;
     return button->release_button();
 }
 

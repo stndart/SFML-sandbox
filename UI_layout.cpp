@@ -12,12 +12,20 @@ void UI_layout::addElement(UI_element* new_element)
 
 bool UI_layout::contains(sf::Vector2f curPos)
 {
+    bool ans = false;
     for (auto g : elements)
     {
-        bool ans = g->contains(curPos);
-        if (ans) return ans;
+        bool tek = g->contains(curPos);
+        //if (g->type_name == "main_menu") {ans = true; break;}
+        if (tek) {ans = true; break;}
     }
-    return false;
+    //std::cout << ans << std::endl;
+    return ans;
+}
+
+bool UI_layout::get_isClicked()
+{
+    return isClicked;
 }
 
 void UI_layout::push_click(sf::Vector2f curPos)

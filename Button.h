@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <iostream>
 
 class Button : public sf::Drawable, public sf::Transformable
 {

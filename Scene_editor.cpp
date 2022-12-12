@@ -78,13 +78,15 @@ void Scene_editor::update(Event& event, std::string& command_main)
             s_input += letter;
         }
     }
-    if (event.type == Event::MouseButtonPressed){
+    if (event.type == Event::MouseButtonPressed)
+    {
+        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
+            if (UI_update_mouse(curPos, event, command_main)) return;
             for (auto b : buttons)
             {
-                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
                 if (b->contains(curPos))
                 {
                     b->push_button();
@@ -100,12 +102,13 @@ void Scene_editor::update(Event& event, std::string& command_main)
     }
     if (event.type == Event::MouseButtonReleased)
     {
+        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
+            if (UI_update_mouse(curPos, event, command_main)) return;
             while (pushed_buttons.size() > 0)
             {
-                Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
                 std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
                 if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
                 {

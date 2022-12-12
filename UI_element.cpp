@@ -24,15 +24,14 @@ bool UI_element::contains(sf::Vector2f curPos)
     return r;
 }
 
-void UI_element::push()
+void UI_element::push() const
 {
     //for init
 }
 
-std::string UI_element::release()
+std::string UI_element::release() const
 {
-    //for init
-    return "???";
+    return type_name;
 }
 
 void UI_element::draw_element(sf::RenderTarget& target, sf::RenderStates states) const
