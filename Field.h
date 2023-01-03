@@ -48,7 +48,7 @@ public:
     void action(Texture* texture);
     void add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture);
     void change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture);
-    void someTextures(std::map <std::string, Texture*> &field_block, int num);
+    void load_field(std::map <std::string, Texture*> &field_block, int num);
     void save_field(int num);
     void place_characters();
     void update_view_center();

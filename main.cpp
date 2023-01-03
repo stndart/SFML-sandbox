@@ -234,11 +234,11 @@ int main()
         main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
     ///--------------------------------------------------------
     Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
-        field_scene.someTextures(0);
+        field_scene.load_field(0, "field_scene");
         field_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
     ///--------------------------------------------------------
     Scene_editor editor_scene = new_editor_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
-        editor_scene.someTextures(0);
+        editor_scene.load_field(0, "editor_scene");
         editor_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
         //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
         editor_scene.addUI_element(main_ui_elements);

@@ -167,8 +167,10 @@ void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Textur
 }
 
 /// Спасибо, очень понятная функция, особенно из-за названия и комментариев
-void Field::someTextures(std::map <std::string, Texture*> &field_block, int num)
+void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
 {
+    //cout << num << endl;
+
     std::string path = "Locations/loc_";
     path += std::to_string(num);
     path += ".json";
@@ -201,6 +203,8 @@ void Field::someTextures(std::map <std::string, Texture*> &field_block, int num)
             }
         }
     }
+    ifs.close();
+    cells_changed = true;
     std::cout << std::endl;
 }
 

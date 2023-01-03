@@ -23,7 +23,7 @@ public:
     void add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num);
     void change_current_field(int num);
-    void someTextures(int num);
+    void load_field(int num, std::string who_call);
     void save_map();
 
     //TEMP
