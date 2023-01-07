@@ -17,6 +17,8 @@ Field::Field(int length, int width, std::string name) : background(NULL), name(n
 //    cell_0_screen_y = (width  + 1) * cell_length_y / 2;
     cell_0_screen_x = 0;
     cell_0_screen_y = 0;
+
+    field_changed = false;
 }
 
 void Field::addTexture(Texture* texture, IntRect rect)
@@ -40,12 +42,14 @@ void Field::addTexture(Texture* texture, IntRect rect)
 
     current_view.setSize(rect.width, rect.height);
     view_changed = true;
+    field_changed = true;
 }
 
 void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 {
     cells[x][y] = new Cell("new_cell", texture);
     cells_changed = true;
+    field_changed = true;
 }
 
 void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y)
@@ -72,6 +76,7 @@ void Field::field_resize(unsigned int length, unsigned int width)         // CHE
         cells[i].resize(width);
     }
     cells_changed = true;
+    field_changed = true;
 }
 
 bool Field::is_player_movable(int direction)
@@ -152,23 +157,31 @@ void Field::action(Texture* texture)
     }
 
     cells_changed = true;
+    field_changed = true;
 }
 
 void Field::add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture)
 {
     cells[cell_x][cell_y]->addObject(type_name, texture, 1);
     cells_changed = true;
+    field_changed = true;
 }
 
 void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture)
 {
     cells[cell_x][cell_y]->change_texture(name, texture);
     cells_changed = true;
+    field_changed = true;
 }
 
 /// Спасибо, очень понятная функция, особенно из-за названия и комментариев
 void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
 {
+    if (!field_changed)
+    {
+        return;
+    }
+    field_changed = false;
     //cout << num << endl;
 
     std::string path = "Locations/loc_";
@@ -179,6 +192,11 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
     std::ifstream ifs(path);
     ifs >> Locations;
 
+    unsigned int field_length = int(Locations["scale"][0].asInt());
+    unsigned int field_width = int(Locations["scale"][1].asInt());
+    std::cout << field_length << " " << field_width << std::endl;
+    field_resize(field_length, field_width);
+    std::cout << "resize OK" << std::endl;
 
     for (unsigned int x = 0; x < cells.size(); x++)
     {
@@ -203,6 +221,7 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
             }
         }
     }
+    std::cout << "loc OK" << std::endl;
     ifs.close();
     cells_changed = true;
     std::cout << std::endl;
@@ -211,6 +230,10 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
 /// Saves field to "/Locations/loc_%d.json"
 void Field::save_field(int num)
 {
+    if (!field_changed)
+    {
+        return;
+    }
     std::string path = "Locations/loc_";
     path += std::to_string(num);
     path += ".json";
@@ -352,7 +375,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
     int center_cell_x = current_view.getCenter().x / cell_length_x;
     int center_cell_y = current_view.getCenter().y / cell_length_y;
-    /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
+    /// Что за магические 5 и 8?
+    /// Это (1080/120) / 2 и (1920/120) / 2, т.е. центр.
     for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
         for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
         {

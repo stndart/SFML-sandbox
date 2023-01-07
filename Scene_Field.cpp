@@ -8,7 +8,7 @@ Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *fie
 void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num)
 {
-    Field* field_0 = new_field(bg, length, width, (*field_blocks)["B"], player_texture, screen_dimensions);
+    Field* field_0 = new_field(bg, length, width, (*field_blocks)["null"], player_texture, screen_dimensions);
     field[num] = field_0;
     if (current_field == -1)
     {

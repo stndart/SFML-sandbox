@@ -34,6 +34,9 @@ private:
 public:
     std::string name;
     Player* player_0;
+
+    bool field_changed;
+
     Field(int length, int width, std::string name);
     void addTexture(Texture* texture, IntRect rect);
     void addCell(Texture* texture, unsigned int x, unsigned int y);
