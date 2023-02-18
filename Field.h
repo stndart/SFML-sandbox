@@ -34,6 +34,9 @@ private:
 public:
     std::string name;
     Player* player_0;
+
+    bool field_changed;
+
     Field(int length, int width, std::string name);
     Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions);
     void addTexture(Texture* texture, IntRect rect);

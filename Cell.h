@@ -31,6 +31,7 @@ public:
 
 
     virtual void draw(RenderTarget& target, RenderStates states) const override;
+    void draw_objects(RenderTarget& target, RenderStates states);
 
     // TEMP
     int mapsize()

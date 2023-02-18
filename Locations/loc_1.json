@@ -1,4 +1,9 @@
 {
+	"scale" : 
+	[
+		19,
+		19
+	],
 	"big_objects" : 
 	[
 		[
@@ -20,33 +25,9 @@
 			null,
 			null,
 			null,
-			null,
 			null
 		],
 		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
 			null,
 			null,
 			null,
@@ -86,11 +67,30 @@
 			null,
 			null,
 			null,
-			null,
 			null
 		],
 		[
 			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
 			null,
 			null,
 			[
@@ -140,11 +140,9 @@
 			null,
 			null,
 			null,
-			null,
 			null
 		],
 		[
-			null,
 			null,
 			null,
 			null,
@@ -189,7 +187,6 @@
 			null,
 			null,
 			null,
-			null,
 			null
 		],
 		[
@@ -211,11 +208,9 @@
 			null,
 			null,
 			null,
-			null,
 			null
 		],
 		[
-			null,
 			null,
 			null,
 			null,
@@ -244,7 +239,6 @@
 		[
 			null,
 			null,
-			null,
 			[
 				{
 					"depth_level" : 1,
@@ -269,7 +263,6 @@
 			null
 		],
 		[
-			null,
 			null,
 			null,
 			null,
@@ -304,7 +297,6 @@
 			null,
 			null,
 			null,
-			null,
 			[
 				{
 					"depth_level" : 1,
@@ -331,7 +323,6 @@
 			null,
 			null,
 			null,
-			null,
 			[
 				{
 					"depth_level" : 1,
@@ -388,6 +379,26 @@
 			null,
 			null,
 			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
 			null,
 			null
 		],
@@ -410,33 +421,9 @@
 			null,
 			null,
 			null,
-			null,
 			null
 		],
 		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
 			null,
 			null,
 			null,
@@ -463,29 +450,6 @@
 			null
 		],
 		[
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		],
-		[
-			null,
 			null,
 			null,
 			null,
@@ -566,77 +530,9 @@
 			},
 			{
 				"type" : "border"
-			},
-			{
-				"type" : "border"
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "border"
-			}
-		],
-		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "grass"
 			},
@@ -697,9 +593,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -758,9 +651,6 @@
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "grass"
 			},
@@ -821,9 +711,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -882,9 +769,6 @@
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "grass"
 			},
@@ -945,9 +829,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1007,9 +888,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1068,9 +946,6 @@
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "grass"
 			},
@@ -1131,9 +1006,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1193,9 +1065,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1255,9 +1124,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1316,9 +1182,6 @@
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "grass"
 			},
@@ -1379,8 +1242,64 @@
 		],
 		[
 			{
-				"type" : "border"
+				"type" : "grass"
 			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "grass"
+			},
+			{
+				"type" : "border"
+			}
+		],
+		[
 			{
 				"type" : "grass"
 			},
@@ -1441,9 +1360,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1502,71 +1418,6 @@
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "grass"
-			},
-			{
-				"type" : "border"
-			}
-		],
-		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "grass"
 			},
@@ -1627,9 +1478,6 @@
 		],
 		[
 			{
-				"type" : "border"
-			},
-			{
 				"type" : "grass"
 			},
 			{
@@ -1688,9 +1536,6 @@
 			}
 		],
 		[
-			{
-				"type" : "border"
-			},
 			{
 				"type" : "border"
 			},

@@ -187,6 +187,11 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     std::ifstream ifs(path);
     ifs >> Locations;
 
+    unsigned int field_length = int(Locations["scale"][0].asInt());
+    unsigned int field_width = int(Locations["scale"][1].asInt());
+    std::cout << field_length << " " << field_width << std::endl;
+    field_resize(field_length, field_width);
+    std::cout << "resize OK" << std::endl;
 
     for (unsigned int x = 0; x < cells.size(); x++)
     {
@@ -211,6 +216,7 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
             }
         }
     }
+    std::cout << "loc OK" << std::endl;
     ifs.close();
     cells_changed = true;
 }
@@ -367,8 +373,10 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
     int center_cell_x = current_view.getCenter().x / cell_length_x;
     int center_cell_y = current_view.getCenter().y / cell_length_y;
-    /// Что за магические 5 и 8? Я знаю, что это 16/2 и 10/2, а 10 и 16 - что такое?
+    /// Что за магические 5 и 8?
+    /// Это (1080/120) / 2 и (1920/120) / 2, т.е. центр.
     for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+    {
         for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
         {
             // borders check
@@ -379,6 +387,20 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
             cells[i][j]->draw(target, states);
         }
+    }
+    for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+    {
+        for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
+        {
+            // borders check
+            if (i < 0 || i >= (int)cells.size())
+                continue;
+            if (j < 0 || j >= (int)cells[i].size())
+                continue;
+
+            cells[i][j]->draw_objects(target, states);
+        }
+    }
 
     if (player_0)
     {
