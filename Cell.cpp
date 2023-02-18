@@ -55,7 +55,11 @@ Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level
 {
     Cell_object* new_object = new Cell_object(name, texture);
     /// Что за магическое число 120?
-    new_object->addTexCoords(IntRect(0, 0, 120, 120));
+    if (name == "house")
+    {
+        new_object->addTexCoords(IntRect(0, 0, 360, 240));
+    }
+    else new_object->addTexCoords(IntRect(0, 0, 120, 120));
     new_object->depth_level = depth_level;
     /// TODO: обработать, если objects[name] уже существует
     objects[name] = new_object;
@@ -100,13 +104,21 @@ void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Loca
 
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
+    states.transform *= getTransform();
     if (background)
     {
-        states.transform *= getTransform();
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
     }
+//    for (auto obj : objects)
+//    {
+//        obj.second->draw(target, states);
+//    }
+}
 
+void Cell::draw_objects(RenderTarget& target, RenderStates states)
+{
+    states.transform *= getTransform();
     for (auto obj : objects)
     {
         obj.second->draw(target, states);

@@ -81,6 +81,37 @@ int main()
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+///--------------------------------------= TEST downloading =--------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+    map <string, Texture*> test_images;
+
+    {
+        std::string inputPath = "Images/test/";
+
+        for (auto& p : std::filesystem::directory_iterator(inputPath))
+        {
+            std::filesystem::path path;
+            path = p;
+            std::string tempStr;
+            tempStr = path.generic_string();
+            cout << inputPath << ": " << tempStr << ", ";
+
+            Texture* cur_texture = new Texture;
+            if (!cur_texture->loadFromFile(tempStr))
+            {
+                cout << "Failed to load texture\n";
+                return 1;
+            }
+            std::string name = re_name(tempStr);
+            cout << name << endl;
+            test_images.insert({name, cur_texture});
+        }
+        cout << endl;
+
+    }
+**/
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///---------------------------------------= UI downloading =---------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 

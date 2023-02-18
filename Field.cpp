@@ -378,6 +378,7 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     /// Что за магические 5 и 8?
     /// Это (1080/120) / 2 и (1920/120) / 2, т.е. центр.
     for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+    {
         for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
         {
             // borders check
@@ -388,6 +389,20 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
             cells[i][j]->draw(target, states);
         }
+    }
+    for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+    {
+        for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
+        {
+            // borders check
+            if (i < 0 || i >= (int)cells.size())
+                continue;
+            if (j < 0 || j >= (int)cells[i].size())
+                continue;
+
+            cells[i][j]->draw_objects(target, states);
+        }
+    }
 
     if (player_0)
     {
