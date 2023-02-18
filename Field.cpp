@@ -13,10 +13,20 @@ Field::Field(int length, int width, std::string name) : background(NULL), name(n
 
     cell_length_x = 120;
     cell_length_y = 120;
-//    cell_0_screen_x = (length + 1) * cell_length_x / 2;
-//    cell_0_screen_y = (width  + 1) * cell_length_y / 2;
     cell_0_screen_x = 0;
     cell_0_screen_y = 0;
+
+    cells.resize(length);
+    for (int i = 0; i < length; ++i)
+    {
+        cells[i].resize(width);
+    }
+}
+
+Field::Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions) : Field(length, width, name)
+{
+    addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
+    setScale((float)screenDimensions.x / 1920, (float)screenDimensions.y / 1080);
 }
 
 void Field::addTexture(Texture* texture, IntRect rect)
@@ -60,8 +70,6 @@ void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int
 
     player_0->x_cell_coord = cell_x;
     player_0->y_cell_coord = cell_y;
-
-    update_view_center();
 }
 
 void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
@@ -167,14 +175,14 @@ void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Textur
 }
 
 /// Спасибо, очень понятная функция, особенно из-за названия и комментариев
-void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
+void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id)
 {
-    //cout << num << endl;
+    //cout << loc_id << endl;
 
     std::string path = "Locations/loc_";
-    path += std::to_string(num);
+    path += std::to_string(loc_id);
     path += ".json";
-    std::cout << path << std::endl;
+    std::cout << "load_field " << path << std::endl;
     Json::Value Locations;
     std::ifstream ifs(path);
     ifs >> Locations;
@@ -205,14 +213,13 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int num)
     }
     ifs.close();
     cells_changed = true;
-    std::cout << std::endl;
 }
 
 /// Saves field to "/Locations/loc_%d.json"
-void Field::save_field(int num)
+void Field::save_field(int loc_id)
 {
     std::string path = "Locations/loc_";
-    path += std::to_string(num);
+    path += std::to_string(loc_id);
     path += ".json";
 
     Json::Value Location;
@@ -244,21 +251,28 @@ void Field::place_characters()
         player_0->setPosition(Vector2f(player_screen_x, player_screen_y));
     }
 
-    //for (auto c : characters)
     update_view_center();
 }
 
 Vector2f Field::check_view_bounds(Vector2f view_center)
 {
+    //cout << "check view bounds\n";
+
     double view_center_x = view_center.x;
     double view_center_y = view_center.y;
-    if ((cells.size() - 1) * cell_length_x - view_center_x < 960)
-        view_center_x = ((cells.size() - 1) - 960 / cell_length_x) * cell_length_x;
+
+    int size_x = cells.size();
+    int size_y = 0;
+    if (size_x > 0)
+        size_y = cells[0].size();
+
+    if ((size_x - 1) * cell_length_x - view_center_x < 960)
+        view_center_x = ((size_x - 1) - 960 / cell_length_x) * cell_length_x;
     if (-1 * cell_length_x + view_center_x < 960)
         view_center_x = (1 + 960 / cell_length_x) * cell_length_x;
 
-    if ((cells[0].size() - 1) * cell_length_y - view_center_y < 540)
-        view_center_y = ((cells[0].size() - 1) - 540 / cell_length_y) * cell_length_y;
+    if ((size_y - 1) * cell_length_y - view_center_y < 540)
+        view_center_y = ((size_y - 1) - 540 / cell_length_y) * cell_length_y;
     if (-1 * cell_length_y + view_center_y < 540)
         view_center_y = (1 + 540 / cell_length_y) * cell_length_y;
 
@@ -275,6 +289,7 @@ void Field::update_view_center()
     {
         view_center = player_0->getPosition();
     }
+    //cout << "unchecked view center position " << view_center.x << " " << view_center.y << endl;
     view_center = check_view_bounds(view_center);
     //cout << "view center position " << view_center.x << " " << view_center.y << endl;
 
@@ -284,10 +299,9 @@ void Field::update_view_center()
 
 void Field::update(Time deltaTime)
 {
-    //cout << "== Field update\n";
-
     if (cells_changed)
     {
+        //cout << "field update cells changed\n";
         double cell_screen_x, cell_screen_y;
         for (unsigned int i = 0; i < cells.size(); ++i)
             for (unsigned int j = 0; j < cells[i].size(); ++j)
@@ -302,6 +316,7 @@ void Field::update(Time deltaTime)
 
     if (player_0)
     {
+        //cout << "field update player\n";
         cell_0_screen_x = player_0->x_cell_coord * cell_length_x;
         cell_0_screen_y = player_0->y_cell_coord * cell_length_y;
         if (cell_center_x != player_0->x_cell_coord || cell_center_y != player_0->y_cell_coord)

@@ -7,6 +7,8 @@ x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
     sprite = new Character(name, *texture, frame0);
     sprite->set_moving_enabled(true);
     queued_movement_direction = deque<Movement>();
+
+    cout << "CONSTRUCTING player, name " << name << " sprite " << sprite << endl;
 }
 
 void Player::move_player(Vector2f shift, int direction)
@@ -81,11 +83,15 @@ void Player::update(Time deltaTime)
 {
     //cout << "Player checking next move: scheduled move present? " << sprite->has_next_movement() << " mov queue size " << queued_movement_direction.size() << endl;
 
+    //cout << name << " " << sprite << endl;
     if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
     {
+        //cout << "has anim and switched " << sprite->has_next_movement() << " " << sprite->switched_to_next_animation << endl;
         //cout << "Arrived at " << x_cell_coord << " " << y_cell_coord << endl;
+
         sprite->switched_to_next_animation = false;
-        int mov_dir = sprite->get_current_direction(); /// ????
+        int mov_dir = sprite->get_current_direction();
+
         //cout << "PLayer moving from " << x_cell_coord << " " << y_cell_coord << " as started movement\n";
         x_cell_coord += direction_x[mov_dir];
         y_cell_coord += direction_y[mov_dir];
@@ -120,7 +126,6 @@ void Player::update(Time deltaTime)
             reset_blocking_check();
         }
     }
-
     sprite->update(deltaTime);
 }
 

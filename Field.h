@@ -35,6 +35,7 @@ public:
     std::string name;
     Player* player_0;
     Field(int length, int width, std::string name);
+    Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions);
     void addTexture(Texture* texture, IntRect rect);
     void addCell(Texture* texture, unsigned int x, unsigned int y);
     void addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y);
@@ -48,8 +49,8 @@ public:
     void action(Texture* texture);
     void add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture);
     void change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture);
-    void load_field(std::map <std::string, Texture*> &field_block, int num);
-    void save_field(int num);
+    void load_field(std::map <std::string, Texture*> &field_block, int loc_id);
+    void save_field(int loc_id);
     void place_characters();
     void update_view_center();
 

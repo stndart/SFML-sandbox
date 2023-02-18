@@ -37,7 +37,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             field[current_field]->move_player(2);
             break;
         case sf::Keyboard::Space:
-            field[current_field]->action((*field_block)["stump"]);
+            field[current_field]->action((*field_tex_map)["stump"]);
             break;
         case sf::Keyboard::Tab:
             change_current_field((current_field+1)%2);
@@ -177,12 +177,12 @@ void Scene_editor::command(std::string data)
                 s_input = "out of field's range";
                 return;
             }
-            if (field_block->find(s[4]) == field_block->end())
+            if (field_tex_map->find(s[4]) == field_tex_map->end())
             {
                 s_input = "can't find the texture";
                 return;
             }
-            field[current_field]->add_object_to_cell(x, y, s[4], (*field_block)[s[4]]);
+            field[current_field]->add_object_to_cell(x, y, s[4], (*field_tex_map)[s[4]]);
         }
         else
         {
@@ -216,12 +216,12 @@ void Scene_editor::command(std::string data)
                 s_input = "out of field's range";
                 return;
             }
-            if (field_block->find(s[4]) == field_block->end())
+            if (field_tex_map->find(s[4]) == field_tex_map->end())
             {
                 s_input = "can't find the texture";
                 return;
             }
-            field[current_field]->change_cell_texture(x, y, s[4], (*field_block)[s[4]]);
+            field[current_field]->change_cell_texture(x, y, s[4], (*field_tex_map)[s[4]]);
         }
         else
         {
@@ -238,13 +238,15 @@ void Scene_editor::command(std::string data)
 
 void Scene_editor::save_map()
 {
-    for (unsigned int i = 0; i < field_size; i++)
+    for (unsigned int i = 0; i < field_N; i++)
     {
         field[i]->save_field(i);
     }
 }
 void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 {
+    //cout << "scene editor draw in\n";
+
     /*if (background)
     {
         states.transform *= getTransform();
@@ -273,6 +275,9 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         target.draw(text);
     }
     draw_scene_buttons(target, states);
+
+
+    //cout << "scene editor draw out\n";
 }
 
 Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,

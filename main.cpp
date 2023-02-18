@@ -112,7 +112,7 @@ int main()
 /*******************************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    map <string, Texture*> field_block;
+    map <string, Texture*> field_tex_map;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///-------------------------------------= CELLS downloading =--------------------------------------------
@@ -136,7 +136,7 @@ int main()
         }
         std::string name = re_name(tempStr);
         cout << name << endl;
-        field_block.insert({name, cur_texture});
+        field_tex_map.insert({name, cur_texture});
     }
     cout << endl;
 
@@ -161,7 +161,7 @@ int main()
         }
         std::string name = re_name(tempStr);
         cout << name << endl;
-        field_block.insert({name, cur_texture});
+        field_tex_map.insert({name, cur_texture});
     }
     cout << endl;
 
@@ -233,20 +233,37 @@ int main()
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
         main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
     ///--------------------------------------------------------
-    Scene_Field field_scene = new_field_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
-        field_scene.load_field(0, "field_scene");
-        field_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
-    ///--------------------------------------------------------
-    Scene_editor editor_scene = new_editor_scene(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 0);
-        editor_scene.load_field(0, "editor_scene");
-        editor_scene.add_Field(&field_bg_texture, 20, 20, &field_block, &player_texture, screenDimensions, 1);
-        //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
-        editor_scene.addUI_element(main_ui_elements);
+    Scene_Field field_scene = Scene_Field(std::string("field_scene"), &field_tex_map);
+    Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
+    field_0->load_field(field_tex_map, 0);
+    field_0->addPlayer(&player_texture, 10, 10);
+    field_0->place_characters();
+    field_scene.add_field(field_0, 0);
 
+    Field* field_1 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
+    field_1->load_field(field_tex_map, 1);
+    field_1->addPlayer(&player_texture, 10, 10);
+    field_1->place_characters();
+    field_scene.add_field(field_1, 1);
+
+    Scene_editor editor_scene = Scene_editor(std::string("editor_scene"), &field_tex_map);
+
+    Field* field_3 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
+    field_3->load_field(field_tex_map, 0);
+    field_3->addPlayer(&player_texture, 10, 10);
+    field_3->place_characters();
+    editor_scene.add_field(field_3, 0);
+
+    Field* field_4 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
+    field_4->load_field(field_tex_map, 1);
+    field_4->addPlayer(&player_texture, 10, 10);
+    field_4->place_characters();
+    editor_scene.add_field(field_4, 1);
+
+    //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
+    //editor_scene.addUI_element(main_ui_elements);
 
     cout << "field made\n";
-//    cout << "field cell 4 4 mapsize is " << field_scene.mapsize(4, 4) << endl;
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///----------------------------------------= START programm =--------------------------------------------

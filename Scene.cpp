@@ -190,7 +190,8 @@ void Scene::draw_scene_buttons(RenderTarget& target, RenderStates states) const
 
 void Scene::draw_scene_Interface(RenderTarget& target, RenderStates states) const
 {
-    target.draw(*Interface);
+    if (Interface)
+        target.draw(*Interface);
 }
 
 void Scene::draw(RenderTarget& target, RenderStates states) const
@@ -207,7 +208,10 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
     main_menu.setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
     if (new_button == new_button_pressed)
+    {
+        std::cout << "FATAL ERROR: same textures for pressed/not button\n";
         throw;
+    }
 
     AnimatedSprite* button = new AnimatedSprite("asprite", *new_button, IntRect(0, 0, 1000, 500));
     button->getAnimation()->addSpriteSheet(*new_button_pressed);

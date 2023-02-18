@@ -19,7 +19,10 @@ Character::Character()
     // NONE;
 }
 
-Character::Character(string name, Texture &texture_default, IntRect frame0) : name(name), moving(false), moving_enabled(false), animated(false), facing_direction(0)
+Character::Character(string name, Texture &texture_default, IntRect frame0) : name(name), switched_to_next_animation(false),
+moving(false), moving_enabled(false), animated(false),
+facing_direction(0), moving_direction(0),
+next_movement_direction(0), next_movement_shift(Vector2f(0, 0))
 {
     base_sprite = new AnimatedSprite(name, texture_default, frame0);
     base_sprite->setFrameTime(seconds(0.05));
@@ -29,6 +32,7 @@ Character::Character(string name, Texture &texture_default, IntRect frame0) : na
     animations[idle_animation] = new Animation();
     int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
     animations[idle_animation]->addFrame(frame0, spritesheet_index);
+    next_movement_duration = seconds(0);
     after_last_animation = seconds(0);
 }
 

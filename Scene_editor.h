@@ -10,7 +10,7 @@
 class Scene_editor : public Scene_Field
 {
     public:
-        Scene_editor(std::string name, std::map <std::string, Texture*> *field_block);
+        Scene_editor(std::string name, std::map <std::string, Texture*> *field_tex_map);
         virtual void update(Event& event, std::string& command_main);
         virtual void update(Time deltaTime);
 

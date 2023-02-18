@@ -1,14 +1,28 @@
 #include "Scene_Field.h"
 
-Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_block(field_blocks)
+Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_tex_map(field_blocks)
 {
     current_field = -1;
+
+    for (int i = 0; i < field_N; ++i)
+    {
+        field[i] = nullptr;
+    }
+}
+
+void Scene_Field::add_field(Field* field_to_add, int num)
+{
+    field[num] = field_to_add;
+    if (current_field == -1)
+    {
+        current_field = num;
+    }
 }
 
 void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num)
 {
-    Field* field_0 = new_field(bg, length, width, (*field_blocks)["B"], player_texture, screen_dimensions);
+    Field* field_0 = new_field(bg, length, width, (*field_blocks)["null"], player_texture, screen_dimensions);
     field[num] = field_0;
     if (current_field == -1)
     {
@@ -19,7 +33,13 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 void Scene_Field::change_current_field(int num)
 {
     current_field = num;
-    field[num]->load_field(*field_block, num);
+
+    if (field[num] == nullptr) {
+        cout << "FATAL ERROR: Trying to load null field\n";
+        throw;
+    }
+
+    field[num]->load_field(*field_tex_map, num);
 }
 
 void Scene_Field::update(Event& event, std::string& command_main)
@@ -46,7 +66,7 @@ void Scene_Field::update(Event& event, std::string& command_main)
             //field[current_field]->move_player(2);
             break;
         case sf::Keyboard::Space:
-            field[current_field]->action((*field_block)["stump"]);
+            field[current_field]->action((*field_tex_map)["stump"]);
             break;
         case sf::Keyboard::Tab:
             change_current_field((current_field+1)%2);
@@ -105,8 +125,9 @@ void Scene_Field::update(Time deltaTime)
 
 void Scene_Field::load_field(int num, std::string who_call)
 {
-    std::cout << "who_call: " << who_call << std::endl;
-    field[num]->load_field(*field_block, num);
+    //std::cout << "who_call: " << who_call << std::endl;
+
+    field[num]->load_field(*field_tex_map, num);
 }
 
 void Scene_Field::draw(RenderTarget& target, RenderStates states) const
