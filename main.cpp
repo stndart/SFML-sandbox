@@ -20,6 +20,7 @@
 using namespace sf;
 using namespace std;
 
+// Trash
 int KeyMotion;
 
 void Motion()
@@ -34,17 +35,15 @@ void Motion()
 
 int main()
 {
-    cout << direction_x[0] << " dir x\n";
-
-
-    // setup window
+    // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
     window.setFramerateLimit(60);
+    // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
     window.setKeyRepeatEnabled(false);
 
     // load textures
-
+    // TODO: move to resource loader
     Texture menu_texture;
     if (!menu_texture.loadFromFile("Images/menu.jpg"))
     {
@@ -257,37 +256,50 @@ int main()
 /*******************************************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    cout << endl;
+    // load textures finished
 
+    // initialize main timer (to measure fps, schedule events, etc.)
     Clock frameClock;
 
+    // Create main menu scene. Scene is drawable and calls all subsequent draws for children drawable elements
+    // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-        main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
+    // Add button with text to desired position. Textures are passed with name->texture* map "UI_block"
+    main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
+
     ///--------------------------------------------------------
-    //Vector2i player_pos = Vector2i(10, 10);
     Vector2i player_default_pos = Vector2i(-1, -1);
 
+    // Create field scene. At first it is inactive
     Scene_Field field_scene = Scene_Field(std::string("field_scene"), &field_tex_map);
+
+    // Create field with map#1. Despite it being inactive, we load map and player
     Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);
     field_0->addPlayer(&player_texture, player_default_pos);
+  
+    // place_characters sets position of all dynamic sprites on field and updates view position (player in center)
     field_0->place_characters();
     field_scene.add_field(field_0, 0);
 
+    // Create field with map#2.
     Field* field_1 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
     field_1->load_field(field_tex_map, 1);
     field_1->addPlayer(&player_texture, player_default_pos);
     field_1->place_characters();
     field_scene.add_field(field_1, 1);
 
+    // Create editor scene. At first it is inactive. Scenes are currently changed via command_main switch in main loop
     Scene_editor editor_scene = Scene_editor(std::string("editor_scene"), &field_tex_map);
 
+    // Create field with map#1 in editor scene
     Field* field_3 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_3->load_field(field_tex_map, 0);
     field_3->addPlayer(&player_texture, player_default_pos);
     field_3->place_characters();
     editor_scene.add_field(field_3, 0);
 
+    // Create field with map#2 in editor scene
     Field* field_4 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
     field_4->load_field(field_tex_map, 1);
     field_4->addPlayer(&player_texture, player_default_pos);
@@ -303,19 +315,28 @@ int main()
 ///----------------------------------------= START programm =--------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Set default scene. It is displayed first
     Scene* Current_Scene = &main_menu;
 
+    // main loop
     while (window.isOpen())
     {
+        // Handle events loop
         Event event;
         while (window.pollEvent(event))
         {
+            // Occures when x-mark in the corner of the window is pressed
             if (event.type == Event::Closed){
                 window.close();
             }
+            // Processes all keyboard keys
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
                 window.close();
             }
+            // Treats commands got from current scene.
+            // Commands examples:
+            //  ESCAPE = window close
+            //  field_scene / editor_scene / main_menu = change current scene to #
             std::string command_main = "";
             Current_Scene->update(event, command_main);
             if (command_main.size() > 0)
@@ -339,11 +360,12 @@ int main()
             }
         }
 
+        // get time spent per last frame and update all drawables with it
         Time frameTime = frameClock.restart();
 
         Current_Scene->update(frameTime);
 
-
+        // clear previous frame and draw from scratch
         window.clear();
         window.draw(*Current_Scene);
 

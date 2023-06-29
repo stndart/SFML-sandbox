@@ -10,6 +10,7 @@ Cell_object::~Cell_object()
    //std::cout << "went ";
 }
 
+// change m_vertices
 void Cell_object::addTexCoords(IntRect rect)
 {
     m_vertices[0].position = Vector2f(0.f, 0.f);
@@ -35,6 +36,5 @@ void Cell_object::draw(RenderTarget& target, RenderStates states) const
         states.transform *= getTransform();
         states.texture = texture;
         target.draw(m_vertices, 4, Quads, states);
-        //std::cout << getPosition().x << " " << getPosition().y << std::endl;
     }
 }
