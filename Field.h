@@ -36,11 +36,15 @@ private:
 
     // Rectangle, which cuts a window of 1920x1080 (or other resolution) in a huuuuge field. i.e. shows what to display
     View current_view;
+    // default player position on field
+    Vector2i default_player_pos;
     // flag if any objects in cells or cell texture changed
     bool cells_changed;
 
     // returns view center with field boundaries check
     Vector2f check_view_bounds(Vector2f view_center);
+
+
 public:
     // field name
     std::string name;
@@ -58,11 +62,13 @@ public:
     // add cell by indexes [x, y] with texture
     void addCell(Texture* texture, unsigned int x, unsigned int y);
     // create player at cell [cell_x, cell_y] with texture
-    void addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y);
+    void addPlayer(Texture* player_texture, Vector2i pos); // pos default = (-1, -1)
+
     // change field size and reshape cells 2d vector
     /// как оно работает если размер уменьшить - я хз
     void field_resize(unsigned int length, unsigned int width);         // CHECK
-
+    // return cell_type (name of the cell)
+    std::string get_cellType_by_coord(unsigned int x, unsigned int y);
     // check player obstacles in direction
     bool is_player_movable(int direction);
     // move player by on cell in direction

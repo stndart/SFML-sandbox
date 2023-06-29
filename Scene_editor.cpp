@@ -50,7 +50,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             break;
         }
     }
-    else if (event.type == sf::Event::KeyReleased)
+    else if (event.type == sf::Event::KeyReleased && !if_input)
     {
         switch (event.key.code)
         {
@@ -151,6 +151,13 @@ void Scene_editor::update(Event& event, std::string& command_main)
 void Scene_editor::update(Time deltaTime)
 {
     field[current_field]->update(deltaTime);
+/**
+    пишет в левом верхнем углу текущий тип клетки
+
+    int a = field[current_field]->player_0->x_cell_coord;
+    int b = field[current_field]->player_0->y_cell_coord;
+    s_input = field[current_field]->get_cellType_by_coord(a, b);
+**/
 }
 
 void Scene_editor::command(std::string data)

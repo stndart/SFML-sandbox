@@ -1,9 +1,4 @@
 {
-	"scale" : 
-	[
-		20,
-		20
-	],
 	"big_objects" : 
 	[
 		[
@@ -30,7 +25,12 @@
 		],
 		[
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "chamomile"
+				}
+			],
 			null,
 			null,
 			null,
@@ -67,7 +67,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house"
+				}
+			],
 			null,
 			null,
 			null
@@ -282,7 +287,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "tree"
+				}
+			],
 			[
 				{
 					"depth_level" : 1,
@@ -292,7 +302,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "chamomile"
+				}
+			],
 			null,
 			null,
 			null,
@@ -309,7 +324,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "bush_red_berries"
+				}
+			],
 			[
 				{
 					"depth_level" : 1,
@@ -511,6 +531,11 @@
 			null,
 			null
 		]
+	],
+	"default_player_pos" : 
+	[
+		10,
+		10
 	],
 	"map" : 
 	[
@@ -1754,5 +1779,10 @@
 				"type" : "border"
 			}
 		]
+	],
+	"scale" : 
+	[
+		20,
+		20
 	]
 }

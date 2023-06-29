@@ -85,8 +85,8 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
     cells_changed = true;
 }
 
-// create player at cell [cell_x, cell_y] with texture
-void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y)
+// create player at cell [pos.x, pos.y] with texture
+void Field::addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1))
 {
     player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
 
@@ -98,8 +98,16 @@ void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int
     player_0->add_animation("idle_animation", idle_animation);
     player_0->set_idle_animation("idle_animation");
 
-    player_0->x_cell_coord = cell_x;
-    player_0->y_cell_coord = cell_y;
+    if (pos.x == -1)
+    {
+        player_0->x_cell_coord = default_player_pos.x;
+        player_0->y_cell_coord = default_player_pos.y;
+    }
+    else
+    {
+        player_0->x_cell_coord = pos.x;
+        player_0->y_cell_coord = pos.y;
+    }
 }
 
 // change field size and reshape cells 2d vector
@@ -112,6 +120,12 @@ void Field::field_resize(unsigned int length, unsigned int width)         // CHE
         cells[i].resize(width);
     }
     cells_changed = true;
+}
+
+// return cell_type (name of the cell)
+std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
+{
+    return cells[x][y]->type_name;
 }
 
 // check player obstacles in direction
@@ -252,13 +266,15 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     path += std::to_string(loc_id);
     path += ".json";
     std::cout << "load_field " << path << std::endl;
-    Json::Value Locations;
+    Json::Value Location;
     std::ifstream ifs(path);
-    ifs >> Locations;
+    ifs >> Location;
 
     // get field size
-    unsigned int field_length = int(Locations["scale"][0].asInt());
-    unsigned int field_width = int(Locations["scale"][1].asInt());
+    unsigned int field_length = int(Location["scale"][0].asInt());
+    unsigned int field_width = int(Location["scale"][1].asInt());
+    default_player_pos.x = Location["default_player_pos"][0].asInt();
+    default_player_pos.y = Location["default_player_pos"][1].asInt();
     field_resize(field_length, field_width);
 
     for (unsigned int x = 0; x < cells.size(); x++)
@@ -266,20 +282,20 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
             // add cell
-            std::string cell_type = Locations["map"][x][y]["type"].asString();
+            std::string cell_type = Location["map"][x][y]["type"].asString();
             cells[x][y] = new Cell(cell_type, field_block[cell_type]);
 
             // add placeable objects to cell
             std::string object_type = "";
-            if (Locations["big_objects"][x][y].isArray())
+            if (Location["big_objects"][x][y].isArray())
             {
-                unsigned int cell_object_size = Locations["big_objects"][x][y].size();
+                unsigned int cell_object_size = Location["big_objects"][x][y].size();
                 for (unsigned int i = 0; i < cell_object_size; i++)
                 {
-                    if (Locations["big_objects"][x][y][i].isObject())
+                    if (Location["big_objects"][x][y][i].isObject())
                     {
-                        std::string object_type = Locations["big_objects"][x][y][0]["type"].asString();
-                        std::string object_depth_level = Locations["big_objects"][x][y][0]["depth_level"].asString();
+                        std::string object_type = Location["big_objects"][x][y][0]["type"].asString();
+                        std::string object_depth_level = Location["big_objects"][x][y][0]["depth_level"].asString();
                         cells[x][y]->addObject(object_type, field_block[object_type], 1);
                     }
                 }
@@ -299,6 +315,10 @@ void Field::save_field(int loc_id)
     path += ".json";
 
     Json::Value Location;
+    Location["default_player_pos"][0] = 10;
+    Location["default_player_pos"][1] = 10;
+    Location["scale"][0] = cells.size();
+    Location["scale"][1] = cells[0].size();
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
@@ -429,7 +449,7 @@ Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width,
         }
     }
 
-    field->addPlayer(player_texture, cell_length / 2, cell_width / 2);
+    field->addPlayer(player_texture, Vector2i(cell_length / 2, cell_width / 2));
     field->place_characters();
 
     return field;
