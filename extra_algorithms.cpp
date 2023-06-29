@@ -1,5 +1,6 @@
 #include "extra_algorithms.h"
 
+// extract filename (without extension) from full path
 std::string re_name(std::string path)
 {
     std::string result = "";
@@ -19,6 +20,7 @@ std::string re_name(std::string path)
     return result;
 }
 
+// get direction from vector2f movement; Direction is enumerate 0, 1, 2, 3: east, south, west, north
 int direction_from_shift(sf::Vector2f shift)
 {
     int direction;

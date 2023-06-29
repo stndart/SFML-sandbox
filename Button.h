@@ -5,6 +5,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <iostream>
 
+// Button is a structure of two sprites, which replace each over when pressed
 class Button : public sf::Drawable, public sf::Transformable
 {
     public:
@@ -13,9 +14,13 @@ class Button : public sf::Drawable, public sf::Transformable
         Button();
         Button(std::string name, sf::Texture* texture_default, sf::Texture* texture_pushed);
 
+        // changes position of both child sprites
         void change_position(sf::Vector2f Pos);
+        // checks if sprite contains cursor position
         bool contains(sf::Vector2f curPos);
+        // changes sprite cyclically
         void push_button();
+        // changes sprite cyclically and returns button name
         std::string release_button();
 
     private:

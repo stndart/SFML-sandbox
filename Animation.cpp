@@ -7,12 +7,14 @@ Animation::Animation()
     texture_index = std::vector<int>(0);
 }
 
+// adds new spritesheet coordinates as new frame from spritesheet #i
 void Animation::addFrame(IntRect rect, int i)
 {
     m_frames.push_back(rect);
     texture_index.push_back(i);
 }
 
+// set spritesheet #i with texture by link
 void Animation::setSpriteSheet(Texture& texture, std::size_t i)
 {
     if (i > textures.size())
@@ -24,12 +26,14 @@ void Animation::setSpriteSheet(Texture& texture, std::size_t i)
         textures[i] = &texture;
 }
 
+// append spritesheet with texture by link
 int Animation::addSpriteSheet(Texture& texture)
 {
     textures.push_back(&texture);
     return textures.size() - 1;
 }
 
+// get spritesheet by index
 Texture* Animation::getSpriteSheet(int i)
 {
     return textures[texture_index[i]];

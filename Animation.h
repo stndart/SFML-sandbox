@@ -7,12 +7,15 @@
 
 using namespace sf;
 
+// Animation is a structure with a list of spritesheets inside and an array of frames coordinates on appropriate spritesheet
 class Animation
 {
 public:
     Animation();
 
+    // adds new spritesheet coordinates as new frame from spritesheet #i
     void addFrame(IntRect rect, int i=0);
+    // set texture by link for spritesheet #i
     void setSpriteSheet(Texture& texture, std::size_t i=0);
     int addSpriteSheet(Texture& texture);
     Texture* getSpriteSheet(int i=0);
