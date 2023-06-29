@@ -31,7 +31,7 @@ class Character : public Drawable, public Transformable
         // flag if current animation is finished (but animation is yet to be swapped)
         bool switched_to_next_animation;
 
-        // set facting direction and change idle animation by direction (default: idle_animation_0)
+        // set facing direction and change idle animation by direction (default: idle_animation_0)
         void set_facing_direction(int new_direction);
         int get_facing_direction() const;
 

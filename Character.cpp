@@ -38,7 +38,7 @@ next_movement_direction(0), next_movement_shift(Vector2f(0, 0))
     after_last_animation = seconds(0);
 }
 
-// set facting direction and change idle animation by direction (default: idle_animation_0)
+// set facing direction and change idle animation by direction (default: idle_animation_0)
 void Character::set_facing_direction(int new_direction)
 {
     facing_direction = new_direction;

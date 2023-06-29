@@ -11,9 +11,14 @@ x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
     cout << "CONSTRUCTING player, name " << name << " sprite " << sprite << endl;
 }
 
-void Player::move_player(Vector2f shift, int direction)
+// removes "blocking checked" from movements queue
+void Player::reset_blocking_check()
 {
-    sprite->movement(shift, direction);
+    for (auto r_iter = queued_movement_direction.rbegin();
+        r_iter != queued_movement_direction.rend(); r_iter++)
+    {
+        r_iter->blocking_checked = false;
+    }
 }
 
 bool Player::is_moving() const
@@ -21,15 +26,14 @@ bool Player::is_moving() const
     return sprite->is_moving();
 }
 
+// push back direction to queue
 void Player::add_movement_direction(Vector2f shift, int direction)
 {
-    //cout << "Player: adding movement direction\n";
     Movement m = {direction, shift, false, false};
     queued_movement_direction.push_back(m);
-
-    //cout << "Add mov dir size " << queued_movement_direction.size() << endl;
 }
 
+// pop all coinciding directions from queue
 void Player::release_movement_direction(int direction)
 {
     auto mov_dir_iter = queued_movement_direction.begin();
@@ -42,14 +46,12 @@ void Player::release_movement_direction(int direction)
     }
     if (mov_dir_iter == queued_movement_direction.begin())
     {
-        //cout << "Realeasing scheduled movement\n";
         sprite->cancel_next_movement();
     }
     queued_movement_direction.erase(mov_dir_iter);
-
-    //cout << "Released moving direction " << direction << " with remaining mov queue size " << queued_movement_direction.size() << endl;
 }
 
+// check if direction is present in queue
 bool Player::has_queued_direction(int direction)
 {
     auto mov_dir_iter = queued_movement_direction.begin();
@@ -57,6 +59,12 @@ bool Player::has_queued_direction(int direction)
         if (mov_dir_iter->direction == direction)
             return true;
     return false;
+}
+
+// request sprite movement by shift. Direction is optional
+void Player::move_player(Vector2f shift, int direction)
+{
+    sprite->movement(shift, direction);
 }
 
 void Player::setPosition(const Vector2f &position)
@@ -68,15 +76,6 @@ void Player::setPosition(const Vector2f &position)
 Vector2f Player::getPosition() const
 {
     return sprite->getPosition();
-}
-
-void Player::reset_blocking_check()
-{
-    for (auto r_iter = queued_movement_direction.rbegin();
-        r_iter != queued_movement_direction.rend(); r_iter++)
-    {
-        r_iter->blocking_checked = false;
-    }
 }
 
 void Player::update(Time deltaTime)
