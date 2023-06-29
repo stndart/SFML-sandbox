@@ -534,7 +534,7 @@
 		],
 		[
 			{
-				"type" : "grass"
+				"type" : "border"
 			},
 			{
 				"type" : "grass_8"
@@ -591,9 +591,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass_8"
@@ -650,9 +650,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass_8"
@@ -709,9 +709,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -768,9 +768,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -827,9 +827,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -886,9 +886,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -945,9 +945,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1004,9 +1004,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1063,9 +1063,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1122,9 +1122,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1181,9 +1181,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1240,9 +1240,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1299,9 +1299,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1358,9 +1358,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1417,9 +1417,9 @@
 				"type" : "border"
 			}
 		],
-		[
-			{
-				"type" : "grass"
+		[			
+			{				
+				"type" : "border"
 			},
 			{
 				"type" : "grass"
@@ -1476,9 +1476,9 @@
 				"type" : "border"
 			}
 		],
-		[
+		[			
 			{
-				"type" : "grass"
+				"type" : "border"
 			},
 			{
 				"type" : "grass"

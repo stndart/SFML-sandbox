@@ -50,7 +50,8 @@ public:
     void addPlayer(Texture* player_texture, Vector2i pos); // pos default = (-1, -1)
 
     void field_resize(unsigned int length, unsigned int width);         // CHECK
-    //Cell* get_cell_by_coord(unsigned int x, unsigned int y);
+    // return cell_type (name of the cell)
+    std::string get_cellType_by_coord(unsigned int x, unsigned int y);
     bool is_player_movable(int direction);
     void move_player(int direction);
     void set_player_movement_direction(int direction);

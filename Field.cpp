@@ -90,6 +90,12 @@ void Field::field_resize(unsigned int length, unsigned int width)         // CHE
     cells_changed = true;
 }
 
+// return cell_type (name of the cell)
+std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
+{
+    return cells[x][y]->type_name;
+}
+
 bool Field::is_player_movable(int direction)
 {
     int cell_x = player_0->x_cell_coord;
