@@ -50,7 +50,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             break;
         }
     }
-    else if (event.type == sf::Event::KeyReleased)
+    else if (event.type == sf::Event::KeyReleased && !if_input)
     {
         switch (event.key.code)
         {

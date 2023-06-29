@@ -264,16 +264,19 @@ int main()
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
         main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
     ///--------------------------------------------------------
+    //Vector2i player_pos = Vector2i(10, 10);
+    Vector2i player_default_pos = Vector2i(-1, -1);
+
     Scene_Field field_scene = Scene_Field(std::string("field_scene"), &field_tex_map);
     Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);
-    field_0->addPlayer(&player_texture, 10, 10);
+    field_0->addPlayer(&player_texture, player_default_pos);
     field_0->place_characters();
     field_scene.add_field(field_0, 0);
 
     Field* field_1 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
     field_1->load_field(field_tex_map, 1);
-    field_1->addPlayer(&player_texture, 10, 10);
+    field_1->addPlayer(&player_texture, player_default_pos);
     field_1->place_characters();
     field_scene.add_field(field_1, 1);
 
@@ -281,13 +284,13 @@ int main()
 
     Field* field_3 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_3->load_field(field_tex_map, 0);
-    field_3->addPlayer(&player_texture, 10, 10);
+    field_3->addPlayer(&player_texture, player_default_pos);
     field_3->place_characters();
     editor_scene.add_field(field_3, 0);
 
     Field* field_4 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
     field_4->load_field(field_tex_map, 1);
-    field_4->addPlayer(&player_texture, 10, 10);
+    field_4->addPlayer(&player_texture, player_default_pos);
     field_4->place_characters();
     editor_scene.add_field(field_4, 1);
 

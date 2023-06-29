@@ -58,7 +58,7 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
     cells_changed = true;
 }
 
-void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y)
+void Field::addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1))
 {
     player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
     Animation* idle_animation = new Animation();
@@ -68,8 +68,16 @@ void Field::addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int
     player_0->add_animation("idle_animation", idle_animation);
     player_0->set_idle_animation("idle_animation");
 
-    player_0->x_cell_coord = cell_x;
-    player_0->y_cell_coord = cell_y;
+    if (pos.x == -1)
+    {
+        player_0->x_cell_coord = default_player_pos.x;
+        player_0->y_cell_coord = default_player_pos.y;
+    }
+    else
+    {
+        player_0->x_cell_coord = pos.x;
+        player_0->y_cell_coord = pos.y;
+    }
 }
 
 void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
@@ -183,12 +191,14 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     path += std::to_string(loc_id);
     path += ".json";
     std::cout << "load_field " << path << std::endl;
-    Json::Value Locations;
+    Json::Value Location;
     std::ifstream ifs(path);
-    ifs >> Locations;
+    ifs >> Location;
 
-    unsigned int field_length = int(Locations["scale"][0].asInt());
-    unsigned int field_width = int(Locations["scale"][1].asInt());
+    unsigned int field_length = int(Location["scale"][0].asInt());
+    unsigned int field_width = int(Location["scale"][1].asInt());
+    default_player_pos.x = Location["default_player_pos"][0].asInt();
+    default_player_pos.y = Location["default_player_pos"][1].asInt();
     std::cout << field_length << " " << field_width << std::endl;
     field_resize(field_length, field_width);
     std::cout << "resize OK" << std::endl;
@@ -197,19 +207,19 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
-            std::string cell_type = Locations["map"][x][y]["type"].asString();
+            std::string cell_type = Location["map"][x][y]["type"].asString();
             cells[x][y] = new Cell(cell_type, field_block[cell_type]);
 
             std::string object_type = "";
-            if (Locations["big_objects"][x][y].isArray())
+            if (Location["big_objects"][x][y].isArray())
             {
-                unsigned int cell_object_size = Locations["big_objects"][x][y].size();
+                unsigned int cell_object_size = Location["big_objects"][x][y].size();
                 for (unsigned int i = 0; i < cell_object_size; i++)
                 {
-                    if (Locations["big_objects"][x][y][i].isObject())
+                    if (Location["big_objects"][x][y][i].isObject())
                     {
-                        std::string object_type = Locations["big_objects"][x][y][0]["type"].asString();
-                        std::string object_depth_level = Locations["big_objects"][x][y][0]["depth_level"].asString();
+                        std::string object_type = Location["big_objects"][x][y][0]["type"].asString();
+                        std::string object_depth_level = Location["big_objects"][x][y][0]["depth_level"].asString();
                         cells[x][y]->addObject(object_type, field_block[object_type], 1);
                     }
                 }
@@ -229,6 +239,10 @@ void Field::save_field(int loc_id)
     path += ".json";
 
     Json::Value Location;
+    Location["default_player_pos"][0] = 10;
+    Location["default_player_pos"][1] = 10;
+    Location["scale"][0] = cells.size();
+    Location["scale"][1] = cells[0].size();
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
@@ -427,7 +441,7 @@ Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width,
         }
     }
 
-    field->addPlayer(player_texture, cell_length / 2, cell_width / 2);
+    field->addPlayer(player_texture, Vector2i(cell_length / 2, cell_width / 2));
     field->place_characters();
 
     return field;

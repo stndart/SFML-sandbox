@@ -1,9 +1,4 @@
 {
-	"scale" : 
-	[
-		20,
-		20
-	],
 	"big_objects" : 
 	[
 		[
@@ -536,6 +531,11 @@
 			null,
 			null
 		]
+	],
+	"default_player_pos" : 
+	[
+		10,
+		7
 	],
 	"map" : 
 	[
@@ -1779,5 +1779,10 @@
 				"type" : "border"
 			}
 		]
+	],
+	"scale" : 
+	[
+		20,
+		20
 	]
 }

@@ -30,7 +30,13 @@ private:
     unsigned int cell_center_x, cell_center_y;
     View current_view;
     bool view_changed, cells_changed;
+
+    Vector2i default_player_pos; // default player position on field
+
+
     Vector2f check_view_bounds(Vector2f view_center);
+
+
 public:
     std::string name;
     Player* player_0;
@@ -41,7 +47,8 @@ public:
     Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions);
     void addTexture(Texture* texture, IntRect rect);
     void addCell(Texture* texture, unsigned int x, unsigned int y);
-    void addPlayer(Texture* player_texture, unsigned int cell_x, unsigned int cell_y);
+    void addPlayer(Texture* player_texture, Vector2i pos); // pos default = (-1, -1)
+
     void field_resize(unsigned int length, unsigned int width);         // CHECK
     //Cell* get_cell_by_coord(unsigned int x, unsigned int y);
     bool is_player_movable(int direction);
