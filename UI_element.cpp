@@ -5,8 +5,9 @@ UI_element::UI_element()
     type_name = "unnamed element";
 }
 
-UI_element::UI_element(std::string name, sf::IntRect Input_scale,  sf::Texture* texture_sp)
- : type_name(name), Frame_scale(Input_scale)
+UI_element::UI_element(std::string name, sf::IntRect Input_scale,  sf::Texture* texture_sp) :
+    command_output(""), Frame_scale(Input_scale),
+    type_name(name), isClickable(false)
 {
     sprite = new sf::Sprite(*texture_sp);
     sprite->setPosition(Frame_scale.left, Frame_scale.top);
@@ -17,7 +18,7 @@ void UI_element::change_position(sf::Vector2f Pos)
 {
     Frame_scale.left = Pos.x;
     Frame_scale.top = Pos.y;
-    sprite->change_position(Pos);
+    sprite->setPosition(Frame_scale.left, Frame_scale.top);
 }
 
 // cursor hover check

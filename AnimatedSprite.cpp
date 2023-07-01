@@ -1,18 +1,20 @@
 #include "AnimatedSprite.h"
 
-AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) : name(name),
-    m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)), m_animation(NULL),
+AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) :
+    m_texture(NULL), m_animation(NULL),
     m_frameTime(frameTime), m_currentFrame(0),
     m_isLooped(looped), m_isReversed(false), m_isReversible(reversible),
-    m_texture(NULL)
+    m_currentTime(seconds(0)), m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)),
+    name(name)
 {
 
 }
 
-AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) : name(name),
-    m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
+AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) :
     m_frameTime(seconds(0.2f)), m_currentFrame(0),
-    m_isLooped(true), m_isReversed(false), m_isReversible(false)
+    m_isLooped(true), m_isReversed(false), m_isReversible(false),
+    m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
+    name(name)
 {
 
     m_texture = &texture;
