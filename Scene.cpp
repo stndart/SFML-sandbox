@@ -6,6 +6,7 @@ Scene::Scene(std::string name) : background(NULL), name(name)
     Interface = new_interface;
 }
 
+// change texture and update background from it
 void Scene::addTexture(Texture* texture, IntRect rect)
 {
     background = texture;
@@ -31,6 +32,7 @@ void Scene::addSprite(AnimatedSprite* sprite)
     sprites.push_back(sprite);
 }
 
+// add and place button
 void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y)
 {
     Button* new_button = new Button(name, texture_default, texture_released);
@@ -47,6 +49,8 @@ void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
     }
 }
 
+// transfer mouse event to hovered interface part
+// if mouse doesn't hover over UI - return false
 bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main)
 {
     if (event.type == Event::MouseButtonPressed)
@@ -71,26 +75,18 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
 
 void Scene::update(Event& event, std::string& command_main)
 {
+    /// TEMP
+    // transfer mouse clicked event to buttons and sprites
     if (event.type == Event::MouseButtonPressed)
     {
         Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
+            // if mouse hovers UI (not buttons) then skip
             if (UI_update_mouse(curPos, event, command_main)) return;
             for (auto s : sprites)
             {
-                ///FloatRect curRect = s->getGlobalBounds();
-                ///Vector2f curPos = Vector2f(Mouse::getPosition());
-                ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
-                ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
-
-
-                /*std::cout << event.mouseButton.x << " - " << event.mouseButton.y << std::endl;
-                std::cout << curPos.x << " " << curPos.y << std::endl;
-                std::cout << s->getGlobalBounds().left << "x" << s->getGlobalBounds().top << std::endl;
-                std::cout << s->getGlobalBounds().contains(curPos) << std::endl;//*/
-
                 if (s->getGlobalBounds().contains(curPos))
                 {
                     s->onClick(true);
@@ -120,17 +116,7 @@ void Scene::update(Event& event, std::string& command_main)
             if (UI_update_mouse(curPos, event, command_main)) return;
             for (auto s : sprites)
             {
-
-                ///FloatRect curRect = s->getGlobalBounds();
-                ///Vector2f curPos = Vector2f(Mouse::getPosition());
-                ///if (curPos.x >= curRect.left && curPos.x <= (curRect.left + curRect.width)
-                ///    && curPos.y >= curRect.top && curPos.x <= (curRect.top + curRect.height))
-
-                /*std::cout << event.mouseButton.x << " - " << event.mouseButton.y << std::endl;
-                std::cout << curPos.x << " " << curPos.y << std::endl;
-                std::cout << s->getGlobalBounds().left << "x" << s->getGlobalBounds().top << std::endl;
-                std::cout << s->getGlobalBounds().contains(curPos) << std::endl;//*/
-
+                // if release mouse over any sprite then switch scene to editor scene
                 if (s->getGlobalBounds().contains(curPos))
                 {
                     s->onClick(false);
@@ -139,6 +125,7 @@ void Scene::update(Event& event, std::string& command_main)
             }
             while (pushed_buttons.size() > 0)
             {
+                // if cursor still hovers pushed button then extract action from button
                 std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
                 if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
                 {
@@ -159,6 +146,7 @@ void Scene::update(Time deltaTime)
     for (auto s : sprites)
     {
         s->getGlobalBounds();
+        /// ???
         deltaTime += seconds(0.00002f);
         s->update(deltaTime);
     }
@@ -166,9 +154,6 @@ void Scene::update(Time deltaTime)
 
 void Scene::draw_scene_back(RenderTarget& target, RenderStates states) const
 {
-    //std::cout << "Who asked " << name << " to draw?\n";
-    //std::cout << name << " draw pos " << getPosition().x << " " << getPosition().y << std::endl;
-
     if (background)
     {
         states.transform *= getTransform();
@@ -201,6 +186,8 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
     draw_scene_Interface(target, states);
 }
 
+/// TEMP
+// MyFirstScene constructor
 Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
 {
     Scene main_menu("Main menu");

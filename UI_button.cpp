@@ -2,7 +2,6 @@
 
 UI_button::UI_button()
 {
-    //ctor
     isClickable = false;
 }
 
@@ -14,17 +13,19 @@ UI_button::UI_button(std::string name, sf::IntRect Input_scale, sf::Texture* tex
     button->change_position(coord_button);
 }
 
+// changes button state
 void UI_button::push() const
 {
     button->push_button();
 }
 
+// returns button name and changes button state
 std::string UI_button::release() const
 {
-    //std::cout << "push" << std::endl;
     return button->release_button();
 }
 
+        // moves UI element as well as button
 void UI_button::change_position(sf::Vector2f Pos)
 {
     Frame_scale.left = Pos.x;

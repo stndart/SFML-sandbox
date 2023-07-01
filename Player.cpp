@@ -80,47 +80,46 @@ Vector2f Player::getPosition() const
 
 void Player::update(Time deltaTime)
 {
-    //cout << "Player checking next move: scheduled move present? " << sprite->has_next_movement() << " mov queue size " << queued_movement_direction.size() << endl;
-
-    //cout << name << " " << sprite << endl;
+    // if player movement has ended (switched_to_next flag) and no new movement (for sprite!) is scheduled
     if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
     {
-        //cout << "has anim and switched " << sprite->has_next_movement() << " " << sprite->switched_to_next_animation << endl;
-        //cout << "Arrived at " << x_cell_coord << " " << y_cell_coord << endl;
-
+        // mark as handled
         sprite->switched_to_next_animation = false;
+        // move player and reset blocking checks
         int mov_dir = sprite->get_current_direction();
 
-        //cout << "PLayer moving from " << x_cell_coord << " " << y_cell_coord << " as started movement\n";
         x_cell_coord += direction_x[mov_dir];
         y_cell_coord += direction_y[mov_dir];
         reset_blocking_check();
     }
 
+    // new movements for sprite are transferred from local movement queue and only if sprite has no scheduled movements
     if (!sprite->has_next_movement() && queued_movement_direction.size() > 0)
     {
+        // find next valid direction (not blocked movement)
         int mov_dir = -1;
         Vector2f mov_shift = Vector2f(0, 0);
         for (auto r_iter = queued_movement_direction.rbegin();
              r_iter != queued_movement_direction.rend(); r_iter++)
         {
-            //cout << "Player checking direction " << r_iter->direction << " is checked " << r_iter->blocking_checked << " and blocked " << r_iter->blocked << endl;
             if (r_iter->blocking_checked && !r_iter->blocked)
             {
                 mov_dir = r_iter->direction;
                 mov_shift = r_iter->shift;
             }
         }
+        // if found valid scheduled movement
         if (mov_dir != -1)
         {
-            //cout << "-- MOVING direction " << mov_dir << " shift " << mov_shift.x << " " << mov_shift.y << " from " << x_cell_coord << " " << y_cell_coord << endl;
+            // if this movement to be invoked immediately, then change player coords
+            // otherwise coords will be changed after current movement ends (look first if in Player::update)
             if (!sprite->is_moving() && !sprite->has_next_movement())
             {
-                //cout << "moving from " << x_cell_coord << " " << y_cell_coord << " as brand new movement\n";
                 x_cell_coord += direction_x[mov_dir];
                 y_cell_coord += direction_y[mov_dir];
             }
 
+            // schedule/invoke movement
             sprite->movement(mov_shift, mov_dir);
             reset_blocking_check();
         }

@@ -10,6 +10,7 @@ Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *fie
     }
 }
 
+// change field by index and swap to it
 void Scene_Field::add_field(Field* field_to_add, int num)
 {
     field[num] = field_to_add;
@@ -19,6 +20,8 @@ void Scene_Field::add_field(Field* field_to_add, int num)
     }
 }
 
+/// TEMP
+// create field, add by index, then swap to it
 void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num)
 {
@@ -30,6 +33,7 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
     }
 }
 
+// swap to field by index
 void Scene_Field::change_current_field(int num)
 {
     current_field = num;
@@ -42,11 +46,28 @@ void Scene_Field::change_current_field(int num)
     field[num]->load_field(*field_tex_map, num);
 }
 
+/// TEMP
+// reload field by index from default file
+void Scene_Field::load_field(int num, std::string who_call)
+{
+    field[num]->load_field(*field_tex_map, num);
+}
+
+void Scene_Field::set_player_movement_direction(int direction)
+{
+    field[current_field]->set_player_movement_direction(direction);
+}
+
+void Scene_Field::release_player_movement_direction(int direction)
+{
+    field[current_field]->release_player_movement_direction(direction);
+}
+
 void Scene_Field::update(Event& event, std::string& command_main)
 {
-    //std::cout << "Scene_Field update event\n";
     if (event.type == sf::Event::KeyPressed)
     {
+        // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
         switch (event.key.code)
         {
         case sf::Keyboard::W:
@@ -108,26 +129,9 @@ void Scene_Field::update(Event& event, std::string& command_main)
     }*/
 }
 
-void Scene_Field::set_player_movement_direction(int direction)
-{
-    field[current_field]->set_player_movement_direction(direction);
-}
-
-void Scene_Field::release_player_movement_direction(int direction)
-{
-    field[current_field]->release_player_movement_direction(direction);
-}
-
 void Scene_Field::update(Time deltaTime)
 {
     field[current_field]->update(deltaTime);
-}
-
-void Scene_Field::load_field(int num, std::string who_call)
-{
-    //std::cout << "who_call: " << who_call << std::endl;
-
-    field[num]->load_field(*field_tex_map, num);
 }
 
 void Scene_Field::draw(RenderTarget& target, RenderStates states) const

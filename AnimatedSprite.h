@@ -17,6 +17,31 @@ using namespace sf;
 // AnimatedSprite is drawable sprite, that can play and switch animations. Updated with deltatime, it automatically switches frames of Animation
 class AnimatedSprite : public Drawable, public Transformable
 {
+
+private:
+     // pointer to current spritesheet
+    Texture* m_texture;
+    // coordinates of frame on spritesheet
+    Vertex m_vertices[4];
+
+    Animation* m_animation;
+    //time for one frame
+    Time m_frameTime;
+    // current frame index
+    std::size_t m_currentFrame;
+
+    bool m_isLooped;
+    bool m_isReversed;
+    bool m_isReversible;
+
+protected:
+    // Inner time counter. Used to switch between frames
+    Time m_currentTime;
+    bool m_isPaused;
+    // Total animation duration
+    Time duration;
+    Time passed_after_stop; /// to implement
+
 public:
     std::string name; /// TEMP
 
@@ -49,8 +74,8 @@ public:
     virtual void scale(const Vector2f &factor);
     FloatRect getLocalBounds() const;
     FloatRect getGlobalBounds() const;
-    virtual void setPosition(const Vector2f &position);
     virtual Vector2f getPosition() const;
+    virtual void setPosition(const Vector2f &position);
 
     virtual bool isLooped() const;
     virtual bool isReversed() const;
@@ -64,7 +89,7 @@ public:
     Time time_after_stop() const;
 
     virtual Time animation_remaining_time() const;
-    // not implemented
+    // for VisualEffect inheritance
     virtual Time movement_remaining_time() const;
 
     // overriding Drawable methods
@@ -74,23 +99,6 @@ public:
 
     // onclick action
     void onClick(bool pressed);
-protected:
-    // Inner time counter. Used to switch between frames
-    Time m_currentTime;
-    bool m_isPaused;
-    // Total animation duration
-    Time duration;
-    Time passed_after_stop; /// to implement
-
-private:
-    Animation* m_animation;
-    Time m_frameTime; //time for one frame
-    std::size_t m_currentFrame; // current frame index
-    bool m_isLooped;
-    bool m_isReversed;
-    bool m_isReversible;
-    Texture* m_texture; // pointer to current spritesheet
-    Vertex m_vertices[4]; // coordinates of frame on spritesheet
 };
 
 #endif // ANIMATEDSPRITE_INCLUDE

@@ -9,29 +9,36 @@
 
 class UI_element : public sf::Drawable, public sf::Transformable
 {
+    protected:
+        std::string command_output;
+        // sprite position and rectangle to hover checks
+        sf::IntRect Frame_scale;
+        sf::Sprite* sprite;
+
+        // draw sprite
+        void draw_element(sf::RenderTarget& target, sf::RenderStates states) const;
+
     public:
         std::string type_name;
         bool isClickable;
 
-        // нужен деструктор
+        /// need destructor
         UI_element();
         UI_element(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp);
 
+        // move left top angle and child sprite to pos
         void change_position(sf::Vector2f Pos);
+        // cursor hover check
         bool contains(sf::Vector2f curPos);
 
+        // mouse push action
         virtual void push() const;
+        // returns its name when unpushed
         virtual std::string release() const;
 
-
-    protected:
-        std::string command_output;
-        sf::IntRect Frame_scale;
-        sf::Sprite* sprite;
-        void draw_element(sf::RenderTarget& target, sf::RenderStates states) const;
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     private:
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 #endif // UI_ELEMENT_H

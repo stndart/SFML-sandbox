@@ -5,11 +5,13 @@ UI_layout::UI_layout()
     //ctor
 }
 
+// push UI_element into list
 void UI_layout::addElement(UI_element* new_element)
 {
     elements.push_back(new_element);
 }
 
+// mouse hover check
 bool UI_layout::contains(sf::Vector2f curPos)
 {
     bool ans = false;
@@ -28,6 +30,7 @@ bool UI_layout::get_isClicked()
     return isClicked;
 }
 
+// pushes hovered element
 void UI_layout::push_click(sf::Vector2f curPos)
 {
     for (int i = elements.size()-1; i >= 0; i--)
@@ -42,12 +45,14 @@ void UI_layout::push_click(sf::Vector2f curPos)
     }
 }
 
+// returns name of the clicked element after mouse button release
 std::string UI_layout::release_click()
 {
     isClicked = false;
     return elements[last_clicked_index]->release();
 }
 
+// return number of elements
 int UI_layout::get_elements_size()
 {
     return elements.size();

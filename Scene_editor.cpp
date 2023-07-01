@@ -6,162 +6,10 @@ Scene_editor::Scene_editor(std::string name, std::map <std::string, Texture*> *f
     s_input = "";
 }
 
-void Scene_editor::update(Event& event, std::string& command_main)
-{
-    //std::cout << event.key.code << " ";
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
-    {
-        std::string data = s_input;
-        s_input = "";
-        if (data != "")
-        {
-            std::cout << data << std::endl;
-            command(data);
-        }
-        if_input = !if_input;
-    }
-    if (event.type == sf::Event::KeyPressed && !if_input)
-    {
-        switch (event.key.code)
-        {
-        case sf::Keyboard::W:
-            field[current_field]->set_player_movement_direction(3);
-            //field[current_field]->move_player(3);
-            break;
-        case sf::Keyboard::D:
-            field[current_field]->set_player_movement_direction(0);
-            //field[current_field]->move_player(0);
-            break;
-        case sf::Keyboard::S:
-            field[current_field]->set_player_movement_direction(1);
-            //field[current_field]->move_player(1);
-            break;
-        case sf::Keyboard::A:
-            field[current_field]->set_player_movement_direction(2);
-            //field[current_field]->move_player(2);
-            break;
-        case sf::Keyboard::Space:
-            field[current_field]->action((*field_tex_map)["stump"]);
-            break;
-        case sf::Keyboard::Tab:
-            change_current_field((current_field+1)%2);
-            break;
-        default:
-            break;
-        }
-    }
-    else if (event.type == sf::Event::KeyReleased && !if_input)
-    {
-        switch (event.key.code)
-        {
-        case sf::Keyboard::W:
-            field[current_field]->release_player_movement_direction(3);
-            break;
-        case sf::Keyboard::D:
-            field[current_field]->release_player_movement_direction(0);
-            break;
-        case sf::Keyboard::S:
-            field[current_field]->release_player_movement_direction(1);
-            break;
-        case sf::Keyboard::A:
-            field[current_field]->release_player_movement_direction(2);
-            break;
-        default:
-            break;
-        }
-    }
-    else if (if_input && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
-    {
-        /*int cg = '\b';
-        std::cout << cg << " " << s_input.size() << std::endl;
-        if (s_input.size() == 6)
-        {
-            for (unsigned int i = 0; i < 6; i++)
-            {
-                int ch = s_input[i];
-                std::cout << "|" << ch << "|";
-            }
-            std::cout << std::endl;
-            for (unsigned int i = 0; i < 6; i++)
-            {
-                char ch = s_input[i];
-                std::cout << "|" << ch << "|";
-            }
-            std::cout << std::endl;
-        }*/
-        //assert(s_input.size() == 6);
-        if (s_input.size() > 0) s_input.pop_back();
-        //assert(s_input.size() == 5);
-        //std::cout << s_input << std::endl;
-    }
-    else if (if_input && event.type == sf::Event::TextEntered)
-    {
-        if (event.text.unicode != '\r' && event.text.unicode != '\b' && event.text.unicode != '\n')
-        {
-            char letter = event.text.unicode;
-            s_input += letter;
-        }
-    }
-    if (event.type == Event::MouseButtonPressed)
-    {
-        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
-        switch (event.mouseButton.button)
-        {
-        case Mouse::Left:
-            if (UI_update_mouse(curPos, event, command_main)) return;
-            for (auto b : buttons)
-            {
-                if (b->contains(curPos))
-                {
-                    b->push_button();
-                    pushed_buttons.push_back(b);
-                    break;
-                }
-            }
-            break;
-
-        default:
-            break;
-        }
-    }
-    if (event.type == Event::MouseButtonReleased)
-    {
-        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
-        switch (event.mouseButton.button)
-        {
-        case Mouse::Left:
-            if (UI_update_mouse(curPos, event, command_main)) return;
-            while (pushed_buttons.size() > 0)
-            {
-                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
-                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
-                {
-                    command_main = answer;
-                }
-                pushed_buttons.pop_back();
-            }
-            break;
-
-        default:
-            break;
-        }
-    }
-}
-
-void Scene_editor::update(Time deltaTime)
-{
-    field[current_field]->update(deltaTime);
-/**
-    пишет в левом верхнем углу текущий тип клетки
-
-    int a = field[current_field]->player_0->x_cell_coord;
-    int b = field[current_field]->player_0->y_cell_coord;
-    s_input = field[current_field]->get_cellType_by_coord(a, b);
-**/
-}
-
+// evaluate command line command
 void Scene_editor::command(std::string data)
 {
+    // split string <data> by whitespaces
     std::vector <std::string> s(1);
     for (unsigned int i = 0; i < data.size(); i++)
     {
@@ -174,16 +22,16 @@ void Scene_editor::command(std::string data)
             s.push_back("");
         }
     }
-    /*for (unsigned int i = 0; i < s.size(); i++)
-    {
-        std::cout << s[i] << std::endl;
-    }*/
+
+    // switch by first command word
     if (s[0] == "save_map")
     {
         save_map();
     }
+    // adds object to cell
     else if (s[0] == "add")
     {
+        // "add" "object" [x] [y] [object name]
         if (s.size() < 5)
         {
             s_input = "not enough arguments";
@@ -221,8 +69,10 @@ void Scene_editor::command(std::string data)
             return;
         }
     }
+    // change cell tile texture
     else if (s[0] == "change")
     {
+        // "change" "cell" [x] [y] [new tile name]
         if (s.size() < 5)
         {
             s_input = "not enough arguments";
@@ -274,10 +124,157 @@ void Scene_editor::save_map()
         field[i]->save_field(i);
     }
 }
+
+void Scene_editor::update(Event& event, std::string& command_main)
+{
+    // if <Enter> then mess with command line
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
+    {
+        // save old content
+        std::string data = s_input;
+        s_input = "";
+        // if smth present then run command
+        if (data != "")
+        {
+            std::cout << data << std::endl;
+            command(data);
+        }
+        if_input = !if_input;
+    }
+    // if keyboard press and command line deactivated
+    if (event.type == sf::Event::KeyPressed && !if_input)
+    {
+        // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
+        switch (event.key.code)
+        {
+        case sf::Keyboard::W:
+            field[current_field]->set_player_movement_direction(3);
+            //field[current_field]->move_player(3);
+            break;
+        case sf::Keyboard::D:
+            field[current_field]->set_player_movement_direction(0);
+            //field[current_field]->move_player(0);
+            break;
+        case sf::Keyboard::S:
+            field[current_field]->set_player_movement_direction(1);
+            //field[current_field]->move_player(1);
+            break;
+        case sf::Keyboard::A:
+            field[current_field]->set_player_movement_direction(2);
+            //field[current_field]->move_player(2);
+            break;
+        case sf::Keyboard::Space:
+            field[current_field]->action((*field_tex_map)["stump"]);
+            break;
+        case sf::Keyboard::Tab:
+            change_current_field((current_field+1)%2);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (event.type == sf::Event::KeyReleased && !if_input)
+    {
+        switch (event.key.code)
+        {
+        case sf::Keyboard::W:
+            field[current_field]->release_player_movement_direction(3);
+            break;
+        case sf::Keyboard::D:
+            field[current_field]->release_player_movement_direction(0);
+            break;
+        case sf::Keyboard::S:
+            field[current_field]->release_player_movement_direction(1);
+            break;
+        case sf::Keyboard::A:
+            field[current_field]->release_player_movement_direction(2);
+            break;
+        default:
+            break;
+        }
+    }
+    // if command line active and pressed: <backspace>
+    else if (if_input && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
+    {
+        //assert(s_input.size() == 6);
+        if (s_input.size() > 0) s_input.pop_back();
+        //assert(s_input.size() == 5);
+        //std::cout << s_input << std::endl;
+    }
+    // if command line active and pressed any letter
+    else if (if_input && event.type == sf::Event::TextEntered)
+    {
+        // ignore special symbols
+        if (event.text.unicode != '\r' && event.text.unicode != '\b' && event.text.unicode != '\n')
+        {
+            char letter = event.text.unicode;
+            s_input += letter;
+        }
+    }
+    /// TEMP
+    // pressing buttons
+    if (event.type == Event::MouseButtonPressed)
+    {
+        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            if (UI_update_mouse(curPos, event, command_main)) return;
+            for (auto b : buttons)
+            {
+                if (b->contains(curPos))
+                {
+                    b->push_button();
+                    pushed_buttons.push_back(b);
+                    break;
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+    /// TEMP
+    // unpressing buttons
+    if (event.type == Event::MouseButtonReleased)
+    {
+        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
+        switch (event.mouseButton.button)
+        {
+        case Mouse::Left:
+            if (UI_update_mouse(curPos, event, command_main)) return;
+            while (pushed_buttons.size() > 0)
+            {
+                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
+                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
+                {
+                    command_main = answer;
+                }
+                pushed_buttons.pop_back();
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
+void Scene_editor::update(Time deltaTime)
+{
+    field[current_field]->update(deltaTime);
+/**
+    пишет в левом верхнем углу текущий тип клетки
+
+    int a = field[current_field]->player_0->x_cell_coord;
+    int b = field[current_field]->player_0->y_cell_coord;
+    s_input = field[current_field]->get_cellType_by_coord(a, b);
+**/
+}
+
 void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 {
-    //cout << "scene editor draw in\n";
-
     /*if (background)
     {
         states.transform *= getTransform();
@@ -306,11 +303,10 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         target.draw(text);
     }
     draw_scene_buttons(target, states);
-
-
-    //cout << "scene editor draw out\n";
 }
 
+/// TEMP
+// MyFirstSceneEditor constructor
 Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num)
 {

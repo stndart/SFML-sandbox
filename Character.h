@@ -28,7 +28,8 @@ class Character : public Drawable, public Transformable
         string idle_animation;
         // queue of scheduled animations by name
         deque<string> next_animations;
-        // flag if current animation is finished (but animation is yet to be swapped)
+        // flag if current animation is finished
+        // for external uses
         bool switched_to_next_animation;
 
         // set facing direction and change idle animation by direction (default: idle_animation_0)

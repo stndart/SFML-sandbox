@@ -123,14 +123,14 @@ FloatRect AnimatedSprite::getGlobalBounds() const
     return getTransform().transformRect(getLocalBounds());
 }
 
-void AnimatedSprite::setPosition(const Vector2f &position)
-{
-    Transformable::setPosition(position);
-}
-
 Vector2f AnimatedSprite::getPosition() const
 {
     return Transformable::getPosition();
+}
+
+void AnimatedSprite::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
 }
 
 bool AnimatedSprite::isLooped() const

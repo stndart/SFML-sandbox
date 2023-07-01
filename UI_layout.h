@@ -8,25 +8,30 @@
 
 class UI_layout : public sf::Drawable, public sf::Transformable
 {
-    public:
-        UI_layout();
-
-        void addElement(UI_element* new_element);
-        bool contains(sf::Vector2f curPos);
-        bool get_isClicked();
-        void push_click(sf::Vector2f curPos);
-        std::string release_click();
-        //std::string cursor(sf::Vector2f curPos);
-
-        int get_elements_size();
-
     private:
+        // list of UI_elements
         std::vector <UI_element*> elements;
 
         bool isClicked = false;
         int last_clicked_index;
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    public:
+        UI_layout();
 
+        // push UI_element into list
+        void addElement(UI_element* new_element);
+        // mouse hover check
+        bool contains(sf::Vector2f curPos);
+        bool get_isClicked();
+        // pushes hovered element
+        void push_click(sf::Vector2f curPos);
+        // returns name of the clicked element after mouse button release
+        std::string release_click();
+
+        // return number of elements
+        int get_elements_size();
+
+        // overriding Drawable methods
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 #endif // UI_LAYOUT_H
