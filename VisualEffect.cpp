@@ -122,32 +122,36 @@ void VisualEffect::setAnimation(Animation& animation)
 
 void VisualEffect::play()
 {
+//    std::cout << "VE";
     m_isPaused = false;
     passed_after_stop = seconds(0);
     if (sprite)
         sprite->play();
 }
 
-void VisualEffect::play(Animation& animation)
+void VisualEffect::play(Animation& animation, Time shift)
 {
+//    std::cout << "VE";
     if (sprite)
-        sprite->play(animation);
+        sprite->play(animation, shift);
 }
 
 void VisualEffect::pause()
 {
-    std::cout << "VE pause\n";
+//    std::cout << "VE pause\n";
     m_isPaused = true;
-    if (sprite)
-        sprite->pause();
+    // even if movement has stopped, we don't stop animation (leg movement)
+//    if (sprite)
+//        sprite->pause();
 }
 
 void VisualEffect::stop()
 {
-    std::cout << "VE stop\n";
+//    std::cout << "VE stop\n";
     m_isPaused = true;
-    if (sprite)
-        sprite->stop();
+    // even if movement has stopped, we don't stop animation (leg movement)
+//    if (sprite)
+//        sprite->pause();
 }
 
 void VisualEffect::setLooped(bool looped)
@@ -269,7 +273,7 @@ void VisualEffect::update(Time deltaTime)
             setColor(now.color);
 
             // stop movement
-            m_isPaused = true;
+            pause();
 
             // begin to charge penalties
             passed_after_stop = m_currentTime - duration;
@@ -285,5 +289,6 @@ void VisualEffect::redraw(RenderTarget& target, RenderStates states) const
 
 void VisualEffect::draw(RenderTarget& target, RenderStates states) const
 {
-    redraw(target, states);
+    if (sprite)
+        sprite->draw(target, states);
 }

@@ -60,7 +60,7 @@ public:
     Animation* getAnimation() override;
     void setAnimation(Animation& animation);
     void play() override;
-    void play(Animation &animation) override;
+    void play(Animation &animation, Time shift=seconds(0)) override;
     void pause() override;
     void stop() override;
     void setLooped(bool looped) override;

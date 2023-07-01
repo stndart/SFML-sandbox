@@ -86,7 +86,7 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 }
 
 // create player at cell [pos.x, pos.y] with texture
-void Field::addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1))
+void Field::addPlayer(Texture* player_texture, Vector2i pos)
 {
     player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
 
@@ -97,6 +97,43 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1))
     idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
     player_0->add_animation("idle_animation", idle_animation);
     player_0->set_idle_animation("idle_animation");
+
+    if (pos.x == -1)
+    {
+        player_0->x_cell_coord = default_player_pos.x;
+        player_0->y_cell_coord = default_player_pos.y;
+    }
+    else
+    {
+        player_0->x_cell_coord = pos.x;
+        player_0->y_cell_coord = pos.y;
+    }
+}
+
+// create player at cell [pos.x, pos.y] with animations files: [idle, movement_0]
+void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u frame_size, Vector2i pos)
+{
+
+    // create default animation with some magic constants (to be resolved with addition of resources manager)
+    Animation* idle_animation = new Animation();
+    idle_animation->load_from_file(animation_filenames[0], frame_size);
+    Animation* movement_0 = new Animation();
+    movement_0->load_from_file(animation_filenames[1], frame_size);
+
+    Texture* aaa = new Texture;
+    if (!aaa->loadFromFile("Images/Flametail/default.png"))
+    {
+        std::cout << "Failed to load texture\n";
+        throw;
+    }
+    /// TODO: change to no-default-texture-player
+    player_0 = new Player("animated_player", aaa, IntRect(0, 0, frame_size.x, frame_size.y));
+    player_0->add_animation("idle_animation_0", idle_animation);
+    player_0->set_idle_animation("idle_animation_0");
+    player_0->add_animation("movement_0", movement_0);
+
+    // fit sprite into cell (horizontally)
+    player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
 
     if (pos.x == -1)
     {

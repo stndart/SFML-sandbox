@@ -42,25 +42,30 @@ void AnimatedSprite::setFrameTime(Time time)
 
 void AnimatedSprite::play()
 {
+//    std::cout << "play: frame " << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
     m_isPaused = false;
 }
 
 // set Animation and then play
-void AnimatedSprite::play(Animation& animation)
+void AnimatedSprite::play(Animation& animation, Time shift)
 {
-    if (getAnimation() != &animation)
-        setAnimation(animation);
+//    std::cout << "play with shift: " << shift.asSeconds() << std::endl;
+    setAnimation(animation);
+    m_currentTime = shift;
     play();
+    //update();
 }
 
 void AnimatedSprite::pause()
 {
+//    std::cout << "pause: frame" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
     m_isPaused = true;
 }
 
 // pause and reset animation timer (revert to first frame)
 void AnimatedSprite::stop()
 {
+//    std::cout << "stop: frame" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
     m_isPaused = true;
     m_currentFrame = 0;
     setFrame(m_currentFrame);
@@ -133,6 +138,16 @@ Vector2f AnimatedSprite::getPosition() const
 void AnimatedSprite::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
+}
+
+void AnimatedSprite::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+}
+
+void AnimatedSprite::setScale(float factorX, float factorY)
+{
+    Transformable::setScale(factorX, factorY);
 }
 
 bool AnimatedSprite::isLooped() const
@@ -229,7 +244,7 @@ Time AnimatedSprite::animation_remaining_time() const
     return microseconds(remains);
 }
 
-// not implemented
+// for VisualEffect inheritance
 Time AnimatedSprite::movement_remaining_time() const
 {
     return seconds(0);
@@ -242,6 +257,7 @@ void AnimatedSprite::update(Time deltaTime)
     {
         // add delta time
         m_currentTime += deltaTime;
+        passed_after_stop = seconds(0);
 
         // if current time is bigger then the frame time, then advance one frame
         while (m_currentTime >= m_frameTime)
@@ -279,8 +295,8 @@ void AnimatedSprite::update(Time deltaTime)
                     else // stop animation
                     {
                         m_isReversed = false;
-                        m_currentFrame = 0;
-                        m_isPaused = true;
+                        passed_after_stop = m_currentTime;
+                        stop();
                         //std::cout << "last first frame reached\n";
                         break;
                     }
@@ -299,7 +315,8 @@ void AnimatedSprite::update(Time deltaTime)
                     }
                     else
                     {
-                        m_isPaused = true;
+                        passed_after_stop = m_currentTime;
+                        pause();
                         //std::cout << "last frame reached\n";
                         break;
                     }
@@ -310,6 +327,8 @@ void AnimatedSprite::update(Time deltaTime)
             setFrame(m_currentFrame, false);
         }
     }
+    else if (m_animation)
+        passed_after_stop += deltaTime;
 }
 
 void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const

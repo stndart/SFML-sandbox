@@ -1,12 +1,22 @@
 #include "Player.h"
 
+Player::Player(std::string name) : name(name),
+x_cell_coord(0), y_cell_coord(0),
+queued_movement_direction(deque<Movement>()),
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
+{
+    sprite = NULL;
+
+    cout << "CONSTRUCTING player, name " << name << " with no sprite" << endl;
+}
+
 Player::Player(std::string name, Texture* texture, IntRect frame0) : name(name),
 x_cell_coord(0), y_cell_coord(0),
+queued_movement_direction(deque<Movement>()),
 x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 {
     sprite = new Character(name, *texture, frame0);
     sprite->set_moving_enabled(true);
-    queued_movement_direction = deque<Movement>();
 
     cout << "CONSTRUCTING player, name " << name << " sprite " << sprite << endl;
 }
@@ -36,19 +46,10 @@ void Player::add_movement_direction(Vector2f shift, int direction)
 // pop all coinciding directions from queue
 void Player::release_movement_direction(int direction)
 {
-    auto mov_dir_iter = queued_movement_direction.begin();
-    for (; mov_dir_iter != queued_movement_direction.end(); mov_dir_iter++)
-    {
-        if (mov_dir_iter->direction == direction)
-        {
-            break;
-        }
-    }
-    if (mov_dir_iter == queued_movement_direction.begin())
-    {
+    int erased = std::erase_if(queued_movement_direction, [direction](Movement x) { return x.direction == direction; });
+
+    if (erased > 0)
         sprite->cancel_next_movement();
-    }
-    queued_movement_direction.erase(mov_dir_iter);
 }
 
 // check if direction is present in queue
@@ -64,6 +65,7 @@ bool Player::has_queued_direction(int direction)
 // request sprite movement by shift. Direction is optional
 void Player::move_player(Vector2f shift, int direction)
 {
+    //std::cout << "PLayer requests movement\n";
     sprite->movement(shift, direction);
 }
 
@@ -78,8 +80,24 @@ Vector2f Player::getPosition() const
     return sprite->getPosition();
 }
 
+void Player::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    sprite->setScale(factors);
+}
+
 void Player::update(Time deltaTime)
 {
+//    std::cout << "Player::update queued movement size: " << queued_movement_direction.size();
+//    if (queued_movement_direction.size() > 0)
+//        std::cout << " and first item: " << queued_movement_direction.begin()->direction;
+//    std::cout << std::endl;
+//    if (sprite->has_next_movement())
+//        std::cout << "Sprite has next movement: " << sprite->get_next_movement_direction();
+//    else
+//        std::cout << "Sprite has NO next movement: ";
+//    std::cout << endl;
+
     // if player movement has ended (switched_to_next flag) and no new movement (for sprite!) is scheduled
     if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
     {

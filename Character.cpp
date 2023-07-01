@@ -21,13 +21,16 @@ Character::Character()
     // NONE;
 }
 
-Character::Character(string name, Texture &texture_default, IntRect frame0) : name(name), switched_to_next_animation(false),
+Character::Character(string name, Texture &texture_default, IntRect frame0) :
 moving(false), moving_enabled(false), animated(false),
 facing_direction(0), moving_direction(0),
-next_movement_direction(0), next_movement_shift(Vector2f(0, 0))
+next_movement_direction(0), next_movement_shift(Vector2f(0, 0)),
+name(name), switched_to_next_animation(false)
 {
     base_sprite = new AnimatedSprite(name, texture_default, frame0);
-    base_sprite->setFrameTime(seconds(0.05));
+    /// MAGIC CONSTANT!
+    base_sprite->setFrameTime(seconds(0.01));
+
     moving_sprite = base_sprite;
     idle_animation = "idle_animation_0";
     next_animations = deque<string>();
@@ -85,24 +88,28 @@ void Character::add_animation(string animation_name, Animation* p_animation)
 }
 
 // set current animation by name
-void Character::set_animation(string animation_name)
+void Character::set_animation(string animation_name, Time shift)
 {
-    base_sprite->play(*animations[animation_name]);
+    std::cout << "Character::setting animation to " << animation_name << std::endl;
+    base_sprite->play(*animations[animation_name], shift);
+    animated = true;
     if (animation_name != idle_animation)
-        animated = true;
+        base_sprite->setLooped(false);
+    else
+        base_sprite->setLooped(true);
 }
 
 // clear animations queue and schedule next animation
 void Character::set_next_animation(string animation_name)
 {
-    while (next_animations.size() > 0)
-        next_animations.pop_front();
-    next_animations.push_back(animation_name);
+    next_animations.clear();
+    add_next_animation(animation_name);
 }
 
 // add next animation to the end of queue
 void Character::add_next_animation(string animation_name)
 {
+    base_sprite->setLooped(false);
     next_animations.push_back(animation_name);
 }
 
@@ -133,15 +140,19 @@ int Character::get_current_direction() const
 // if already moving, then schedule next movement
 void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
 {
+//    std::cout << "Calling movement: " << direction;
+
     // delay this call until current movement is completed
     if (is_moving())
     {
+//        std::cout << " but character is moving\n";
         next_movement_shift = shift;
         next_movement_direction = direction;
         next_movement_animation_name = animation_name;
         next_movement_duration = duration;
         return;
     }
+//    std::cout << std::endl;
 
     // if direction is unspecified than get it from shift vector
     if (direction == -1)
@@ -180,11 +191,16 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
             offset -= base_sprite->getFrameTime() * (float)animations[anim]->getSize();
         }
 
+//        std::cout << "Creating VisualEffect with offset " << offset.asSeconds() << std::endl;
+
         // flip character sprite with <smooth transition from A to B> VisualEffect
-        moving_sprite = new VisualEffect(base_sprite, offset, seconds(0.2), start, finish);
+        moving_sprite = new VisualEffect(base_sprite, offset, seconds(0.4), start, finish);
         // push back valid animation_name
         if (animation_name.length() > 0)
+        {
+//            std::cout << "pushing back " << animation_name << std::endl;
             add_next_animation(animation_name);
+        }
 
         // start movement
         moving = true;
@@ -214,16 +230,20 @@ void Character::end_movement()
     moving = false;
     moving_direction = -1;
 
+    // if next movement is scheduled, then play it
     if (next_movement_shift != Vector2f(0, 0))
     {
         switched_to_next_animation = true;
         //cout << "Scheduled direction became playing " << next_movement_direction << endl;
+        //std::cout << "end_movement requests movement\n";
         movement(next_movement_shift, next_movement_direction, next_movement_animation_name, next_movement_duration);
         cancel_next_movement();
     }
+    // otherwise proceed with idle_animation
     else
     {
         after_last_animation = seconds(0);
+        set_next_animation(idle_animation);
     }
 }
 
@@ -234,6 +254,12 @@ void Character::setPosition(const Vector2f &position)
     // base_sprite->setPosition(position); // redundant
 }
 
+void Character::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    moving_sprite->setScale(factors);
+}
+
 Vector2f Character::getPosition() const
 {
     return moving_sprite->getPosition();
@@ -241,10 +267,18 @@ Vector2f Character::getPosition() const
 
 void Character::update(Time deltaTime)
 {
+    if (!base_sprite->isPlaying())
+    {
+        animated = false;
+        //std::cout << "Animation stop spotted!\n";
+    }
+
     if (!animated)
         if (next_animations.size() > 0)
         {
-            set_animation(next_animations[0]);
+            //std::cout << "since spotted -> swapping to next animation\n";
+            switched_to_next_animation = true;
+            set_animation(next_animations.front(), base_sprite->time_after_stop());
             next_animations.pop_front();
         }
 

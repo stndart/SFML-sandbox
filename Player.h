@@ -40,6 +40,7 @@ public:
     // smooth movement flag
     bool movement_animation;
 
+    Player(std::string name);
     Player(std::string name, Texture* texture, IntRect frame0);
     bool is_moving() const;
 
@@ -56,6 +57,7 @@ public:
     // overriding Transformable methods
     void setPosition(const Vector2f &position);
     Vector2f getPosition() const;
+    void setScale(const Vector2f &factors);
 
     // overriding Drawable methods
     void update(Time deltaTime);

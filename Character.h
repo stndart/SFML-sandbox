@@ -18,6 +18,26 @@ using namespace sf;
 
 class Character : public Drawable, public Transformable
 {
+    private:
+        // flag if movement is active
+        bool moving;
+        // flag if smooth movement is enabled (teleports otherwise)
+        bool moving_enabled;
+        // flag if has valid animation (not static image)
+        bool animated;
+        int facing_direction; // standard 0 - right, 1 - down, 2 - left, 3 - up
+        int moving_direction;
+
+        // scheduled movement parameters
+        int next_movement_direction;
+        Vector2f next_movement_shift;
+        string next_movement_animation_name;
+        Time next_movement_duration;
+        // if animation ends between frames, we save remaining time to transfer it to the next animation
+        Time after_last_animation;
+
+        map<string, Animation*> animations;
+
     public:
         string name;
 
@@ -50,8 +70,8 @@ class Character : public Drawable, public Transformable
 
         // add animation to map by name
         void add_animation(string animation_name, Animation* p_animation);
-        // set current animation by name
-        void set_animation(string animation_name);
+        // set current animation by name with time shift
+        void set_animation(string animation_name, Time shift = seconds(0));
         // clear animations queue and schedule next animation
         void set_next_animation(string animation_name);
         // add next animation to the end of queue
@@ -79,29 +99,11 @@ class Character : public Drawable, public Transformable
         // overriding Transformable methods
         virtual void setPosition(const Vector2f &position);
         virtual Vector2f getPosition() const;
+        virtual void setScale(const Vector2f &factors);
 
         // overriding Drawable methods
         virtual void update(Time deltaTime = seconds(0));
         virtual void draw(RenderTarget& target, RenderStates states) const override;
-    private:
-        // flag if movement is active
-        bool moving;
-        // flag if smooth movement is enabled (teleports otherwise)
-        bool moving_enabled;
-        // flag if has valid animation (not static image)
-        bool animated;
-        int facing_direction; // standard 0 - right, 1 - down, 2 - left, 3 - up
-        int moving_direction;
-
-        // scheduled movement parameters
-        int next_movement_direction;
-        Vector2f next_movement_shift;
-        string next_movement_animation_name;
-        Time next_movement_duration;
-        // if animation ends between frames, we save remaining time to transfer it to the next animation
-        Time after_last_animation;
-
-        map<string, Animation*> animations;
 };
 
 #endif

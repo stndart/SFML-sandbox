@@ -52,8 +52,8 @@ public:
     // set time for which each frame lasts
     void setFrameTime(Time time);
     virtual void play();
-    // set Animation and then play
-    virtual void play(Animation& animation);
+    // set Animation and then play. You can play animation not from the beginning with <shift>
+    virtual void play(Animation& animation, Time shift=seconds(0));
     virtual void pause();
     // pause and reset animation timer (revert to first frame)
     virtual void stop();
@@ -76,6 +76,8 @@ public:
     FloatRect getGlobalBounds() const;
     virtual Vector2f getPosition() const;
     virtual void setPosition(const Vector2f &position);
+    virtual void setScale(const Vector2f &factors);
+    virtual void setScale(float factorX, float factorY);
 
     virtual bool isLooped() const;
     virtual bool isReversed() const;
@@ -86,6 +88,7 @@ public:
 
     // whole animation duration
     Time get_duration() const;
+    // time passed after animation reached end
     Time time_after_stop() const;
 
     virtual Time animation_remaining_time() const;
