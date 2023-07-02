@@ -88,16 +88,55 @@ void Player::setScale(const Vector2f &factors)
 
 void Player::update(Time deltaTime)
 {
-//    std::cout << "Player::update queued movement size: " << queued_movement_direction.size();
-//    if (queued_movement_direction.size() > 0)
-//        std::cout << " and first item: " << queued_movement_direction.begin()->direction;
-//    std::cout << std::endl;
-//    if (sprite->has_next_movement())
-//        std::cout << "Sprite has next movement: " << sprite->get_next_movement_direction();
-//    else
-//        std::cout << "Sprite has NO next movement: ";
-//    std::cout << endl;
+    // if next movement is ready to be scheduled/invoked
+    if (sprite->passedNoReturn())
+    {
+        int mov_dir = -1;
+        Vector2f mov_shift = Vector2f(0, 0);
+        if (queued_movement_direction.size() > 0)
+        {
+            // std::cout << "trying to schedule smth\n";
+            // find next valid direction (not blocked movement)
+            for (auto r_iter = queued_movement_direction.rbegin();
+                 r_iter != queued_movement_direction.rend(); r_iter++)
+            {
+                //std::cout << "block check: " << r_iter->blocking_checked << " block: " << r_iter->blocked << std::endl;
+                if (r_iter->blocking_checked && !r_iter->blocked)
+                {
+                    mov_dir = r_iter->direction;
+                    mov_shift = r_iter->shift;
+                }
+            }
+        }
 
+        // if found valid scheduled movement
+        if (mov_dir != -1)
+        {
+            // since point of no return is passed, change coords
+            x_cell_coord += direction_x[mov_dir];
+            y_cell_coord += direction_y[mov_dir];
+            reset_blocking_check();
+        }
+//        else
+//        {
+//            std::cout << "no valid mov_dir\n";
+//        }
+
+        // schedule/invoke movement
+        // if no direction is scheduled, then process to idle animation only if sprite is moving
+        if (sprite->is_moving() || mov_dir != -1)
+        {
+//            std::cout << "Player::update calls movement with dir: " << mov_dir << std::endl;
+            sprite->movement(mov_shift, mov_dir);
+        }
+    }
+
+    sprite->update(deltaTime);
+}
+
+/*
+void Player::update(Time deltaTime)
+{
     // if player movement has ended (switched_to_next flag) and no new movement (for sprite!) is scheduled
     if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
     {
@@ -114,12 +153,14 @@ void Player::update(Time deltaTime)
     // new movements for sprite are transferred from local movement queue and only if sprite has no scheduled movements
     if (!sprite->has_next_movement() && queued_movement_direction.size() > 0)
     {
+        std::cout << "trying to schedule smth\n";
         // find next valid direction (not blocked movement)
         int mov_dir = -1;
         Vector2f mov_shift = Vector2f(0, 0);
         for (auto r_iter = queued_movement_direction.rbegin();
              r_iter != queued_movement_direction.rend(); r_iter++)
         {
+            std::cout << "block check: " << r_iter->blocking_checked << " block: " << r_iter->blocked << std::endl;
             if (r_iter->blocking_checked && !r_iter->blocked)
             {
                 mov_dir = r_iter->direction;
@@ -127,6 +168,9 @@ void Player::update(Time deltaTime)
             }
         }
         // if found valid scheduled movement
+        if (mov_dir == -1)
+            std::cout << "no valid mov_dir\n";
+
         if (mov_dir != -1)
         {
             // if this movement to be invoked immediately, then change player coords
@@ -143,7 +187,7 @@ void Player::update(Time deltaTime)
         }
     }
     sprite->update(deltaTime);
-}
+}//*/
 
 void Player::draw(RenderTarget& target, RenderStates states) const
 {

@@ -27,6 +27,7 @@ class Character : public Drawable, public Transformable
         bool animated;
         int facing_direction; // standard 0 - right, 1 - down, 2 - left, 3 - up
         int moving_direction;
+        bool next_movement_scheduled;
 
         // scheduled movement parameters
         int next_movement_direction;
@@ -35,6 +36,7 @@ class Character : public Drawable, public Transformable
         Time next_movement_duration;
         // if animation ends between frames, we save remaining time to transfer it to the next animation
         Time after_last_animation;
+        Time no_return_point_time;
 
         map<string, Animation*> animations;
 
@@ -63,6 +65,8 @@ class Character : public Drawable, public Transformable
         void set_moving_enabled(bool enabled);
         // flag if has valid animation (not static image)
         bool is_animated() const;
+        // flag if next animation is already need to be set up
+        bool passedNoReturn();
 
         Character();
         Character(string name, Texture& texture_default, IntRect frame0);
@@ -86,15 +90,10 @@ class Character : public Drawable, public Transformable
 
         int get_current_direction() const;
 
-        // invoke movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
-        // if already moving, then schedule next movement
+        // schedule next movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
         void movement(Vector2f shift, int direction=-1, string animation_name="", Time duration=seconds(2));
-        // if movement timer is up, then unwrap VisualEffect, transfer to next movement / terminate
-        // note: while animations can be infinitely queued, movement supports only one scheduled move
-        // note 2: Character supports only one level of VisualEffect wrap inside.
-        // namely, Character creates only one VisualEffect wrap inside and utilizes only it.
-        // It can be utilized with wrap inside: base_sprite can be VisualEffect (but no one can unwrap it then)
-        void end_movement();
+        // take movement and animation from next_animation and play
+        void next_movement_start();
 
         // overriding Transformable methods
         virtual void setPosition(const Vector2f &position);

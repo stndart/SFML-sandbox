@@ -28,8 +28,11 @@ next_movement_direction(0), next_movement_shift(Vector2f(0, 0)),
 name(name), switched_to_next_animation(false)
 {
     base_sprite = new AnimatedSprite(name, texture_default, frame0);
+
     /// MAGIC CONSTANT!
     base_sprite->setFrameTime(seconds(0.01));
+    //base_sprite->setFrameTime(seconds(0.04));
+    no_return_point_time = seconds(0.1);
 
     moving_sprite = base_sprite;
     idle_animation = "idle_animation_0";
@@ -81,6 +84,29 @@ bool Character::is_animated() const
     return animated;
 }
 
+// flag if next animation is already need to be set up
+bool Character::passedNoReturn()
+{
+//    std::cout << "No Return Check ";
+    // if next movement is scheduled, we don't care of breakpoint is passed
+    if (has_next_movement())
+    {
+//        std::cout << "HAS next movement ";
+//        std::cout << get_next_movement_direction() << std::endl;
+        return false;
+    }
+
+    Time breakpoint = max(base_sprite->animation_remaining_time(),
+                          moving_sprite->movement_remaining_time());
+
+//    if (breakpoint.asSeconds() >= no_return_point_time.asSeconds())
+//        std::cout << "time has yet to come\n";
+//    else
+//        std::cout << "LETS GOOO\n";
+
+    return breakpoint.asSeconds() < no_return_point_time.asSeconds();
+}
+
 // add animation to map by name
 void Character::add_animation(string animation_name, Animation* p_animation)
 {
@@ -116,7 +142,7 @@ void Character::add_next_animation(string animation_name)
 // flag if scheduled movement is present
 bool Character::has_next_movement() const
 {
-    return next_movement_shift != Vector2f(0, 0);
+    return next_movement_scheduled;
 }
 
 // scheduled movement direction
@@ -136,62 +162,81 @@ int Character::get_current_direction() const
     return moving_direction;
 }
 
-// invoke movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
-// if already moving, then schedule next movement
+// schedule next movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
 void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
 {
-//    std::cout << "Calling movement: " << direction;
+//    std::cout << "Character::movement with dir " << direction << std::endl;
 
-    // delay this call until current movement is completed
-    if (is_moving())
+    // if idle_animation, then finish it as soon as animation reaches end
+    base_sprite->setLooped(false);
+
+    // correct default arguments to valid
+
+    // try to get animation by format <movement_%d>, where %d is direction
+    // if no appropriate animation found, then <movement>
+    // if no <movement> animation found, then skip animation (just smooth transition with default animation)
+    if (animation_name.length() == 0)
     {
-//        std::cout << " but character is moving\n";
-        next_movement_shift = shift;
-        next_movement_direction = direction;
-        next_movement_animation_name = animation_name;
-        next_movement_duration = duration;
-        return;
+        animation_name = get_movement_animation_s(direction);
+        // <movement_0> is default animation for movement
+        if (animations.count(animation_name) == 0)
+            animation_name = "movement_0";
+        // idle animation is default animation
+        if (animations.count(animation_name) == 0)
+            animation_name = "";
     }
-//    std::cout << std::endl;
 
-    // if direction is unspecified than get it from shift vector
-    if (direction == -1)
-        direction = direction_from_shift(shift);
 
-    // if smooth moving enabled
-    if (is_moving_enabled())
+    // add movement to next;
+    // here we assume movement won't be called more than once after point-of-no-return
+    next_movement_scheduled = true;
+    next_movement_shift = shift;
+    next_movement_direction = direction;
+    next_movement_animation_name = animation_name;
+    next_movement_duration = duration;
+}
+
+// take movement and animation from next_animation and play
+void Character::next_movement_start()
+{
+//    std::cout << "Character::next_movement_start with dir " << next_movement_direction << std::endl;
+
+    Vector2f shift = next_movement_shift;
+    int direction = next_movement_direction;
+    string animation_name = next_movement_animation_name;
+    /// NOT USED (set to VE constructor)
+    // Time duration = next_movement_duration;
+    next_movement_scheduled = false;
+
+    if (shift != Vector2f(0, 0))
     {
-        // try to get animation by format <movement_%d>, where %d is direction
-        // if no appropriate animation found, then <movement>
-        // if no <movement> animation found, then skip animation (just smooth transition with default animation)
-        if (animation_name.length() == 0)
-        {
-            animation_name = get_movement_animation_s(direction);
-            if (animations.count(animation_name) == 0)
-                animation_name = "movement";
-            if (animations.count(animation_name) == 0)
-                animation_name = "";
-        }
+        // change current direction
         moving_direction = direction;
 
+        // configure VE
         // get start and stop screen points (do not confuse with view points, which should fit in screen)
         Vector2f start = base_sprite->getPosition();
         Vector2f finish = start + shift;
 
-        // offset animation with delay caused by flipping animations
-        // sets only if current animation is scheduled after another animation
+        // offset animation with delay caused by flipping animations (e.g. idle_animation)
         Time offset = seconds(0);
         if (animated)
             offset = -base_sprite->animation_remaining_time();
+        // offset animation with negative delay so that it would stitch together with last animation
         if (offset == seconds(0))
-            offset = after_last_animation;
+            offset = base_sprite->time_after_stop();
+
+        // if current animation is complex (consists of queued animations)
         // further shift offset if animations queue is not empty
         for (auto anim : next_animations)
         {
             offset -= base_sprite->getFrameTime() * (float)animations[anim]->getSize();
         }
-
 //        std::cout << "Creating VisualEffect with offset " << offset.asSeconds() << std::endl;
+
+        // we still can't put VE in VE
+        if (moving_sprite != base_sprite)
+            throw;
 
         // flip character sprite with <smooth transition from A to B> VisualEffect
         moving_sprite = new VisualEffect(base_sprite, offset, seconds(0.4), start, finish);
@@ -204,54 +249,14 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
 
         // start movement
         moving = true;
-        moving_sprite->play();
     }
-    // teleport sprite otherwise
-    else
-    {
-        moving_sprite->move(shift);
-    }
-}
-
-// if movement timer is up, then unwrap VisualEffect, transfer to next movement / terminate
-// note: while animations can be infinitely queued, movement supports only one scheduled move
-// note 2: Character supports only one level of VisualEffect wrap inside.
-// namely, Character creates only one VisualEffect wrap inside and utilizes only it.
-// It can be utilized with wrap inside: base_sprite can be VisualEffect (but no one can unwrap it then)
-void Character::end_movement()
-{
-    if (!is_moving())
-        throw;
-
-    after_last_animation = moving_sprite->time_after_stop();
-
-    delete moving_sprite;
-    moving_sprite = base_sprite;
-    moving = false;
-    moving_direction = -1;
-
-    // if next movement is scheduled, then play it
-    if (next_movement_shift != Vector2f(0, 0))
-    {
-        switched_to_next_animation = true;
-        //cout << "Scheduled direction became playing " << next_movement_direction << endl;
-        //std::cout << "end_movement requests movement\n";
-        movement(next_movement_shift, next_movement_direction, next_movement_animation_name, next_movement_duration);
-        cancel_next_movement();
-    }
-    // otherwise proceed with idle_animation
-    else
-    {
-        after_last_animation = seconds(0);
-        set_next_animation(idle_animation);
-    }
+    moving_sprite->play();
 }
 
 void Character::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
     moving_sprite->setPosition(position);
-    // base_sprite->setPosition(position); // redundant
 }
 
 void Character::setScale(const Vector2f &factors)
@@ -267,27 +272,32 @@ Vector2f Character::getPosition() const
 
 void Character::update(Time deltaTime)
 {
-    if (!base_sprite->isPlaying())
+    // if VE has reached the end, unwrap VE
+    if (moving_sprite != base_sprite && moving_sprite->movement_remaining_time() <= seconds(0))
     {
-        animated = false;
-        //std::cout << "Animation stop spotted!\n";
+        delete moving_sprite;
+        moving_sprite = base_sprite;
+        moving = false;
     }
 
-    if (!animated)
-        if (next_animations.size() > 0)
-        {
-            //std::cout << "since spotted -> swapping to next animation\n";
-            switched_to_next_animation = true;
-            set_animation(next_animations.front(), base_sprite->time_after_stop());
-            next_animations.pop_front();
-        }
-
-    if (is_moving())
+    // if animation stopped, then play animation from queue
+    if (!base_sprite->isPlaying() && next_animations.size() > 0)
     {
-        Time remain_mov = moving_sprite->movement_remaining_time();
-        //cout << "ending movement " << remain_mov.asMilliseconds() << endl;
-        if (remain_mov <= seconds(0))
-            end_movement();
+        set_animation(next_animations.front(), base_sprite->time_after_stop());
+        next_animations.pop_front();
+    }
+//    std::cout << "Char::update moving: " << moving << " isplay: " << base_sprite->isPlaying() << std::endl;
+    // if no VE and animation stopped, then invoke next_movement_start
+    if (!moving && !base_sprite->isPlaying() && next_movement_scheduled)
+    {
+        next_movement_start();
+    }
+    // if there is still no animation, then set to idle_animation
+    if (!base_sprite->isPlaying())
+    {
+//        std::cout << "Set idle looped because no play\n";
+        set_animation(idle_animation, base_sprite->time_after_stop());
+        base_sprite->setLooped(true);
     }
 
     moving_sprite->update(deltaTime);
