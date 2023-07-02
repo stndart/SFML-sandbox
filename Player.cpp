@@ -46,10 +46,7 @@ void Player::add_movement_direction(Vector2f shift, int direction)
 // pop all coinciding directions from queue
 void Player::release_movement_direction(int direction)
 {
-    int erased = std::erase_if(queued_movement_direction, [direction](Movement x) { return x.direction == direction; });
-
-    if (erased > 0)
-        sprite->cancel_next_movement();
+    std::erase_if(queued_movement_direction, [direction](Movement x) { return x.direction == direction; });
 }
 
 // check if direction is present in queue
@@ -109,85 +106,26 @@ void Player::update(Time deltaTime)
             }
         }
 
-        // if found valid scheduled movement
-        if (mov_dir != -1)
-        {
-            // since point of no return is passed, change coords
-            x_cell_coord += direction_x[mov_dir];
-            y_cell_coord += direction_y[mov_dir];
-            reset_blocking_check();
-        }
-//        else
-//        {
-//            std::cout << "no valid mov_dir\n";
-//        }
-
         // schedule/invoke movement
         // if no direction is scheduled, then process to idle animation only if sprite is moving
         if (sprite->is_moving() || mov_dir != -1)
         {
-//            std::cout << "Player::update calls movement with dir: " << mov_dir << std::endl;
+            // if we're requesting move, not stop
+            if (mov_dir != -1)
+            {
+//                std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
+                // since point of no return is passed, change coords
+                x_cell_coord += direction_x[mov_dir];
+                y_cell_coord += direction_y[mov_dir];
+                reset_blocking_check();
+            }
+
             sprite->movement(mov_shift, mov_dir);
         }
     }
 
     sprite->update(deltaTime);
 }
-
-/*
-void Player::update(Time deltaTime)
-{
-    // if player movement has ended (switched_to_next flag) and no new movement (for sprite!) is scheduled
-    if (!sprite->has_next_movement() && sprite->switched_to_next_animation)
-    {
-        // mark as handled
-        sprite->switched_to_next_animation = false;
-        // move player and reset blocking checks
-        int mov_dir = sprite->get_current_direction();
-
-        x_cell_coord += direction_x[mov_dir];
-        y_cell_coord += direction_y[mov_dir];
-        reset_blocking_check();
-    }
-
-    // new movements for sprite are transferred from local movement queue and only if sprite has no scheduled movements
-    if (!sprite->has_next_movement() && queued_movement_direction.size() > 0)
-    {
-        std::cout << "trying to schedule smth\n";
-        // find next valid direction (not blocked movement)
-        int mov_dir = -1;
-        Vector2f mov_shift = Vector2f(0, 0);
-        for (auto r_iter = queued_movement_direction.rbegin();
-             r_iter != queued_movement_direction.rend(); r_iter++)
-        {
-            std::cout << "block check: " << r_iter->blocking_checked << " block: " << r_iter->blocked << std::endl;
-            if (r_iter->blocking_checked && !r_iter->blocked)
-            {
-                mov_dir = r_iter->direction;
-                mov_shift = r_iter->shift;
-            }
-        }
-        // if found valid scheduled movement
-        if (mov_dir == -1)
-            std::cout << "no valid mov_dir\n";
-
-        if (mov_dir != -1)
-        {
-            // if this movement to be invoked immediately, then change player coords
-            // otherwise coords will be changed after current movement ends (look first if in Player::update)
-            if (!sprite->is_moving() && !sprite->has_next_movement())
-            {
-                x_cell_coord += direction_x[mov_dir];
-                y_cell_coord += direction_y[mov_dir];
-            }
-
-            // schedule/invoke movement
-            sprite->movement(mov_shift, mov_dir);
-            reset_blocking_check();
-        }
-    }
-    sprite->update(deltaTime);
-}//*/
 
 void Player::draw(RenderTarget& target, RenderStates states) const
 {

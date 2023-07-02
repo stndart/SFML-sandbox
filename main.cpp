@@ -272,7 +272,14 @@ int main()
     Scene_Field field_scene = Scene_Field(std::string("field_scene"), &field_tex_map);
 
     // current ready animations
-    vector<string> player_animation_fnames = {"Images/Flametail/idle_animation_0.png", "Images/Flametail/movement_0.png"};
+    vector<string> player_animation_fnames =
+    {
+        "Images/Flametail/idle_animation_0.png",
+        "Images/Flametail/idle_animation_2.png",
+        "Images/Flametail/movement_0.png",
+        "Images/Flametail/movement_2.png"
+    };
+
     // Create field with map#1. Despite it being inactive, we load map and player
     Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);

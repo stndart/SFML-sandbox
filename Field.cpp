@@ -115,10 +115,14 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
 {
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
-    Animation* idle_animation = new Animation();
-    idle_animation->load_from_file(animation_filenames[0], frame_size);
+    Animation* idle_animation_0 = new Animation();
+    idle_animation_0->load_from_file(animation_filenames[0], frame_size);
+    Animation* idle_animation_2 = new Animation();
+    idle_animation_2->load_from_file(animation_filenames[1], frame_size);
     Animation* movement_0 = new Animation();
-    movement_0->load_from_file(animation_filenames[1], frame_size);
+    movement_0->load_from_file(animation_filenames[2], frame_size);
+    Animation* movement_2 = new Animation();
+    movement_2->load_from_file(animation_filenames[3], frame_size);
 
     Texture* aaa = new Texture;
     if (!aaa->loadFromFile("Images/Flametail/default.png"))
@@ -128,9 +132,12 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     }
     /// TODO: change to no-default-texture-player
     player_0 = new Player("animated_player", aaa, IntRect(0, 0, frame_size.x, frame_size.y));
-    player_0->add_animation("idle_animation_0", idle_animation);
-    player_0->set_idle_animation("idle_animation_0");
+    player_0->add_animation("idle_animation_0", idle_animation_0);
+    player_0->add_animation("idle_animation_2", idle_animation_2);
     player_0->add_animation("movement_0", movement_0);
+    player_0->add_animation("movement_2", movement_2);
+
+    player_0->set_idle_animation("idle_animation_2");
 
     // fit sprite into cell (horizontally)
     player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));

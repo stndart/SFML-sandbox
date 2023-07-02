@@ -65,7 +65,8 @@ void Animation::load_from_file(std::string animation_filename, Vector2u frame_si
     // get animation_filename, frame_size, N from json
     ///TEMP
     int N;
-    if (animation_filename == "Images/Flametail/idle_animation_0.png")
+    // if <animation_filename> starts with ".../idle_animation"
+    if (animation_filename.rfind("Images/Flametail/idle_animation", 0) == 0)
         N = 36;
     else
         N = 40;

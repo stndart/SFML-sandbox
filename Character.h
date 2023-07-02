@@ -76,6 +76,8 @@ class Character : public Drawable, public Transformable
         void add_animation(string animation_name, Animation* p_animation);
         // set current animation by name with time shift
         void set_animation(string animation_name, Time shift = seconds(0));
+        // set current animation to idle with current direction
+        void set_animation_to_idle(Time shift = seconds(0));
         // clear animations queue and schedule next animation
         void set_next_animation(string animation_name);
         // add next animation to the end of queue
