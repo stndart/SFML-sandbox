@@ -57,18 +57,26 @@ string Character::get_animation_name_by_shift(Vector2f shift, int direction, str
             direction = facing_direction;
     }
 
+    string anim = animation_name;
     if (animation_name.length() == 0)
     {
-        animation_name = get_movement_animation_s(direction);
-        // <movement_0> is default animation for movement
-        if (animations.count(animation_name) == 0)
-            animation_name = "movement_0";
+        if (shift != Vector2f(0, 0))
+        {
+            anim = get_movement_animation_s(direction);
+            // <movement_0> is default animation for movement
+            if (animations.count(anim) == 0)
+                anim = "movement_0";
+        }
+        else
+        {
+            anim = get_idle_animation_s(direction);
+        }
         // idle animation is default animation
-        if (animations.count(animation_name) == 0)
-            animation_name = "";
+        if (animations.count(anim) == 0)
+            anim = "";
     }
 
-    return animation_name;
+    return anim;
 }
 
 // set facing direction and change idle animation by direction (default: idle_animation_0)
@@ -139,8 +147,13 @@ Joint Character::last_joint(string animation_name) const
 {
     vector<string> transitions;
     // intersects set of animations AFTER <current_animation> and BEFORE <animation_name>
-    set_intersection(animation_subsequent.at(current_animation).begin(), animation_subsequent.at(current_animation).end(),
-                     animation_previous.at(animation_name).begin(), animation_previous.at(animation_name).end(),
+    const set<string> set_subsequent = animation_subsequent.at(current_animation);
+    const set<string> set_previous = animation_previous.at(animation_name);
+    // if target animation is available without any intermediate animations
+    if (set_subsequent.contains(animation_name))
+        transitions.push_back(animation_name);
+    set_intersection(set_subsequent.begin(), set_subsequent.end(),
+                     set_previous.begin(), set_previous.end(),
                      std::back_inserter(transitions));
 
     return animations.at(current_animation)->get_last_joint((int)base_sprite->getFrame(), transitions);
@@ -149,19 +162,24 @@ Joint Character::last_joint(string animation_name) const
 /// NOTE: it searches for next joint in current animation, not the last in <next_animations> (including current if empty)
 Joint Character::next_available_joint(string animation_name) const
 {
+    /// TEMP
+    // if we need to find cycle
+    if (animation_name == current_animation)
+        return animations.at(current_animation)->get_next_joint((int)base_sprite->getFrame(), animation_name);
+
     // to find next available joint
     vector<string> transitions;
     // intersects set of animations AFTER <current_animation> and BEFORE <animation_name>
     const set<string> set_subsequent = animation_subsequent.at(current_animation);
     const set<string> set_previous = animation_previous.at(animation_name);
-    set_intersection(set_subsequent.begin(), set_subsequent.end(),
-                     set_previous.begin(), set_previous.end(),
-                     std::back_inserter(transitions));
     // if target animation is available without any intermediate animations
     if (set_subsequent.contains(animation_name))
         transitions.push_back(animation_name);
+    set_intersection(set_subsequent.begin(), set_subsequent.end(),
+                     set_previous.begin(), set_previous.end(),
+                     std::back_inserter(transitions));
 
-    std::cout << "found transitions from " << current_animation << " to " << animation_name << "";
+    std::cout << "Character: found transitions from " << current_animation << " to " << animation_name << std::endl;
     for (std::size_t i = 0; i < transitions.size(); ++i)
         std::cout << ", " << transitions[i];
     std::cout << std::endl;
@@ -169,6 +187,8 @@ Joint Character::next_available_joint(string animation_name) const
     Joint j = animations.at(current_animation)->get_next_joint((int)base_sprite->getFrame(), transitions);
     while (base_sprite->animation_remaining_time(j.frame).asSeconds() < no_return_point_time.asSeconds())
     {
+        std::cout << "found with " << base_sprite->animation_remaining_time(j.frame).asSeconds() << " until noreturn " << no_return_point_time.asSeconds() << std::endl;
+
         // find next joint after current
         Joint temp_j = animations.at(current_animation)->get_next_joint(j.frame + 1, transitions);
         // if reached end
@@ -194,7 +214,7 @@ bool Character::canReSchedule(Vector2f shift, int direction, string animation_na
     Time breakpoint = max(base_sprite->animation_remaining_time(j.frame),
                           moving_sprite->movement_remaining_time());
 
-    return breakpoint.asSeconds() < no_return_point_time.asSeconds();
+    return breakpoint.asSeconds() > no_return_point_time.asSeconds();
 }
 
 // add animation to map by name
@@ -214,15 +234,6 @@ void Character::add_animation(string animation_name, Animation* p_animation)
 void Character::set_animation(string animation_name, Time shift, int frame_stop_after)
 {
     std::cout << "Character::setting animation to " << animation_name << std::endl;
-
-//    std::cout << "check: subsequent and preciding animations:\n";
-//    std::cout << "preciding: ";
-//    for (string p_anim : animation_previous[animation_name])
-//        std::cout << ", " << p_anim;
-//    std::cout << "\nsubsequent: ";
-//    for (string p_anim : animation_subsequent[animation_name])
-//        std::cout << ", " << p_anim;
-//    std::cout << "\ncheck out\n";
 
     current_animation = animation_name;
 
@@ -264,6 +275,8 @@ void Character::set_next_animation(string animation_name, int frame_stop_after)
 // add next animation to the end of queue
 void Character::add_next_animation(string animation_name, int frame_stop_after)
 {
+    std::cout << "Ch: add next anim " << animation_name << std::endl;
+
     base_sprite->setLooped(false);
     next_animations.push_back(animation_name);
     stop_after.push_back(frame_stop_after);
@@ -286,6 +299,7 @@ void Character::cancel_next_movement()
 {
 //    std::cout << "Character::cancel next\n";
     next_movement_scheduled = false;
+    base_sprite->stop_after(animations[current_animation]->getSize() - 1);
 }
 
 int Character::get_current_direction() const
@@ -301,7 +315,10 @@ string Character::get_current_animation() const
 // schedule next movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
 void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
 {
-    std::cout << "Character::movement schedule dir " << direction << " and shift " << shift.x << " " << shift.y << std::endl;
+    std::cout << "Character::movement schedule dir " << direction << " and shift " << shift.x << " " << shift.y;
+    if (animation_name != "")
+        std::cout << " and anim name " << animation_name;
+    std::cout << std::endl;
 
     // if idle_animation, then finish it as soon as animation reaches end
     base_sprite->setLooped(false);
@@ -316,7 +333,8 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
 
     // find next joint that is minimum of no_return_point_time before it
     Joint j = next_available_joint(animation_name);
-    std::cout << "Character::movement: found next joint with frame: " << j.frame << std::endl;
+    std::cout << "Character::movement: found next joint with frame " << j.frame;
+    std::cout << " and name " << j.anim_to << std::endl;
     base_sprite->stop_after(j.frame);
     std::cout << "Character::movement: and set current animation to stop after joint" << std::endl;
 
@@ -333,7 +351,8 @@ void Character::movement(Vector2f shift, int direction, string animation_name, T
 // take movement and animation from next_animation and play
 void Character::next_movement_start()
 {
-    std::cout << "Character::next_movement_start with shift " << next_movement_shift.x << " " << next_movement_shift.y << std::endl;
+    std::cout << "Character::next_movement_start with shift " << next_movement_shift.x << " " << next_movement_shift.y;
+    std::cout << " and name " << next_movement_animation_name << std::endl;
 
     Vector2f shift = next_movement_shift;
     int direction = next_movement_direction;
@@ -347,8 +366,12 @@ void Character::next_movement_start()
     moving_direction = direction;
 
     // push new animations in queue
-    // firstly, push transition (with stop_after frame)
-    add_next_animation(j.anim_to, animations[j.anim_to]->get_next_joint(j.frame_to, animation_name).frame);
+    // if there is transition
+    if (j.anim_to != next_movement_animation_name)
+    {
+        // firstly, push transition (with stop_after frame)
+        add_next_animation(j.anim_to, animations[j.anim_to]->get_next_joint(j.frame_to, animation_name).frame);
+    }
 
     // offset animation with negative delay so that it would stitch together with last animation
     Time offset = seconds(0);
@@ -392,6 +415,7 @@ void Character::next_movement_start()
 
         // flip character sprite with <smooth transition from A to B> VisualEffect
         moving_sprite = new VisualEffect(base_sprite, offset, seconds(0.4), start, finish);
+        switched_to_next_animation = true;
 
         // start movement
         moving = true;

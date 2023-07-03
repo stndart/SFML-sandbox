@@ -85,33 +85,41 @@ void Player::setScale(const Vector2f &factors)
 
 void Player::update(Time deltaTime)
 {
-    // if next movement is ready to be scheduled/invoked
-    if (sprite->passedNoReturn())
+    int mov_dir = -1;
+    Vector2f mov_shift = Vector2f(0, 0);
+    // find next available direction
+    if (queued_movement_direction.size() > 0)
     {
-        int mov_dir = -1;
-        Vector2f mov_shift = Vector2f(0, 0);
-        // find next available direction. If no, proceed with standing still
-        if (queued_movement_direction.size() > 0)
+        // std::cout << "trying to schedule smth\n";
+        // find next valid direction (not blocked movement)
+        for (auto r_iter = queued_movement_direction.rbegin();
+             r_iter != queued_movement_direction.rend(); r_iter++)
         {
-            // std::cout << "trying to schedule smth\n";
-            // find next valid direction (not blocked movement)
-            for (auto r_iter = queued_movement_direction.rbegin();
-                 r_iter != queued_movement_direction.rend(); r_iter++)
+            //std::cout << "block check: " << r_iter->blocking_checked << " block: " << r_iter->blocked << std::endl;
+            if (r_iter->blocking_checked && !r_iter->blocked)
             {
-                //std::cout << "block check: " << r_iter->blocking_checked << " block: " << r_iter->blocked << std::endl;
-                if (r_iter->blocking_checked && !r_iter->blocked)
-                {
-                    mov_dir = r_iter->direction;
-                    mov_shift = r_iter->shift;
-                }
+                mov_dir = r_iter->direction;
+                mov_shift = r_iter->shift;
             }
         }
+    }
 
+    // so, we try now to schedule mov_dir/mov_shift, if not late
+    if (sprite->canReSchedule(mov_shift, mov_dir) && sprite->get_next_movement_direction() != mov_dir)
+    {
+        sprite->cancel_next_movement();
         // schedule/invoke movement
-        // if no direction is scheduled, then process to idle animation only if sprite is moving
-        if (sprite->is_moving() || mov_dir != -1)
+        // if no direction is scheduled, then process to idle animation
+        sprite->movement(mov_shift, mov_dir);
+    }
+    // if it's too late, try to register movement
+    else
+    {
+        //if unregistered
+        if (sprite->switched_to_next_animation)
         {
-            // if we're requesting move, not stop
+            mov_dir = sprite->get_current_direction();
+            // if it is not "standing"
             if (mov_dir != -1)
             {
                 std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
@@ -120,8 +128,7 @@ void Player::update(Time deltaTime)
                 y_cell_coord += direction_y[mov_dir];
                 reset_blocking_check();
             }
-
-            sprite->movement(mov_shift, mov_dir);
+            sprite->switched_to_next_animation = false;
         }
     }
 

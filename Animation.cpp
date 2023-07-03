@@ -93,14 +93,17 @@ Joint Animation::get_next_joint(int cur_frame, std::string animation) const
 }
 
 // find next joint with anim_to in list (blank filter not allowed)
+// if multiple joints are found within one frame, they are sorted as <animation>
 Joint Animation::get_next_joint(int cur_frame, std::vector<std::string> animation) const
 {
-    std::cout << "Animation: We search for next joint with curframe " << cur_frame << " and animations vector";
-    for (std::size_t i = 0; i < animation.size(); ++i)
-        std::cout << ", " << animation[i];
-    std::cout << std::endl;
+//    std::cout << "Animation: We search for next joint with curframe " << cur_frame << " and animations vector";
+//    for (std::size_t i = 0; i < animation.size(); ++i)
+//        std::cout << ", " << animation[i];
+//    std::cout << std::endl;
 
     Joint default_j = {-1, "", 0};
+    std::vector<Joint> res;
+
     std::size_t anim_i = 0;
     for (Joint j : joints)
     {
@@ -111,9 +114,27 @@ Joint Animation::get_next_joint(int cur_frame, std::vector<std::string> animatio
         // for any animation that matches j.anim_to update minimum j frame
         for (; anim_i < animation.size(); anim_i++)
             if (animation[anim_i] == j.anim_to)
-                if (j.frame < default_j.frame || default_j.frame == -1)
+                if (j.frame <= default_j.frame || default_j.frame == -1)
+                {
                     default_j = j;
+                    res.push_back(j);
+                }
     }
+//    if (default_j.frame == -1)
+//        std::cout << "Found no joint until the end\n";
+//    else
+//    {
+//        std::cout << "Found joint with frame " << default_j.frame << std::endl;
+//        for (Joint j : res)
+//            std::cout << ", " << j.anim_to;
+//        std::cout << std::endl;
+//    }
+
+    for (std::string anim : animation)
+        for (Joint j : res)
+            if (j.anim_to == anim)
+                return j;
+
     return default_j;
 }
 

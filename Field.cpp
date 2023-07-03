@@ -131,12 +131,22 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
 //    std::cout << "Field: new anim out\n";
     idle_animation_0->load_from_file(animation_filenames[0], frame_size);
 //    std::cout << "Field: load from file out\n";
-    idle_animation_0->add_joint(-1, "movement_0", 1);
+    idle_animation_0->add_joint(-1, "idle_animation_0", 1);
+
+    idle_animation_0->add_joint(5,  "movement_0", 1);
+    idle_animation_0->add_joint(10, "movement_0", 1);
+    idle_animation_0->add_joint(15, "movement_0", 1);
+    idle_animation_0->add_joint(20, "movement_0", 1);
+    idle_animation_0->add_joint(25, "movement_0", 1);
+    idle_animation_0->add_joint(30, "movement_0", 1);
+    idle_animation_0->add_joint(35, "movement_0", 1);
+
     idle_animation_0->add_joint(-1, "movement_2", 1);
 //    std::cout << "Field: add joints out file out\n";
 
     Animation* idle_animation_2 = new Animation();
     idle_animation_2->load_from_file(animation_filenames[1], frame_size);
+    idle_animation_2->add_joint(-1, "idle_animation_2", 1);
     idle_animation_2->add_joint(-1, "movement_0", 1);
     idle_animation_2->add_joint(-1, "movement_2", 1);
 
