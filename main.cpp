@@ -280,6 +280,7 @@ int main()
         "Images/Flametail/movement_2.png"
     };
 
+    std::cout << "Loading fields...\n";
     // Create field with map#1. Despite it being inactive, we load map and player
     Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);
@@ -318,7 +319,7 @@ int main()
     editor_scene.add_field(field_4, 1);
 
     //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
-    //editor_scene.addUI_element(main_ui_elements);
+    editor_scene.addUI_element(main_ui_elements);
 
     cout << "field made\n";
 
@@ -374,7 +375,9 @@ int main()
         // get time spent per last frame and update all drawables with it
         Time frameTime = frameClock.restart();
 
+//        std::cout << "! update in\n";
         Current_Scene->update(frameTime);
+//        std::cout << "! update out\n";
 
         // clear previous frame and draw from scratch
         window.clear();

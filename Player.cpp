@@ -5,9 +5,9 @@ x_cell_coord(0), y_cell_coord(0),
 queued_movement_direction(deque<Movement>()),
 x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 {
-    sprite = NULL;
-
     cout << "CONSTRUCTING player, name " << name << " with no sprite" << endl;
+
+    sprite = NULL;
 }
 
 Player::Player(std::string name, Texture* texture, IntRect frame0) : name(name),
@@ -15,10 +15,10 @@ x_cell_coord(0), y_cell_coord(0),
 queued_movement_direction(deque<Movement>()),
 x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 {
+    cout << "CONSTRUCTING player, name " << name << " sprite " << sprite << endl;
+
     sprite = new Character(name, *texture, frame0);
     sprite->set_moving_enabled(true);
-
-    cout << "CONSTRUCTING player, name " << name << " sprite " << sprite << endl;
 }
 
 // removes "blocking checked" from movements queue
@@ -90,6 +90,7 @@ void Player::update(Time deltaTime)
     {
         int mov_dir = -1;
         Vector2f mov_shift = Vector2f(0, 0);
+        // find next available direction. If no, proceed with standing still
         if (queued_movement_direction.size() > 0)
         {
             // std::cout << "trying to schedule smth\n";
@@ -113,7 +114,7 @@ void Player::update(Time deltaTime)
             // if we're requesting move, not stop
             if (mov_dir != -1)
             {
-//                std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
+                std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
                 // since point of no return is passed, change coords
                 x_cell_coord += direction_x[mov_dir];
                 y_cell_coord += direction_y[mov_dir];

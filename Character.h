@@ -7,6 +7,7 @@
 #include <string>
 #include <deque>
 #include <map>
+#include <set>
 
 #include "Animation.h"
 #include "AnimatedSprite.h"
@@ -15,6 +16,11 @@
 
 using namespace std;
 using namespace sf;
+
+// get default name of idle animation with direction
+string get_idle_animation_s(int direction);
+// get default name of movement animation with direction
+string get_movement_animation_s(int direction);
 
 class Character : public Drawable, public Transformable
 {
@@ -29,16 +35,31 @@ class Character : public Drawable, public Transformable
         int moving_direction;
         bool next_movement_scheduled;
 
+        // current animation name
+        string current_animation;
+
         // scheduled movement parameters
         int next_movement_direction;
         Vector2f next_movement_shift;
         string next_movement_animation_name;
+        Joint next_movement_joint;
         Time next_movement_duration;
         // if animation ends between frames, we save remaining time to transfer it to the next animation
         Time after_last_animation;
         Time no_return_point_time;
 
+        // stores animations by name
         map<string, Animation*> animations;
+        // maps animation by name with follow up animations
+        map<string, set<string> > animation_subsequent;
+        // maps animation by name with preceding animations
+        map<string, set<string> > animation_previous;
+
+        string get_animation_name_by_shift(Vector2f shift, int dir=-1, string animation_name="") const;
+        // find last joint of transition between <current_animation> and <animation_name>
+        Joint last_joint(string animation_name="") const;
+        // find next joint of transition between <current_animation> and <animation_name>, that is not sooner than no_return_point_time
+        Joint next_available_joint(string animation_name="") const;
 
     public:
         string name;
@@ -48,8 +69,12 @@ class Character : public Drawable, public Transformable
         AnimatedSprite* moving_sprite;
         // default animation by name
         string idle_animation;
+
         // queue of scheduled animations by name
         deque<string> next_animations;
+        // deque of frames after which scheduled animation should be stopped;
+        deque<int> stop_after;
+
         // flag if current animation is finished
         // for external uses
         bool switched_to_next_animation;
@@ -66,7 +91,8 @@ class Character : public Drawable, public Transformable
         // flag if has valid animation (not static image)
         bool is_animated() const;
         // flag if next animation is already need to be set up
-        bool passedNoReturn();
+        bool passedNoReturn() const;
+        bool canReSchedule(Vector2f shift, int dir=-1, string animation_name="") const;
 
         Character();
         Character(string name, Texture& texture_default, IntRect frame0);
@@ -75,13 +101,13 @@ class Character : public Drawable, public Transformable
         // add animation to map by name
         void add_animation(string animation_name, Animation* p_animation);
         // set current animation by name with time shift
-        void set_animation(string animation_name, Time shift = seconds(0));
+        void set_animation(string animation_name, Time shift = seconds(0), int frame_stop_after = -1);
         // set current animation to idle with current direction
         void set_animation_to_idle(Time shift = seconds(0));
         // clear animations queue and schedule next animation
-        void set_next_animation(string animation_name);
+        void set_next_animation(string animation_name, int frame_stop_after = -1);
         // add next animation to the end of queue
-        void add_next_animation(string animation_name);
+        void add_next_animation(string animation_name, int frame_stop_after = -1);
 
         // flag if scheduled movement is present
         bool has_next_movement() const;
@@ -90,7 +116,9 @@ class Character : public Drawable, public Transformable
         int get_next_movement_direction() const;
         void cancel_next_movement();
 
+        // gets current movement info
         int get_current_direction() const;
+        string get_current_animation() const;
 
         // schedule next movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
         void movement(Vector2f shift, int direction=-1, string animation_name="", Time duration=seconds(2));

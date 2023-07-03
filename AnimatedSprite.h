@@ -29,6 +29,8 @@ private:
     Time m_frameTime;
     // current frame index
     std::size_t m_currentFrame;
+    // index of frame to stop after (by default size - 1)
+    std::size_t frame_stop_after;
 
     bool m_isLooped;
     bool m_isReversed;
@@ -40,7 +42,7 @@ protected:
     bool m_isPaused;
     // Total animation duration
     Time duration;
-    Time passed_after_stop; /// to implement
+    Time passed_after_stop;
 
 public:
     std::string name; /// TEMP
@@ -57,6 +59,9 @@ public:
     virtual void pause();
     // pause and reset animation timer (revert to first frame)
     virtual void stop();
+    // sets frame to stop after
+    virtual void stop_after(std::size_t frame);
+
     // replays animation from the beginning after the end is reached
     virtual void setLooped(bool looped);
     // is animation played backwards
@@ -85,6 +90,7 @@ public:
     virtual bool isPlaying() const;
     virtual Time getFrameTime() const;
     virtual void setFrame(std::size_t newFrame, bool resetTime = true);
+    virtual size_t getFrame() const;
 
     // whole animation duration
     Time get_duration() const;
@@ -92,6 +98,7 @@ public:
     Time time_after_stop() const;
 
     virtual Time animation_remaining_time() const;
+    virtual Time animation_remaining_time(size_t to_frame) const;
     // for VisualEffect inheritance
     virtual Time movement_remaining_time() const;
 

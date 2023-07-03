@@ -2,7 +2,7 @@
 
 AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) :
     m_texture(NULL), m_animation(NULL),
-    m_frameTime(frameTime), m_currentFrame(0),
+    m_frameTime(frameTime), m_currentFrame(0), frame_stop_after(0),
     m_isLooped(looped), m_isReversed(false), m_isReversible(reversible),
     m_currentTime(seconds(0)), m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)),
     name(name)
@@ -11,7 +11,7 @@ AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bo
 }
 
 AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) :
-    m_frameTime(seconds(0.2f)), m_currentFrame(0),
+    m_frameTime(seconds(0.2f)), m_currentFrame(0), frame_stop_after(0),
     m_isLooped(true), m_isReversed(false), m_isReversible(false),
     m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
     name(name)
@@ -29,8 +29,10 @@ void AnimatedSprite::setAnimation(Animation& animation)
 {
     m_animation = &animation;
     m_texture = m_animation->getSpriteSheet();
+
     m_currentFrame = 0;
     setFrame(m_currentFrame);
+    stop_after(m_animation->getSize() - 1);
 
     duration = m_frameTime * (float)m_animation->getSize();
 }
@@ -69,6 +71,11 @@ void AnimatedSprite::stop()
     m_isPaused = true;
     m_currentFrame = 0;
     setFrame(m_currentFrame);
+}
+// sets frame to stop after
+void AnimatedSprite::stop_after(std::size_t frame)
+{
+    frame_stop_after = frame;
 }
 
 // replays animation from the beginning after the end is reached
@@ -210,6 +217,11 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_currentTime = Time::Zero;
 }
 
+size_t AnimatedSprite::getFrame() const
+{
+    return m_currentFrame;
+}
+
 Time AnimatedSprite::time_after_stop() const
 {
     return passed_after_stop;
@@ -225,20 +237,51 @@ Time AnimatedSprite::get_duration() const
 /// Not tested after repair
 Time AnimatedSprite::animation_remaining_time() const
 {
+    if (isReversed())
+        return animation_remaining_time(frame_stop_after - 1);
+    else
+        return animation_remaining_time(frame_stop_after + 1);
+}
+
+Time AnimatedSprite::animation_remaining_time(size_t to_frame) const
+{
     int remains = 0;
     if (m_animation && isPlaying())
     {
-        int full_time = m_frameTime.asMicroseconds() * m_animation->getSize();
         if (m_isReversible)
-            full_time *= 2;
-        int cur_time = m_currentTime.asMicroseconds() % full_time;
-        if (!m_isReversed)
-            cur_time += m_frameTime.asMicroseconds() * m_currentFrame;
-        else if (m_isReversible) {
-            cur_time += m_frameTime.asMicroseconds() * m_animation->getSize();
-            cur_time += m_frameTime.asMicroseconds() * (m_animation->getSize() - m_currentFrame - 1);
+        {
+            if (m_isReversed)
+            {
+                if (m_currentFrame > to_frame)
+                    remains = (m_currentFrame - to_frame) * m_frameTime.asMicroseconds() - m_currentTime.asMicroseconds();
+                else
+                    remains = -1;
+            }
+            else
+            {
+                if (m_currentFrame < to_frame)
+                    remains = (to_frame - m_currentFrame) * m_frameTime.asMicroseconds() - m_currentTime.asMicroseconds();
+                else
+                    remains = (2 * m_animation->getSize() - to_frame - m_currentFrame) * m_frameTime.asMicroseconds() - m_currentTime.asMicroseconds();
+            }
         }
-        remains += full_time - cur_time;
+        else
+        {
+            if (m_isReversed)
+            {
+                if (m_currentFrame > to_frame)
+                    remains = (m_currentFrame - to_frame) * m_frameTime.asMicroseconds() - m_currentTime.asMicroseconds();
+                else
+                    remains = -1;
+            }
+            else
+            {
+                if (m_currentFrame < to_frame)
+                    remains = (to_frame - m_currentFrame) * m_frameTime.asMicroseconds() - m_currentTime.asMicroseconds();
+                else
+                    remains = -1;
+            }
+        }
     }
 
     return microseconds(remains);
@@ -252,6 +295,8 @@ Time AnimatedSprite::movement_remaining_time() const
 
 void AnimatedSprite::update(Time deltaTime)
 {
+//    std::cout << "AS::update\n";
+
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
@@ -278,48 +323,59 @@ void AnimatedSprite::update(Time deltaTime)
                 nextFrame = m_currentFrame - 1;
 
             // if next frame index is valid
-            if (nextFrame < m_animation->getSize() && nextFrame >= 0) {
+            if (nextFrame <= frame_stop_after && nextFrame >= 0) {
                 m_currentFrame = nextFrame;
             }
+            // animation has reached last frame
             else
             {
-                // animation has reached last frame
-                if (m_isReversed)
+                // normal animation end
+                if (frame_stop_after == m_animation->getSize() - 1)
                 {
-                    if (m_isLooped)
+                    if (m_isReversed)
                     {
-                        // since frame 0 is already displayed and we need to reverse
-                        m_currentFrame = 1;
-                        m_isReversed = false;
-                    }
-                    else // stop animation
-                    {
-                        m_isReversed = false;
-                        passed_after_stop = m_currentTime;
-                        stop();
-                        //std::cout << "last first frame reached\n";
-                        break;
-                    }
-                }
-                else
-                {
-                    if (m_isReversible)
-                    {
-                        // since last frame is already displayed and we need to reverse
-                        m_currentFrame = m_animation->getSize() - 2;
-                        m_isReversed = true;
-                    }
-                    else if (m_isLooped)
-                    {
-                        m_currentFrame = 0;
+                        if (m_isLooped)
+                        {
+                            // since frame 0 is already displayed and we need to reverse
+                            m_currentFrame = 1;
+                            m_isReversed = false;
+                        }
+                        else // stop animation
+                        {
+                            m_isReversed = false;
+                            passed_after_stop = m_currentTime;
+                            stop();
+                            //std::cout << "last first frame reached\n";
+                            break;
+                        }
                     }
                     else
                     {
-                        passed_after_stop = m_currentTime;
-                        pause();
-                        //std::cout << "last frame reached\n";
-                        break;
+                        if (m_isReversible)
+                        {
+                            // since last frame is already displayed and we need to reverse
+                            m_currentFrame = m_animation->getSize() - 2;
+                            m_isReversed = true;
+                        }
+                        else if (m_isLooped)
+                        {
+                            m_currentFrame = 0;
+                        }
+                        else
+                        {
+                            passed_after_stop = m_currentTime;
+                            pause();
+                            //std::cout << "last frame reached\n";
+                            break;
+                        }
                     }
+                }
+                // manual stop
+                else
+                {
+                    passed_after_stop = m_currentTime;
+                    pause();
+                    break;
                 }
             }
 
