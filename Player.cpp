@@ -63,7 +63,7 @@ bool Player::has_queued_direction(int direction)
 void Player::move_player(Vector2f shift, int direction)
 {
     //std::cout << "PLayer requests movement\n";
-    sprite->movement(shift, direction);
+    sprite->plan_movement(shift, direction);
 }
 
 void Player::setPosition(const Vector2f &position)
@@ -104,31 +104,26 @@ void Player::update(Time deltaTime)
         }
     }
 
-    // so, we try now to schedule mov_dir/mov_shift, if not late
-    if (sprite->canReSchedule(mov_shift, mov_dir) && sprite->get_next_movement_direction() != mov_dir)
+    // if planned movement is different (or blank)
+    if (sprite->get_next_movement_direction() != mov_dir)
     {
-        sprite->cancel_next_movement();
-        // schedule/invoke movement
-        // if no direction is scheduled, then process to idle animation
-        sprite->movement(mov_shift, mov_dir);
+        // cancels previous planned move if present
+        // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
+        sprite->plan_movement(mov_shift, mov_dir);
     }
-    // if it's too late, try to register movement
-    else
+
+    // if VE is started (function resets flag once called), update coords
+    if (sprite->order_completed())
     {
-        //if unregistered
-        if (sprite->switched_to_next_animation)
+        mov_dir = sprite->get_current_direction();
+        // if it is not "standing"
+        if (mov_dir != -1)
         {
-            mov_dir = sprite->get_current_direction();
-            // if it is not "standing"
-            if (mov_dir != -1)
-            {
-                std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
-                // since point of no return is passed, change coords
-                x_cell_coord += direction_x[mov_dir];
-                y_cell_coord += direction_y[mov_dir];
-                reset_blocking_check();
-            }
-            sprite->switched_to_next_animation = false;
+            std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
+            x_cell_coord += direction_x[mov_dir];
+            y_cell_coord += direction_y[mov_dir];
+            // every time we move, check blocking again
+            reset_blocking_check();
         }
     }
 
@@ -146,15 +141,5 @@ void Player::add_animation(string animation_name, Animation* p_animation)
 }
 void Player::set_animation(string animation_name)
 {
-    sprite->set_animation(animation_name);
-}
-void Player::set_next_animation(string animation_name)
-{
-    sprite->set_next_animation(animation_name);
-}
-void Player::set_idle_animation(string animation_name)
-{
-    sprite->idle_animation = animation_name;
-    sprite->moving_sprite->setLooped(true);
     sprite->set_animation(animation_name);
 }

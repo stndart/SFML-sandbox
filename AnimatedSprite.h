@@ -59,8 +59,8 @@ public:
     virtual void pause();
     // pause and reset animation timer (revert to first frame)
     virtual void stop();
-    // sets frame to stop after
-    virtual void stop_after(std::size_t frame);
+    // sets frame to stop after. If -1, sets to size - 1
+    virtual void stop_after(int frame);
 
     // replays animation from the beginning after the end is reached
     virtual void setLooped(bool looped);

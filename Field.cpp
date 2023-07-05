@@ -96,7 +96,6 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
     idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
     idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
     player_0->add_animation("idle_animation", idle_animation);
-    player_0->set_idle_animation("idle_animation");
 
     if (pos.x == -1)
     {
@@ -164,8 +163,6 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     player_0->add_animation("idle_animation_2", idle_animation_2);
     player_0->add_animation("movement_0", movement_0);
     player_0->add_animation("movement_2", movement_2);
-
-    player_0->set_idle_animation("idle_animation_0");
 
 //    std::cout << "Field: animations loaded, joints joined\n";
 

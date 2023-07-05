@@ -67,8 +67,6 @@ public:
     // interface to sprite methods
     void add_animation(string animation_name, Animation* p_animation);
     void set_animation(string animation_name);
-    void set_next_animation(string animation_name);
-    void set_idle_animation(string animation_name);
 };
 
 #endif // PLAYER_H

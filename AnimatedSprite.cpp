@@ -73,9 +73,12 @@ void AnimatedSprite::stop()
     setFrame(m_currentFrame);
 }
 // sets frame to stop after
-void AnimatedSprite::stop_after(std::size_t frame)
+void AnimatedSprite::stop_after(int frame)
 {
-    frame_stop_after = frame;
+    if (frame != -1)
+        frame_stop_after = (std::size_t)frame;
+    else
+        frame_stop_after = m_animation->getSize() - 1;
 }
 
 // replays animation from the beginning after the end is reached

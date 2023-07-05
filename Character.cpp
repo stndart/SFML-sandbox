@@ -23,9 +23,8 @@ Character::Character()
 
 Character::Character(string name, Texture &texture_default, IntRect frame0) :
 moving(false), moving_enabled(false), animated(false),
-facing_direction(0), moving_direction(0), next_movement_scheduled(false),
-next_movement_direction(0), next_movement_shift(Vector2f(0, 0)),
-name(name), switched_to_next_animation(false)
+facing_direction(0), moving_direction(0),
+name(name)
 {
     base_sprite = new AnimatedSprite(name, texture_default, frame0);
 
@@ -42,7 +41,6 @@ name(name), switched_to_next_animation(false)
     int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
     animations[idle_animation]->addFrame(frame0, spritesheet_index);
 
-    next_movement_duration = seconds(0);
     after_last_animation = seconds(0);
 //    std::cout << "Character::Character out\n";
 }
@@ -119,29 +117,6 @@ bool Character::is_animated() const
     return animated;
 }
 
-// flag if next animation is already need to be set up
-bool Character::passedNoReturn() const
-{
-//    std::cout << "No Return Check ";
-    // if next movement is scheduled, we don't care of breakpoint is passed
-    if (has_next_movement())
-    {
-//        std::cout << "HAS next movement ";
-//        std::cout << get_next_movement_direction() << std::endl;
-        return false;
-    }
-
-    Time breakpoint = max(base_sprite->animation_remaining_time(),
-                          moving_sprite->movement_remaining_time());
-
-//    if (breakpoint.asSeconds() >= no_return_point_time.asSeconds())
-//        std::cout << "time has yet to come\n";
-//    else
-//        std::cout << "LETS GOOO\n";
-
-    return breakpoint.asSeconds() < no_return_point_time.asSeconds();
-}
-
 // find last joint of transition between <current_animation> and <animation_name>
 Joint Character::last_joint(string animation_name) const
 {
@@ -159,62 +134,86 @@ Joint Character::last_joint(string animation_name) const
     return animations.at(current_animation)->get_last_joint((int)base_sprite->getFrame(), transitions);
 }
 
-/// NOTE: it searches for next joint in current animation, not the last in <next_animations> (including current if empty)
-Joint Character::next_available_joint(string animation_name) const
+deque<Joint> Character::find_next_joint(string animation_name) const
 {
-    /// TEMP
-    // if we need to find cycle
-    if (animation_name == current_animation)
-        return animations.at(current_animation)->get_next_joint((int)base_sprite->getFrame(), animation_name);
+    // queue of animations until min_frame
+    deque<Joint> min_call_stack;
+    int min_frame = -1;
 
-    // to find next available joint
-    vector<string> transitions;
-    // intersects set of animations AFTER <current_animation> and BEFORE <animation_name>
-    const set<string> set_subsequent = animation_subsequent.at(current_animation);
-    const set<string> set_previous = animation_previous.at(animation_name);
-    // if target animation is available without any intermediate animations
-    if (set_subsequent.contains(animation_name))
-        transitions.push_back(animation_name);
-    set_intersection(set_subsequent.begin(), set_subsequent.end(),
-                     set_previous.begin(), set_previous.end(),
-                     std::back_inserter(transitions));
+    // we maintain deque sorted by number of start frame (assuming all animations have same frametime)
+    deque<Joint> visited;
+    deque<int> visited_frame;
 
-    std::cout << "Character: found transitions from " << current_animation << " to " << animation_name << std::endl;
-    for (std::size_t i = 0; i < transitions.size(); ++i)
-        std::cout << ", " << transitions[i];
-    std::cout << std::endl;
-
-    Joint j = animations.at(current_animation)->get_next_joint((int)base_sprite->getFrame(), transitions);
-    while (base_sprite->animation_remaining_time(j.frame).asSeconds() < no_return_point_time.asSeconds())
+    for (Joint j_base : animations.at(current_animation)->get_joints())
     {
-        std::cout << "found with " << base_sprite->animation_remaining_time(j.frame).asSeconds() << " until noreturn " << no_return_point_time.asSeconds() << std::endl;
+        // We have starting frame: sprite->getFrame()
+        if ((std::size_t)j_base.frame < base_sprite->getFrame())
+            continue;
 
-        // find next joint after current
-        Joint temp_j = animations.at(current_animation)->get_next_joint(j.frame + 1, transitions);
-        // if reached end
-        if (temp_j.frame == -1)
-            break;
-        // if we found available joint, then update
-        j = temp_j;
+        visited.clear();
+        visited_frame.clear();
+        visited.push_back(j_base);
+        visited_frame.push_back(j_base.frame - base_sprite->getFrame());
+
+        // save for optimal call_stack
+        deque<Joint> call_stack;
+        call_stack.push_back(j_base);
+
+        // now we perform bfs
+        bool bfs_complete = false;
+        Joint j;
+        while(visited.size() > 0)
+        {
+            j = visited.front();
+            visited.pop_front();
+
+            string anim = j.anim_to;
+            int frame_to = j.frame_to;
+
+            int frame = visited_frame.front();
+            visited_frame.pop_front();
+            int duration;
+
+            call_stack.push_back(j);
+
+            for (Joint j_next : animations.at(anim)->get_joints())
+            {
+                // We have starting frame: j.frame_to
+                if (j_next.frame < j.frame_to)
+                    continue;
+
+                // if we found the path to target animation then update min
+                if (j_next.anim_to == animation_name)
+                    if (min_frame == -1 || min_frame < frame)
+                    {
+                        min_frame = frame;
+                        bfs_complete = true;
+
+                        // refresh min call stack
+                        min_call_stack = deque<Joint>(call_stack.begin(), call_stack.end());
+
+                        break;
+                    }
+
+                // time from beginning of animation to joint
+                duration = j_next.frame - frame_to;
+                // now we find new place to insert joint
+                std::size_t i = 0;
+                for (; i < visited_frame.size(); ++i)
+                    if (frame + duration < visited_frame[i])
+                        break;
+
+                visited.insert(next(visited.begin(), i), j_next);
+                visited_frame.insert(next(visited_frame.begin(), i), frame + duration);
+            }
+            if (bfs_complete)
+                break;
+
+            call_stack.pop_back();
+        }
     }
-    return j;
-}
 
-// is it possible to change scheduled animation
-bool Character::canReSchedule(Vector2f shift, int direction, string animation_name) const
-{
-    animation_name = get_animation_name_by_shift(shift, direction, animation_name);
-
-    // find last joint of transition to check if it is available
-    Joint j = last_joint(animation_name);
-    // if no joint until end of animation then impossible
-    if (j.frame == -1)
-        return false;
-    // Time untill last: movement ends or last animation joint
-    Time breakpoint = max(base_sprite->animation_remaining_time(j.frame),
-                          moving_sprite->movement_remaining_time());
-
-    return breakpoint.asSeconds() > no_return_point_time.asSeconds();
+    return min_call_stack;
 }
 
 // add animation to map by name
@@ -224,6 +223,7 @@ void Character::add_animation(string animation_name, Animation* p_animation)
     for (Joint j : p_animation->get_joints())
     {
 //        std::cout << "Character: adding pair of anim: " << animation_name << " -> " << j.anim_to << std::endl;
+
         // <animation_name> can be followed by <j.anim_to> and vice versa
         animation_subsequent[animation_name].insert(j.anim_to);
         animation_previous[j.anim_to].insert(animation_name);
@@ -231,16 +231,14 @@ void Character::add_animation(string animation_name, Animation* p_animation)
 }
 
 // set current animation by name
-void Character::set_animation(string animation_name, Time shift, int frame_stop_after)
+void Character::set_animation(string animation_name, Time offset, int frame_stop_after)
 {
     std::cout << "Character::setting animation to " << animation_name << std::endl;
 
     current_animation = animation_name;
 
-    base_sprite->play(*animations[animation_name], shift);
-    // default argument
-    if (frame_stop_after != -1)
-        base_sprite->stop_after(frame_stop_after);
+    base_sprite->play(*animations[animation_name], offset);
+    base_sprite->stop_after(frame_stop_after);
 
     animated = true;
     if (animation_name != idle_animation)
@@ -250,7 +248,7 @@ void Character::set_animation(string animation_name, Time shift, int frame_stop_
 }
 
 // set current animation to idle with current direction
-void Character::set_animation_to_idle(Time shift)
+void Character::set_animation_to_idle(Time offset)
 {
     string animation_name = get_idle_animation_s(get_current_direction());
     if (animations.count(animation_name) == 0)
@@ -259,47 +257,26 @@ void Character::set_animation_to_idle(Time shift)
     std::cout << "Character::setting animation to " << animation_name << std::endl;
     current_animation = animation_name;
 
-    base_sprite->play(*animations[animation_name], shift);
+    base_sprite->play(*animations[animation_name], offset);
     animated = true;
     base_sprite->setLooped(true);
-}
-
-// clear animations queue and schedule next animation
-void Character::set_next_animation(string animation_name, int frame_stop_after)
-{
-    next_animations.clear();
-    stop_after.clear();
-    add_next_animation(animation_name, frame_stop_after);
-}
-
-// add next animation to the end of queue
-void Character::add_next_animation(string animation_name, int frame_stop_after)
-{
-    std::cout << "Ch: add next anim " << animation_name << std::endl;
-
-    base_sprite->setLooped(false);
-    next_animations.push_back(animation_name);
-    stop_after.push_back(frame_stop_after);
-}
-
-// flag if scheduled movement is present
-bool Character::has_next_movement() const
-{
-    return next_movement_scheduled;
 }
 
 // scheduled movement direction
 // need for smooth animation transitions
 int Character::get_next_movement_direction() const
 {
-    return next_movement_direction;
+    return next_animation_dir;
 }
 
-void Character::cancel_next_movement()
+bool Character::order_completed()
 {
-//    std::cout << "Character::cancel next\n";
-    next_movement_scheduled = false;
-    base_sprite->stop_after(animations[current_animation]->getSize() - 1);
+    if (is_order_completed)
+    {
+        is_order_completed = false;
+        return true;
+    }
+    return false;
 }
 
 int Character::get_current_direction() const
@@ -312,115 +289,97 @@ string Character::get_current_animation() const
     return current_animation;
 }
 
-// schedule next movement with shift, direction (optional), animation name (default: <movement_%d>), duration (default: 2 seconds)
-void Character::movement(Vector2f shift, int direction, string animation_name, Time duration)
+Vector2f Character::get_current_shift() const
 {
-    std::cout << "Character::movement schedule dir " << direction << " and shift " << shift.x << " " << shift.y;
-    if (animation_name != "")
-        std::cout << " and anim name " << animation_name;
-    std::cout << std::endl;
+    return moving_shift;
+}
 
+// schedules next movement. If planned movement is already late to cancel, plans after it
+void Character::plan_movement(Vector2f shift, int direction, string animation_name, Time duration)
+{
     // if idle_animation, then finish it as soon as animation reaches end
     base_sprite->setLooped(false);
-
-    // correct default arguments to valid
 
     // try to get animation by format <movement_%d>, where %d is direction
     // if no appropriate animation found, then <movement>
     // if no <movement> animation found, then skip animation (just smooth transition with default animation)
     animation_name = get_animation_name_by_shift(shift, direction, animation_name);
-    std::cout << "Character::movement: found anim name " << animation_name << std::endl;
 
-    // find next joint that is minimum of no_return_point_time before it
-    Joint j = next_available_joint(animation_name);
-    std::cout << "Character::movement: found next joint with frame " << j.frame;
-    std::cout << " and name " << j.anim_to << std::endl;
-    base_sprite->stop_after(j.frame);
-    std::cout << "Character::movement: and set current animation to stop after joint" << std::endl;
+    deque<Joint> next_joints = find_next_joint(animation_name);
+    // if no path to target animation_name found, then break
+    if (next_joints.size() == 0)
+        return;
+    // otherwise, construct queue
+    next_animations.clear();
+    std::size_t i = 0;
+    Joint j;
+    for (; i < next_joints.size() - 1; ++i)
+    {
+        j = next_joints[i];
 
-    // add movement to next;
-    // here we assume movement won't be called more than once after point-of-no-return
-    next_movement_scheduled = true;
-    next_movement_shift = shift;
-    next_movement_direction = direction;
-    next_movement_animation_name = animation_name;
-    next_movement_joint = j;
-    next_movement_duration = duration;
+        AnimMovement am;
+        am.direction = direction;
+        am.shift = Vector2f(0, 0);
+        am.animation = j.anim_to;
+        am.VE_allowed = false;
+        if (next_joints[i + 1].anim_to == animation_name && next_joints[i + 1].frame_to > 1)
+        {
+            am.VE_allowed = true;
+            am.has_VE = true;
+            am.VE_start = base_sprite->getPosition(); /// is valid ?
+            am.VE_shift = shift;
+            am.VE_duration = duration;
+        }
+        am.j = next_joints[i];
+        am.jnext = next_joints[i + 1];
+
+        next_animations.push_back(am);
+    }
+
+    // last AnimMovement
+    {
+        AnimMovement am;
+        am.direction = direction;
+        am.shift = Vector2f(0, 0);
+        am.animation = animation_name;
+        am.VE_allowed = true;
+        am.has_VE = false;
+        if (!next_animations.rend()->has_VE)
+        {
+            am.has_VE = true;
+            am.VE_start = base_sprite->getPosition(); /// is valid ?
+            am.VE_shift = shift;
+            am.VE_duration = duration;
+        }
+        am.j = *next_joints.rend();
+        am.jnext = Joint({-1, "", 1});
+
+        next_animations.push_back(am);
+    }
 }
 
-// take movement and animation from next_animation and play
+// pops and plays an animation from AnimMovement deque (VEs as well)
 void Character::next_movement_start()
 {
-    std::cout << "Character::next_movement_start with shift " << next_movement_shift.x << " " << next_movement_shift.y;
-    std::cout << " and name " << next_movement_animation_name << std::endl;
+    AnimMovement am = next_animations.front();
+    next_animations.pop_front();
+    set_animation(am.animation, -base_sprite->time_after_stop(), am.jnext.frame);
 
-    Vector2f shift = next_movement_shift;
-    int direction = next_movement_direction;
-    string animation_name = next_movement_animation_name;
-    Joint j = next_movement_joint;
-    /// NOT USED (set to VE constructor)
-    // Time duration = next_movement_duration;
-    next_movement_scheduled = false;
-
-    // change current direction
-    moving_direction = direction;
-
-    // push new animations in queue
-    // if there is transition
-    if (j.anim_to != next_movement_animation_name)
+    if (am.has_VE)
     {
-        // firstly, push transition (with stop_after frame)
-        add_next_animation(j.anim_to, animations[j.anim_to]->get_next_joint(j.frame_to, animation_name).frame);
-    }
+        Time offset = seconds(0);
+        if (am.jnext.frame != -1)
+        {
+            offset += seconds(am.jnext.frame_to * base_sprite->getFrameTime().asSeconds());
+            offset -= seconds((am.jnext.frame - am.j.frame_to) * base_sprite->getFrameTime().asSeconds());
+        }
+        moving_sprite = new VisualEffect(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
+        moving_sprite->play();
+        is_order_completed = true;
 
-    // offset animation with negative delay so that it would stitch together with last animation
-    Time offset = seconds(0);
-    if (offset == seconds(0))
-        offset = base_sprite->time_after_stop();
-
-    // if current animation is complex (consists of queued animations)
-    // further shift offset if animations queue is not empty
-    for (std::size_t i = 0; i < next_animations.size(); ++i)
-    {
-        string anim = next_animations[i];
-        int frame_stop_after = stop_after[i];
-
-        // count next_anim size. If stop_after is not default (-1), take into account
-        float next_anim_size = animations[anim]->getSize();
-        if (frame_stop_after != -1)
-            next_anim_size = frame_stop_after;
-
-        offset -= base_sprite->getFrameTime() * next_anim_size;
-    }
-
-    // push back valid animation_name
-    if (animation_name.length() > 0)
-    {
-        // std::cout << "pushing back " << animation_name << std::endl;
-        add_next_animation(animation_name);
-    }
-
-    // if we plan to move -> construct VE
-    if (shift != Vector2f(0, 0))
-    {
-        // configure VE
-        // get start and stop screen points (do not confuse with view points, which should fit in screen)
-        Vector2f start = base_sprite->getPosition();
-        Vector2f finish = start + shift;
-        // std::cout << "| Creating VisualEffect with offset " << offset.asSeconds() << std::endl;
-
-        // we still can't put VE in VE
-        if (moving_sprite != base_sprite)
-            throw;
-
-        // flip character sprite with <smooth transition from A to B> VisualEffect
-        moving_sprite = new VisualEffect(base_sprite, offset, seconds(0.4), start, finish);
-        switched_to_next_animation = true;
-
-        // start movement
+        moving_shift = am.VE_shift;
         moving = true;
     }
-    moving_sprite->play();
 }
 
 void Character::setPosition(const Vector2f &position)
@@ -442,6 +401,21 @@ Vector2f Character::getPosition() const
 
 void Character::update(Time deltaTime)
 {
+    // if VE has reached the end, unwrap VE
+    if (moving_sprite != base_sprite && moving_sprite->movement_remaining_time() <= seconds(0))
+    {
+        std::cout << "Deleting VisualEffect\n";
+        delete moving_sprite;
+        moving_sprite = base_sprite;
+
+        moving = false;
+    }
+
+    /// TO IMPLEMENT
+}
+
+void Character::update_old(Time deltaTime)
+{
 //    std::cout << "Character::update\n";
     // if VE has reached the end, unwrap VE
     if (moving_sprite != base_sprite && moving_sprite->movement_remaining_time() <= seconds(0))
@@ -455,16 +429,16 @@ void Character::update(Time deltaTime)
     // if animation stopped, then play animation from queue
     if (!base_sprite->isPlaying() && next_animations.size() > 0)
     {
-        std::cout << "Character::update - pop next animation " << next_animations.front() << std::endl;
-        set_animation(next_animations.front(), base_sprite->time_after_stop(), stop_after.front());
+        std::cout << "Character::update - pop next animation " << next_animations.front().animation << std::endl;
+        set_animation(next_animations.front().animation, base_sprite->time_after_stop(), next_animations.front().j.frame);
         next_animations.pop_front();
-        stop_after.pop_front();
+        //stop_after.pop_front();
     }
 //    std::cout << "Char::update moving: " << moving << " isplay: " << base_sprite->isPlaying() << std::endl;
     // if no VE and animation stopped, then invoke next_movement_start
-    if (!moving && !base_sprite->isPlaying() && next_movement_scheduled)
+    if (!moving && !base_sprite->isPlaying())
     {
-        std::cout << "Character::update - new movement " << next_movement_animation_name << std::endl;
+        std::cout << "Character::update - new movement " << next_animations.front().animation << std::endl;
         next_movement_start();
     }
     // if there is still no animation, then set to idle_animation
