@@ -109,6 +109,7 @@ void Player::update(Time deltaTime)
     {
         // cancels previous planned move if present
         // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
+            std::cout << "Player::update plan movement " << " with dir: " << mov_dir << std::endl;
         sprite->plan_movement(mov_shift, mov_dir);
     }
 

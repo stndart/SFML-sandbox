@@ -164,7 +164,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     player_0->add_animation("movement_0", movement_0);
     player_0->add_animation("movement_2", movement_2);
 
-//    std::cout << "Field: animations loaded, joints joined\n";
+    std::cout << "Field: animations loaded, joints joined\n";
 
     // fit sprite into cell (horizontally)
     player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
