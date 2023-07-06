@@ -143,7 +143,6 @@ class Character : public Drawable, public Transformable
 
         // overriding Drawable methods
         virtual void update(Time deltaTime = seconds(0));
-        virtual void update_old(Time deltaTime = seconds(0)); /// DEPRECATED
         virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 

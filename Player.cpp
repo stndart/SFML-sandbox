@@ -109,16 +109,17 @@ void Player::update(Time deltaTime)
     {
         // cancels previous planned move if present
         // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
-            std::cout << "Player::update plan movement " << " with dir: " << mov_dir << std::endl;
+            std::cout << "+++ Player::update plan movement with dir: " << mov_dir << std::endl;
         sprite->plan_movement(mov_shift, mov_dir);
     }
 
     // if VE is started (function resets flag once called), update coords
     if (sprite->order_completed())
     {
-        mov_dir = sprite->get_current_direction();
+        mov_shift = sprite->get_current_shift();
+        mov_dir = direction_from_shift(mov_shift);
         // if it is not "standing"
-        if (mov_dir != -1)
+        if (mov_shift != Vector2f(0, 0))
         {
             std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
             x_cell_coord += direction_x[mov_dir];

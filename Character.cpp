@@ -136,7 +136,7 @@ Joint Character::last_joint(string animation_name) const
 
 deque<Joint> Character::find_next_joint(string animation_name) const
 {
-    std::cout << "Character::find_next_joint\n";
+    std::cout << "Character::find_next_joint from " << current_animation << " with frame " << base_sprite->getFrame() << std::endl;
 
     // queue of animations until min_frame
     deque<Joint> min_call_stack;
@@ -319,6 +319,13 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     // if no path to target animation_name found, then break
     if (next_joints.size() == 0)
         return;
+
+    for (Joint j : next_joints)
+    {
+        std::cout << ", {F: " << j.frame << ", A: " << j.anim_to << "}";
+    }
+    std::cout << std::endl;
+
     // otherwise, construct queue
     next_animations.clear();
     std::size_t i = 0;
@@ -356,7 +363,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
         am.animation = animation_name;
         am.VE_allowed = true;
         am.has_VE = false;
-        if (next_animations.size() == 0 || !next_animations.rend()->has_VE)
+        if (shift != Vector2f(0, 0) && (next_animations.size() == 0 || !next_animations.rend()->has_VE))
         {
             am.has_VE = true;
             am.VE_start = base_sprite->getPosition(); /// is valid ?
@@ -366,14 +373,13 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
         am.j = next_joints.back();
         am.jnext = Joint({-1, "", 1});
 
-
-        std::cout << "Character::plan_movement: about to push\n";
         next_animations.push_back(am);
 
         next_animation_dir = direction;
     }
 
-    std::cout << "Character::plan_movement out\n";
+    // set stop_after in current animation to new joint
+    base_sprite->stop_after(next_joints.front().frame);
 }
 
 // pops and plays an animation from AnimMovement deque (VEs as well)
@@ -399,6 +405,7 @@ void Character::next_movement_start()
             throw;
         }
 
+        std::cout << "| Creating VisualEffect with offset " << offset.asSeconds() << std::endl;
         moving_sprite = new VisualEffect(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
         moving_sprite->play();
         is_order_completed = true;
@@ -452,44 +459,6 @@ void Character::update(Time deltaTime)
         // set to idle if no next animation scheduled
         else if (!moving)
             set_animation_to_idle(base_sprite->time_after_stop());
-    }
-
-    moving_sprite->update(deltaTime);
-}
-
-void Character::update_old(Time deltaTime)
-{
-//    std::cout << "Character::update\n";
-    // if VE has reached the end, unwrap VE
-    if (moving_sprite != base_sprite && moving_sprite->movement_remaining_time() <= seconds(0))
-    {
-        std::cout << "Deleting VisualEffect\n";
-        delete moving_sprite;
-        moving_sprite = base_sprite;
-        moving = false;
-    }
-
-    // if animation stopped, then play animation from queue
-    if (!base_sprite->isPlaying() && next_animations.size() > 0)
-    {
-        std::cout << "Character::update - pop next animation " << next_animations.front().animation << std::endl;
-        set_animation(next_animations.front().animation, base_sprite->time_after_stop(), next_animations.front().j.frame);
-        next_animations.pop_front();
-        //stop_after.pop_front();
-    }
-//    std::cout << "Char::update moving: " << moving << " isplay: " << base_sprite->isPlaying() << std::endl;
-    // if no VE and animation stopped, then invoke next_movement_start
-    if (!moving && !base_sprite->isPlaying())
-    {
-        std::cout << "Character::update - new movement " << next_animations.front().animation << std::endl;
-        next_movement_start();
-    }
-    // if there is still no animation, then set to idle_animation
-    if (!base_sprite->isPlaying())
-    {
-        std::cout << "Set idle looped because no play\n";
-        set_animation_to_idle(base_sprite->time_after_stop());
-        base_sprite->setLooped(true);
     }
 
     moving_sprite->update(deltaTime);
