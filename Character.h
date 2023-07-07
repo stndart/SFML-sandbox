@@ -58,6 +58,8 @@ class Character : public Drawable, public Transformable
         Vector2f moving_shift;
         // flag if Player needs to update self coordinates. Resets once checked
         bool movement_started;
+        // flag if next movement is scheduled
+        bool next_movement_planned;
 
         // scheduled movement parameters
         deque<AnimMovement> next_animations;
@@ -123,6 +125,8 @@ class Character : public Drawable, public Transformable
         // scheduled movement direction
         // need for smooth animation transitions
         int get_next_movement_direction() const;
+        // if next movement is scheduled
+        bool is_next_movement_planned() const;
         // if VE just started. Resets flag after call
         bool order_completed();
 

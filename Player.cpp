@@ -105,11 +105,11 @@ void Player::update(Time deltaTime)
     }
 
     // if planned movement is different (or blank)
-    if (sprite->get_next_movement_direction() != mov_dir)
+    if (sprite->get_next_movement_direction() != mov_dir || !sprite->is_next_movement_planned())
     {
         // cancels previous planned move if present
         // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
-            std::cout << "+++ Player::update plan movement with dir: " << mov_dir << std::endl;
+//            std::cout << "+++ Player::update plan movement with dir: " << mov_dir << std::endl;
         sprite->plan_movement(mov_shift, mov_dir);
     }
 
@@ -121,7 +121,7 @@ void Player::update(Time deltaTime)
         // if it is not "standing"
         if (mov_shift != Vector2f(0, 0))
         {
-            std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
+//            std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
             x_cell_coord += direction_x[mov_dir];
             y_cell_coord += direction_y[mov_dir];
             // every time we move, check blocking again
