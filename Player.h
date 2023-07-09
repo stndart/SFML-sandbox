@@ -40,6 +40,7 @@ public:
     // smooth movement flag
     bool movement_animation;
 
+    Player(std::string name);
     Player(std::string name, Texture* texture, IntRect frame0);
     bool is_moving() const;
 
@@ -56,6 +57,7 @@ public:
     // overriding Transformable methods
     void setPosition(const Vector2f &position);
     Vector2f getPosition() const;
+    void setScale(const Vector2f &factors);
 
     // overriding Drawable methods
     void update(Time deltaTime);
@@ -65,8 +67,6 @@ public:
     // interface to sprite methods
     void add_animation(string animation_name, Animation* p_animation);
     void set_animation(string animation_name);
-    void set_next_animation(string animation_name);
-    void set_idle_animation(string animation_name);
 };
 
 #endif // PLAYER_H

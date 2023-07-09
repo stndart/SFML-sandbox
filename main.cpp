@@ -37,7 +37,8 @@ int main()
 {
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
-    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
+//    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
+    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
     window.setFramerateLimit(60);
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
     window.setKeyRepeatEnabled(false);
@@ -268,16 +269,25 @@ int main()
     main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
 
     ///--------------------------------------------------------
-    Vector2i player_default_pos = Vector2i(-1, -1);
-
     // Create field scene. At first it is inactive
     Scene_Field field_scene = Scene_Field(std::string("field_scene"), &field_tex_map);
 
+    // current ready animations
+    vector<string> player_animation_fnames =
+    {
+        "Images/Flametail/idle_animation_0.png",
+        "Images/Flametail/idle_animation_2.png",
+        "Images/Flametail/movement_0.png",
+        "Images/Flametail/movement_2.png"
+    };
+
+    std::cout << "Loading fields...\n";
     // Create field with map#1. Despite it being inactive, we load map and player
     Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);
-    field_0->addPlayer(&player_texture, player_default_pos);
-  
+//    field_0->addPlayer(&player_texture, pos = player_default_pos);
+    field_0->addPlayer(player_animation_fnames);
+
     // place_characters sets position of all dynamic sprites on field and updates view position (player in center)
     field_0->place_characters();
     field_scene.add_field(field_0, 0);
@@ -285,7 +295,8 @@ int main()
     // Create field with map#2.
     Field* field_1 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
     field_1->load_field(field_tex_map, 1);
-    field_1->addPlayer(&player_texture, player_default_pos);
+    //field_1->addPlayer(&player_texture, pos = player_default_pos);
+    field_1->addPlayer(player_animation_fnames);
     field_1->place_characters();
     field_scene.add_field(field_1, 1);
 
@@ -295,19 +306,21 @@ int main()
     // Create field with map#1 in editor scene
     Field* field_3 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_3->load_field(field_tex_map, 0);
-    field_3->addPlayer(&player_texture, player_default_pos);
+//    field_3->addPlayer(&player_texture, pos = player_default_pos);
+    field_3->addPlayer(player_animation_fnames);
     field_3->place_characters();
     editor_scene.add_field(field_3, 0);
 
     // Create field with map#2 in editor scene
     Field* field_4 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
     field_4->load_field(field_tex_map, 1);
-    field_4->addPlayer(&player_texture, player_default_pos);
+//    field_4->addPlayer(&player_texture, pos = player_default_pos);
+    field_4->addPlayer(player_animation_fnames);
     field_4->place_characters();
     editor_scene.add_field(field_4, 1);
 
     //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
-    //editor_scene.addUI_element(main_ui_elements);
+    editor_scene.addUI_element(main_ui_elements);
 
     cout << "field made\n";
 
@@ -363,7 +376,9 @@ int main()
         // get time spent per last frame and update all drawables with it
         Time frameTime = frameClock.restart();
 
+//        std::cout << "! update in\n";
         Current_Scene->update(frameTime);
+//        std::cout << "! update out\n";
 
         // clear previous frame and draw from scratch
         window.clear();

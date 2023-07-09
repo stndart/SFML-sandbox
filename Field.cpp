@@ -86,7 +86,7 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 }
 
 // create player at cell [pos.x, pos.y] with texture
-void Field::addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1))
+void Field::addPlayer(Texture* player_texture, Vector2i pos)
 {
     player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
 
@@ -96,7 +96,98 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1))
     idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
     idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
     player_0->add_animation("idle_animation", idle_animation);
-    player_0->set_idle_animation("idle_animation");
+
+    if (pos.x == -1)
+    {
+        player_0->x_cell_coord = default_player_pos.x;
+        player_0->y_cell_coord = default_player_pos.y;
+    }
+    else
+    {
+        player_0->x_cell_coord = pos.x;
+        player_0->y_cell_coord = pos.y;
+    }
+}
+
+// create player at cell [pos.x, pos.y] with animations files: [idle, movement_0]
+void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u frame_size, Vector2i pos)
+{
+//    std::cout << "Field: addPlayer\n";
+
+    Texture* aaa = new Texture;
+    if (!aaa->loadFromFile("Images/Flametail/default.png"))
+    {
+        std::cout << "Failed to load texture\n";
+        throw;
+    }
+
+    /// TODO: change to no-default-texture-player
+    player_0 = new Player("animated_player", aaa, IntRect(0, 0, frame_size.x, frame_size.y));
+
+//    std::cout << "Field: creating animations\n";
+    // create default animation with some magic constants (to be resolved with addition of resources manager)
+    Animation* idle_animation_0 = new Animation();
+//    std::cout << "Field: new anim out\n";
+    idle_animation_0->load_from_file(animation_filenames[0], frame_size);
+//    std::cout << "Field: load from file out\n";
+    idle_animation_0->add_joint(-1, "idle_animation_0", 1);
+
+    idle_animation_0->add_joint(5,  "movement_0", 1);
+    idle_animation_0->add_joint(10, "movement_0", 1);
+    idle_animation_0->add_joint(15, "movement_0", 1);
+    idle_animation_0->add_joint(20, "movement_0", 1);
+    idle_animation_0->add_joint(25, "movement_0", 1);
+    idle_animation_0->add_joint(30, "movement_0", 1);
+    idle_animation_0->add_joint(35, "movement_0", 1);
+
+    idle_animation_0->add_joint(5,  "movement_2", 1);
+    idle_animation_0->add_joint(10, "movement_2", 1);
+    idle_animation_0->add_joint(15, "movement_2", 1);
+    idle_animation_0->add_joint(20, "movement_2", 1);
+    idle_animation_0->add_joint(25, "movement_2", 1);
+    idle_animation_0->add_joint(30, "movement_2", 1);
+    idle_animation_0->add_joint(35, "movement_2", 1);
+//    std::cout << "Field: add joints out file out\n";
+
+    Animation* idle_animation_2 = new Animation();
+    idle_animation_2->load_from_file(animation_filenames[1], frame_size);
+    idle_animation_2->add_joint(-1, "idle_animation_2", 1);
+
+    idle_animation_2->add_joint(5,  "movement_0", 1);
+    idle_animation_2->add_joint(10, "movement_0", 1);
+    idle_animation_2->add_joint(15, "movement_0", 1);
+    idle_animation_2->add_joint(20, "movement_0", 1);
+    idle_animation_2->add_joint(25, "movement_0", 1);
+    idle_animation_2->add_joint(30, "movement_0", 1);
+    idle_animation_2->add_joint(35, "movement_0", 1);
+
+    idle_animation_2->add_joint(5,  "movement_2", 1);
+    idle_animation_2->add_joint(10, "movement_2", 1);
+    idle_animation_2->add_joint(15, "movement_2", 1);
+    idle_animation_2->add_joint(20, "movement_2", 1);
+    idle_animation_2->add_joint(25, "movement_2", 1);
+    idle_animation_2->add_joint(30, "movement_2", 1);
+    idle_animation_2->add_joint(35, "movement_2", 1);
+
+    Animation* movement_0 = new Animation();
+    movement_0->load_from_file(animation_filenames[2], frame_size);
+    movement_0->add_joint(-1, "movement_0", 1);
+    movement_0->add_joint(-1, "idle_animation_0", 1);
+
+    Animation* movement_2 = new Animation();
+    movement_2->load_from_file(animation_filenames[3], frame_size);
+    movement_2->add_joint(-1, "movement_2", 1);
+    movement_2->add_joint(-1, "idle_animation_2", 1);
+
+    player_0->add_animation("idle_animation_0", idle_animation_0);
+    player_0->add_animation("idle_animation_2", idle_animation_2);
+    player_0->add_animation("movement_0", movement_0);
+    player_0->add_animation("movement_2", movement_2);
+
+    std::cout << "Field: animations loaded, joints joined\n";
+
+    // fit sprite into cell (horizontally)
+    player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
 
     if (pos.x == -1)
     {
@@ -302,7 +393,6 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
             }
         }
     }
-    std::cout << "loc OK" << std::endl;
     ifs.close();
     cells_changed = true;
 }

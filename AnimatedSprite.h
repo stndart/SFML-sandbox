@@ -29,6 +29,8 @@ private:
     Time m_frameTime;
     // current frame index
     std::size_t m_currentFrame;
+    // index of frame to stop after (by default size - 1)
+    std::size_t frame_stop_after;
 
     bool m_isLooped;
     bool m_isReversed;
@@ -40,7 +42,7 @@ protected:
     bool m_isPaused;
     // Total animation duration
     Time duration;
-    Time passed_after_stop; /// to implement
+    Time passed_after_stop;
 
 public:
     std::string name; /// TEMP
@@ -52,11 +54,14 @@ public:
     // set time for which each frame lasts
     void setFrameTime(Time time);
     virtual void play();
-    // set Animation and then play
-    virtual void play(Animation& animation);
+    // set Animation and then play. You can play animation not from the beginning with <shift>
+    virtual void play(Animation& animation, Time shift=seconds(0));
     virtual void pause();
     // pause and reset animation timer (revert to first frame)
     virtual void stop();
+    // sets frame to stop after. If -1, sets to size - 1
+    virtual void stop_after(int frame);
+
     // replays animation from the beginning after the end is reached
     virtual void setLooped(bool looped);
     // is animation played backwards
@@ -76,6 +81,8 @@ public:
     FloatRect getGlobalBounds() const;
     virtual Vector2f getPosition() const;
     virtual void setPosition(const Vector2f &position);
+    virtual void setScale(const Vector2f &factors);
+    virtual void setScale(float factorX, float factorY);
 
     virtual bool isLooped() const;
     virtual bool isReversed() const;
@@ -83,12 +90,15 @@ public:
     virtual bool isPlaying() const;
     virtual Time getFrameTime() const;
     virtual void setFrame(std::size_t newFrame, bool resetTime = true);
+    virtual size_t getFrame() const;
 
     // whole animation duration
     Time get_duration() const;
+    // time passed after animation reached end
     Time time_after_stop() const;
 
     virtual Time animation_remaining_time() const;
+    virtual Time animation_remaining_time(size_t to_frame) const;
     // for VisualEffect inheritance
     virtual Time movement_remaining_time() const;
 
