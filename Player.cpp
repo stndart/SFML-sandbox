@@ -95,7 +95,7 @@ void Player::update(Time deltaTime)
         for (auto r_iter = queued_movement_direction.rbegin();
              r_iter != queued_movement_direction.rend(); r_iter++)
         {
-            //std::cout << "block check: " << r_iter->blocking_checked << " block: " << r_iter->blocked << std::endl;
+//            std::cout << "block dir: " << r_iter->direction << ", check: " << r_iter->blocking_checked << ", block: " << r_iter->blocked << std::endl;
             if (r_iter->blocking_checked && !r_iter->blocked)
             {
                 mov_dir = r_iter->direction;
@@ -109,7 +109,8 @@ void Player::update(Time deltaTime)
     {
         // cancels previous planned move if present
         // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
-//            std::cout << "+++ Player::update plan movement with dir: " << mov_dir << std::endl;
+        std::cout << "+++ Player::update plan movement with dir: " << mov_dir << std::endl;
+//        std::cout << "because next_planned: " << sprite->is_next_movement_planned() << " and next_dir: " << sprite->get_next_movement_direction() << std::endl;
         sprite->plan_movement(mov_shift, mov_dir);
     }
 
@@ -121,7 +122,7 @@ void Player::update(Time deltaTime)
         // if it is not "standing"
         if (mov_shift != Vector2f(0, 0))
         {
-//            std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
+            std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
             x_cell_coord += direction_x[mov_dir];
             y_cell_coord += direction_y[mov_dir];
             // every time we move, check blocking again

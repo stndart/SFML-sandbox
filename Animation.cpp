@@ -85,7 +85,7 @@ Joint Animation::get_next_joint(int cur_frame, std::string animation) const
         if (j.frame < cur_frame)
             continue;
 
-        if (animation == j.anim_to)
+        if (animation == j.anim_to || animation == "")
             if (j.frame < default_j.frame || default_j.frame == -1)
                 default_j = j;
     }

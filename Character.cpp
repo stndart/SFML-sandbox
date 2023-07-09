@@ -23,7 +23,8 @@ Character::Character()
 
 Character::Character(string name, Texture &texture_default, IntRect frame0) :
 moving(false), moving_enabled(false), animated(false), is_order_completed(false),
-facing_direction(0), moving_direction(0),
+facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
+movement_started(false), next_movement_planned(false), next_animation_dir(-1),
 name(name)
 {
     base_sprite = new AnimatedSprite(name, texture_default, frame0);
@@ -34,7 +35,7 @@ name(name)
     no_return_point_time = seconds(0.1);
 
     moving_sprite = base_sprite;
-    idle_animation = "idle_animation_0";
+    set_facing_direction(0);
 
 //    std::cout << "Character::Character constructing empty idle_animation\n";
     animations[idle_animation] = new Animation();
@@ -54,6 +55,7 @@ string Character::get_animation_name_by_shift(Vector2f shift, int direction, str
         else
             direction = facing_direction;
     }
+//    std::cout << "Got direction name: " << direction << " while facing " << facing_direction << std::endl;
 
     string anim = animation_name;
     if (animation_name.length() == 0)
@@ -68,11 +70,15 @@ string Character::get_animation_name_by_shift(Vector2f shift, int direction, str
         else
         {
             anim = get_idle_animation_s(direction);
+            // <idle_animation_0> is default animation for movement
+            if (animations.count(anim) == 0)
+                anim = "idle_animation_0";
         }
         // idle animation is default animation
         if (animations.count(anim) == 0)
             anim = "";
     }
+//    std::cout << "Got animation name: " << anim << std::endl;
 
     return anim;
 }
@@ -86,7 +92,8 @@ void Character::set_facing_direction(int new_direction)
     else
         idle_animation = get_idle_animation_s(0);
 
-    update(seconds(0));
+    /// WHY? (temporarily switched off, since i don't know why it is here)
+    //update(seconds(0));
 }
 
 int Character::get_facing_direction() const
@@ -134,70 +141,105 @@ Joint Character::last_joint(string animation_name) const
     return animations.at(current_animation)->get_last_joint((int)base_sprite->getFrame(), transitions);
 }
 
+struct ParentJoint
+{
+    string anim;
+    int frame;
+    Joint j;
+};
+
 deque<Joint> Character::find_next_joint(string animation_name) const
 {
-//    std::cout << "Character::find_next_joint from " << current_animation << " with frame " << base_sprite->getFrame() << std::endl;
+//    std::cout << "Character::find_next_joint from " << current_animation << " with frame " << base_sprite->getFrame() << " to " << animation_name << std::endl;
 
     // queue of animations until min_frame
     deque<Joint> min_call_stack;
-    int min_frame = -1;
+    Joint j;
 
     // if no current animation, then transition immediately
     if (current_animation == "")
     {
-        min_call_stack.push_back(Joint{0, animation_name, 0});
+        j = Joint{0, animation_name, 0};
+        min_call_stack.push_back(j);
+        return min_call_stack;
+    }
+    // if any joint is OK, then return the very next one
+    if (animation_name == "")
+    {
+        j = animations.at(current_animation)->get_next_joint(base_sprite->getFrame());
+//        std::cout << "returning j frame: " << j.frame << " to frame " << j.frame_to << " to anim " << j.anim_to << std::endl;
+        min_call_stack.push_back(j);
         return min_call_stack;
     }
 
     // we maintain deque sorted by number of start frame (assuming all animations have same frametime)
     deque<Joint> visited;
+    // absolute start frame of Joint in vertice
     deque<int> visited_frame;
-    // save for optimal call_stack
-    deque<Joint> call_stack;
+    // map of parents (to restore path in bfs)
+    map<pair<string, int>, ParentJoint> visited_parent;
+
+    // map of minimum frame of visited animation
+    // if animation is already visited, then pop from bfs
+    map<string, int> visited_fromframe;
 
     visited.push_back(Joint{0, current_animation, (int)base_sprite->getFrame()});
-    visited_frame.push_back(0);
+    visited_frame.push_back((int)base_sprite->getFrame());
+    visited_parent[make_pair(current_animation, -1)] = ParentJoint{"root", 0, visited.back()};
+    // don't update min_frame_to here, bc current animation doesn't count
+//    std::cout << "+ adding start for <" << 0 << ", " << current_animation << ":" << (int)base_sprite->getFrame() << ">\n";
 
     // now we perform bfs
-    bool bfs_complete = false;
-    Joint j;
+    int frame;
+    string anim;
+    ParentJoint parent;
+    // we can't end bfs just checking current animation
+    bool first_cycle = true;
     while(visited.size() > 0)
     {
         j = visited.front();
         visited.pop_front();
 
-        string anim = j.anim_to;
+        anim = j.anim_to;
         int frame_to = j.frame_to;
 
-        int frame = visited_frame.front();
+        frame = visited_frame.front();
         visited_frame.pop_front();
         int duration;
 
-        call_stack.push_back(j);
-//        std::cout << "pushing in call stack {F: " << j.frame << ", A: " << j.anim_to << "}\n";
+//        std::cout << "bfs anim: " << anim << ", frame: " << frame << std::endl;
+
+        // if we found the path to target animation then update min
+        if (anim == animation_name && !first_cycle)
+        {
+            // restore path from "root"
+//            std::cout << "searching parent for <" << anim << ":" << frame_to << ">\n";
+            parent = visited_parent[make_pair(anim, frame_to)];
+            int ite = 0;
+            while (parent.anim != "root")
+            {
+//                std::cout << "parent <\"" << parent.anim << "\":" << parent.frame << ">\n";
+                min_call_stack.push_front(parent.j);
+                if (visited_parent.count(make_pair(parent.anim, parent.frame)) == 0)
+                {
+                    std::cout << "Trying to get parent of non-existent anim: " << parent.anim << ", frame: " << parent.frame << std::endl;
+                    throw;
+                }
+                parent = visited_parent[make_pair(parent.anim, parent.frame)];
+                ite++;
+                if (ite > 10)
+                    throw;
+            }
+
+            // exit bfs
+            break;
+        }
 
         for (Joint j_next : animations.at(anim)->get_joints())
         {
             // We have starting frame: j.frame_to
             if (j_next.frame < j.frame_to)
                 continue;
-
-            // if we found the path to target animation then update min
-            if (j_next.anim_to == animation_name)
-                if (min_frame == -1 || min_frame < frame)
-                {
-                    min_frame = frame;
-                    bfs_complete = true;
-
-//                    std::cout << "pushing in call stack {F: " << j_next.frame << ", A: " << j_next.anim_to << "} and refresh\n";
-                    call_stack.push_back(j_next);
-                    // refresh min call stack
-                    // we ignore first fictive joint
-                    min_call_stack = deque<Joint>(call_stack.begin() + 1, call_stack.end());
-                    call_stack.pop_back();
-
-                    break;
-                }
 
             // time from beginning of animation to joint
             duration = j_next.frame - frame_to;
@@ -207,15 +249,29 @@ deque<Joint> Character::find_next_joint(string animation_name) const
                 if (frame + duration < visited_frame[i])
                     break;
 
-            visited.insert(next(visited.begin(), i), j_next);
-            visited_frame.insert(next(visited_frame.begin(), i), frame + duration);
-        }
-        if (bfs_complete)
-            break;
+            // update visited, etc. only if j_next is to be visited by earlier frame_to
+            if (visited_fromframe.count(j_next.anim_to) == 0 || visited_fromframe[j_next.anim_to] > j_next.frame_to)
+            {
+                visited_fromframe[j_next.anim_to] = j_next.frame_to;
+                visited.insert(next(visited.begin(), i), j_next);
+                visited_frame.insert(next(visited_frame.begin(), i), frame + duration);
+                int ft = frame_to;
+                if (first_cycle)
+                    ft = -1;
 
-        call_stack.pop_back();
+                visited_parent[make_pair(j_next.anim_to, j_next.frame_to)] = ParentJoint{anim, ft, j_next};
+
+//                std::cout << "+ adding parent for <" << j_next.frame << ", " << j_next.anim_to << ":" << j_next.frame_to << "> with <" << anim << ":" << ft << ">\n";
+//                std::cout << "so, parent for <" << j_next.anim_to << ":" << j_next.frame_to << "> <- <";
+//                std::cout << visited_parent[make_pair(j_next.anim_to, j_next.frame_to)].anim << ":";
+//                std::cout << visited_parent[make_pair(j_next.anim_to, j_next.frame_to)].frame << ">\n";
+            }
+        }
+
+        first_cycle = false;
     }
 
+//    std::cout << "found minimum frame with call stack of size " << min_call_stack.size() << std::endl;
     return min_call_stack;
 }
 
@@ -236,6 +292,13 @@ void Character::add_animation(string animation_name, Animation* p_animation)
 // set current animation by name
 void Character::set_animation(string animation_name, Time offset, int frame_stop_after)
 {
+    // if no valid animation is passed, then go to idle
+    if (animation_name == "")
+    {
+        set_animation_to_idle(offset);
+        return;
+    }
+
     std::cout << "Character::setting animation to " << animation_name << std::endl;
 
     current_animation = animation_name;
@@ -257,7 +320,7 @@ void Character::set_animation_to_idle(Time offset)
     if (animations.count(animation_name) == 0)
         animation_name = idle_animation;
 
-    std::cout << "Character::setting animation to " << animation_name << std::endl;
+    std::cout << "Character::setting idle animation to " << animation_name << std::endl;
     current_animation = animation_name;
 
     base_sprite->play(*animations[animation_name], offset);
@@ -314,14 +377,14 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     animation_name = get_animation_name_by_shift(shift, direction, animation_name);
 
     deque<Joint> next_joints = find_next_joint(animation_name);
-//    std::cout << "Character::plan_movement found " << next_joints.size() << " animont to " << animation_name << std::endl;
+    std::cout << "Character::plan_movement found " << next_joints.size() << " AnimMovement from " << current_animation << " to " << animation_name << std::endl;
     // if no path to target animation_name found, then break
     if (next_joints.size() == 0)
         return;
 
 //    for (Joint j : next_joints)
 //    {
-//        std::cout << ", {F: " << j.frame << ", A: " << j.anim_to << "}";
+//        std::cout << " {F: " << j.frame << ", A: " << j.anim_to << "}";
 //    }
 //    std::cout << std::endl;
 
@@ -355,11 +418,12 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
 
     // last AnimMovement
     {
-//        std::cout << "Character::plan_movement: pushing joint to " << animation_name << " into queue\n";
+        j = next_joints.back();
+//        std::cout << "Character::plan_movement: pushing joint to " << j.anim_to << " into queue\n";
         AnimMovement am;
         am.direction = direction;
         am.shift = Vector2f(0, 0);
-        am.animation = animation_name;
+        am.animation = j.anim_to;
         am.VE_allowed = true;
         am.has_VE = false;
         if (shift != Vector2f(0, 0) && (next_animations.size() == 0 || !next_animations.rend()->has_VE))
@@ -390,6 +454,8 @@ void Character::next_movement_start()
     AnimMovement am = next_animations.front();
     next_animations.pop_front();
     set_animation(am.animation, base_sprite->time_after_stop(), am.jnext.frame);
+    if (am.direction != -1)
+        set_facing_direction(am.direction);
 
     if (am.has_VE)
     {
@@ -405,7 +471,7 @@ void Character::next_movement_start()
             throw;
         }
 
-        std::cout << "| Creating VisualEffect with offset " << offset.asSeconds() << std::endl;
+//        std::cout << "Creating VisualEffect with offset " << offset.asSeconds() << std::endl;
         moving_sprite = new VisualEffect(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
         moving_sprite->play();
 

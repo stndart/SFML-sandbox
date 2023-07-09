@@ -37,9 +37,9 @@ int direction_from_shift(sf::Vector2f shift)
     else
     {
         if (shift.y > 0)
-            direction = 3;
-        else
             direction = 1;
+        else
+            direction = 3;
     }
     return direction;
 }

@@ -147,8 +147,6 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     idle_animation_0->add_joint(25, "movement_2", 1);
     idle_animation_0->add_joint(30, "movement_2", 1);
     idle_animation_0->add_joint(35, "movement_2", 1);
-
-    idle_animation_0->add_joint(-1, "movement_2", 1);
 //    std::cout << "Field: add joints out file out\n";
 
     Animation* idle_animation_2 = new Animation();
