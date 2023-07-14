@@ -37,8 +37,8 @@ int main()
 {
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
-//    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
-    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
+    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
+//    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
     window.setFramerateLimit(60);
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
     window.setKeyRepeatEnabled(false);
