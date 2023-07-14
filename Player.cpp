@@ -92,8 +92,8 @@ void Player::update(Time deltaTime)
     {
         // std::cout << "trying to schedule smth\n";
         // find next valid direction (not blocked movement)
-        for (auto r_iter = queued_movement_direction.rbegin();
-             r_iter != queued_movement_direction.rend(); r_iter++)
+        for (auto r_iter = queued_movement_direction.begin();
+             r_iter != queued_movement_direction.end(); r_iter++)
         {
 //            std::cout << "block dir: " << r_iter->direction << ", check: " << r_iter->blocking_checked << ", block: " << r_iter->blocked << std::endl;
             if (r_iter->blocking_checked && !r_iter->blocked)
