@@ -48,6 +48,8 @@ class Character : public Drawable, public Transformable
         bool animated;
         // flag if VE is started. Resets after call eponymous func
         bool is_order_completed;
+        // flag ignoring joints (default: off)
+        bool ignore_joints;
 
         // current animation name
         string current_animation;
@@ -110,6 +112,10 @@ class Character : public Drawable, public Transformable
         void set_moving_enabled(bool enabled);
         // flag if has valid animation
         bool is_animated() const;
+
+        // ignoring joints flag
+        bool is_ignore_joints() const;
+        void set_ignore_joints(bool ignore);
 
         Character();
         Character(string name, Texture& texture_default, IntRect frame0);

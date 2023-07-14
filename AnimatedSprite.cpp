@@ -44,14 +44,14 @@ void AnimatedSprite::setFrameTime(Time time)
 
 void AnimatedSprite::play()
 {
-//    std::cout << "play: frame " << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
+    std::cout << "play: frame " << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
     m_isPaused = false;
 }
 
 // set Animation and then play
 void AnimatedSprite::play(Animation& animation, Time shift)
 {
-//    std::cout << "play with shift: " << shift.asSeconds() << std::endl;
+    std::cout << "play with shift: " << shift.asSeconds() << std::endl;
     setAnimation(animation);
     m_currentTime = shift;
     play();
@@ -60,14 +60,14 @@ void AnimatedSprite::play(Animation& animation, Time shift)
 
 void AnimatedSprite::pause()
 {
-//    std::cout << "pause: frame" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
+    std::cout << "pause: frame" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
     m_isPaused = true;
 }
 
 // pause and reset animation timer (revert to first frame)
 void AnimatedSprite::stop()
 {
-//    std::cout << "stop: frame" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
+    std::cout << "stop: frame" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
     m_isPaused = true;
     m_currentFrame = 0;
     setFrame(m_currentFrame);

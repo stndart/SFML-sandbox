@@ -22,7 +22,7 @@ Character::Character()
 }
 
 Character::Character(string name, Texture &texture_default, IntRect frame0) :
-moving(false), moving_enabled(false), animated(false), is_order_completed(false),
+moving(false), moving_enabled(false), animated(false), is_order_completed(false), ignore_joints(false),
 facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
 name(name)
@@ -124,6 +124,17 @@ void Character::set_moving_enabled(bool enabled)
 bool Character::is_animated() const
 {
     return animated;
+}
+
+// ignoring joints flag
+bool Character::is_ignore_joints() const
+{
+    return ignore_joints;
+}
+
+void Character::set_ignore_joints(bool ignore)
+{
+    ignore_joints = ignore;
 }
 
 // find last joint of transition between <current_animation> and <animation_name>
@@ -378,17 +389,31 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     // if no <movement> animation found, then skip animation (just smooth transition with default animation)
     animation_name = get_animation_name_by_shift(shift, direction, animation_name);
 
-    deque<Joint> next_joints = find_next_joint(animation_name);
-    std::cout << "Character::plan_movement found " << next_joints.size() << " AnimMovement from " << current_animation << " to " << animation_name << std::endl;
-    // if no path to target animation_name found, then break
-    if (next_joints.size() == 0)
-        return;
-
-    for (Joint j : next_joints)
+    deque<Joint> next_joints;
+    // if ignoring joints, then instantly process to target animation
+    if (ignore_joints)
     {
-        std::cout << " {F: " << j.frame << ", A: " << j.anim_to << "}";
+        // since plan_movement is called before Character::update, we can stop at current frame
+        next_joints.clear();
+//        next_joints.push_back(Joint{(int)base_sprite->getFrame() + 2, animation_name, 1});
+        next_joints.push_back(Joint{(int)base_sprite->getAnimation()->getSize() - 1, animation_name, 1});
+        std::cout << "Character::plan_movement ignoring joints\n";
     }
-    std::cout << std::endl;
+    else
+    {
+        next_joints = find_next_joint(animation_name);
+    }
+        std::cout << "Character::plan_movement found " << next_joints.size() << " AnimMovement from " << current_animation << " to " << animation_name << std::endl;
+        // if no path to target animation_name found, then break
+        if (next_joints.size() == 0)
+            return;
+
+        for (Joint j : next_joints)
+        {
+            std::cout << " {F: " << j.frame << ", A: " << j.anim_to << "}";
+        }
+        std::cout << std::endl;
+    //}
 
     // otherwise, construct queue
     next_animations.clear();
