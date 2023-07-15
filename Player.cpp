@@ -19,6 +19,7 @@ x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
 
     sprite = new Character(name, *texture, frame0);
     sprite->set_moving_enabled(true);
+    sprite->set_ignore_joints(true);
 }
 
 // removes "blocking checked" from movements queue

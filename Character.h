@@ -48,6 +48,8 @@ class Character : public Drawable, public Transformable
         bool animated;
         // flag if VE is started. Resets after call eponymous func
         bool is_order_completed;
+        // flag ignoring joints (default: off)
+        bool ignore_joints;
 
         // current animation name
         string current_animation;
@@ -111,6 +113,10 @@ class Character : public Drawable, public Transformable
         // flag if has valid animation
         bool is_animated() const;
 
+        // ignoring joints flag
+        bool is_ignore_joints() const;
+        void set_ignore_joints(bool ignore);
+
         Character();
         Character(string name, Texture& texture_default, IntRect frame0);
         Character(string name, map<string, Animation*> animations);
@@ -118,7 +124,7 @@ class Character : public Drawable, public Transformable
         // add animation to map by name
         void add_animation(string animation_name, Animation* p_animation);
         // set current animation by name with time offset
-        void set_animation(string animation_name, Time offset = seconds(0), int frame_stop_after = -1);
+        void set_animation(string animation_name, Time offset = seconds(0), int frame_start = 0, int frame_stop_after = -1);
         // set current animation to idle with current direction. (<offset> uses last animation lag, for smoother transition)
         void set_animation_to_idle(Time offset = seconds(0));
 
