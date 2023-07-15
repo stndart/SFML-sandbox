@@ -124,7 +124,7 @@ class Character : public Drawable, public Transformable
         // add animation to map by name
         void add_animation(string animation_name, Animation* p_animation);
         // set current animation by name with time offset
-        void set_animation(string animation_name, Time offset = seconds(0), int frame_stop_after = -1);
+        void set_animation(string animation_name, Time offset = seconds(0), int frame_start = 0, int frame_stop_after = -1);
         // set current animation to idle with current direction. (<offset> uses last animation lag, for smoother transition)
         void set_animation_to_idle(Time offset = seconds(0));
 
