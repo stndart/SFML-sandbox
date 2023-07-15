@@ -23,6 +23,10 @@
 # Resources
 /Images/archive/*
 
+# third party
+/json/*
+/spdlog/*
+
 # notes
 *.txt
 *.cbp

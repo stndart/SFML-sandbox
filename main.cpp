@@ -1,10 +1,18 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 #include <conio.h>
 #include <map>
 #include <cassert>
 #include <filesystem>
+
+// for logging, printing, and make_shared
+#include <iostream>
+#include <memory>
+
+// logging library
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_sinks.h"
 
 #include "extra_algorithms.h"
 
@@ -35,6 +43,40 @@ void Motion()
 
 int main()
 {
+    /// LOGGING
+    try
+    {
+        // load loggers and log sinks
+        string logfile_path = "logs/log.txt"; /// TEMP (to config file)
+        auto logfile_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logfile_path);
+        auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_st>();
+        logfile_sink->set_level(spdlog::level::debug);
+        stdout_sink->set_level(spdlog::level::info);
+        spdlog::sinks_init_list sink_list = {logfile_sink, stdout_sink};
+        // create synchronous loggers
+        auto loading_logger = std::make_shared<spdlog::logger>("loading", sink_list.begin(), sink_list.end());
+        auto input_logger = std::make_shared<spdlog::logger>("input", sink_list.begin(), sink_list.end());
+        auto map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
+        auto graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
+
+        loading_logger->set_level(spdlog::level::info);
+        input_logger->set_level(spdlog::level::info);
+        map_events_logger->set_level(spdlog::level::info);
+        graphics_logger->set_level(spdlog::level::debug);
+
+        // globally register the loggers so they can be accessed using spdlog::get(logger_name)
+        spdlog::register_logger(loading_logger);
+        spdlog::register_logger(input_logger);
+        spdlog::register_logger(map_events_logger);
+        spdlog::register_logger(graphics_logger);
+    }
+    catch (const spdlog::spdlog_ex& ex)
+    {
+        std::cout << "Log initialization failed: " << ex.what() << std::endl;
+    }
+
+    auto loading_logger = spdlog::get("loading");
+
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
@@ -42,6 +84,7 @@ int main()
     window.setFramerateLimit(60);
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
     window.setKeyRepeatEnabled(false);
+    loading_logger->info("Created window {}x{}", 1920, 1080);
 
     // load textures
     // TODO: move to resource loader
