@@ -136,7 +136,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
         // if smth present then run command
         if (data != "")
         {
-            std::cout << data << std::endl;
+            map_events_logger->info("running command: [{}]", data);
             command(data);
         }
         if_input = !if_input;
@@ -196,10 +196,10 @@ void Scene_editor::update(Event& event, std::string& command_main)
     // if command line active and pressed: <backspace>
     else if (if_input && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
     {
+        /// ??? what are these asserts for
         //assert(s_input.size() == 6);
         if (s_input.size() > 0) s_input.pop_back();
         //assert(s_input.size() == 5);
-        //std::cout << s_input << std::endl;
     }
     // if command line active and pressed any letter
     else if (if_input && event.type == sf::Event::TextEntered)
@@ -291,7 +291,7 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         Font font;
         if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
         {
-            std::cout << "failed to load arial\n";
+            loading_logger->warn("Failed to load arial font");
         }
         Text text;
         text.setFont(font);

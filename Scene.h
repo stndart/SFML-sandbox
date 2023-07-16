@@ -2,11 +2,14 @@
 #define SCENE_INCLUDE
 
 #include <vector>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Window/Event.hpp>
+#include "spdlog/spdlog.h"
+
 #include "AnimatedSprite.h"
 #include "Button.h"
 #include "UI_layout.h"
+
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Window/Event.hpp>
 
 using namespace sf;
 
@@ -31,6 +34,8 @@ protected:
     void draw_scene_back(RenderTarget& target, RenderStates states) const;
     void draw_scene_buttons(RenderTarget& target, RenderStates states) const;
     void draw_scene_Interface(RenderTarget& target, RenderStates states) const;
+
+    std::shared_ptr<spdlog::logger> loading_logger;
 
 public:
     std::string name;

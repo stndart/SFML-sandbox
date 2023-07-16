@@ -2,6 +2,9 @@
 
 Scene::Scene(std::string name) : background(NULL), name(name)
 {
+    loading_logger = spdlog::get("loading");
+
+
     UI_layout* new_interface = new UI_layout();
     Interface = new_interface;
 }
@@ -45,7 +48,6 @@ void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
     for (auto g : new_ui_elements)
     {
         Interface->addElement(g);
-        //std::cout << Interface->get_elements_size() << "|" << std::endl;
     }
 }
 
@@ -196,7 +198,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
 
     if (new_button == new_button_pressed)
     {
-        std::cout << "FATAL ERROR: same textures for pressed/not button\n";
+        spdlog::get("loading")->error("Same textures for pressed/released button");
         throw;
     }
 

@@ -7,7 +7,7 @@ Cell_object::Cell_object(std::string name, Texture* texture) : texture(texture),
 
 Cell_object::~Cell_object()
 {
-   //std::cout << "went ";
+    // Nothing;
 }
 
 // change m_vertices

@@ -28,41 +28,45 @@
 using namespace sf;
 using namespace std;
 
-// Trash
-int KeyMotion;
-
-void Motion()
-{
-    switch (KeyMotion)
-    {
-    case 1:
-        cout << "click" << endl;
-        break;
-    }
-}
-
 int main()
 {
-    /// LOGGING
+    /**
+    SPDLOG_LEVEL_TRACE - вызовы вспомогательных функций, принты в них
+    SPDLOG_LEVEL_DEBUG - вызовы второстепенных рабочих функций (типа апдейтов, обработчиков событий)
+    SPDLOG_LEVEL_INFO - вызовы важных функций, создание глобальных объектов
+    SPDLOG_LEVEL_WARN - Переходы в урезанные режимы, включение режимов не по умолчанию (в важных объектах, типа joint_ignore у Character)
+    SPDLOG_LEVEL_ERROR - Ошибки
+    SPDLOG_LEVEL_CRITICAL - Критические ошибки: сегфолты, несуществующие файлы, утечки памяти, null pointer
+
+    loading_logger - логгер загрузки ресурсов (поля, текстур)
+    input_logger - логгер ввода с клавиатуры/мышки, и сетевого (мб потом будет отдельно)
+    map_events_logger - логгер изменения объектов на карте, включая игрока и entities
+    graphics_logger - логгер событий отрисовки, в том числе анимаций и их логики
+    */
+
+    std::shared_ptr<spdlog::logger> loading_logger, input_logger, map_events_logger, graphics_logger;
+
+    // LOGGING
     try
     {
         // load loggers and log sinks
         string logfile_path = "logs/log.txt"; /// TEMP (to config file)
         auto logfile_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logfile_path);
         auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_st>();
-        logfile_sink->set_level(spdlog::level::debug);
-        stdout_sink->set_level(spdlog::level::info);
         spdlog::sinks_init_list sink_list = {logfile_sink, stdout_sink};
         // create synchronous loggers
-        auto loading_logger = std::make_shared<spdlog::logger>("loading", sink_list.begin(), sink_list.end());
-        auto input_logger = std::make_shared<spdlog::logger>("input", sink_list.begin(), sink_list.end());
-        auto map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
-        auto graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
+        loading_logger = std::make_shared<spdlog::logger>("loading", sink_list.begin(), sink_list.end());
+        input_logger = std::make_shared<spdlog::logger>("input", sink_list.begin(), sink_list.end());
+        map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
+        graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
-        loading_logger->set_level(spdlog::level::info);
+        loading_logger->set_level(spdlog::level::trace);
         input_logger->set_level(spdlog::level::info);
         map_events_logger->set_level(spdlog::level::info);
-        graphics_logger->set_level(spdlog::level::debug);
+        graphics_logger->set_level(spdlog::level::info);
+
+        stdout_sink->set_level(spdlog::level::info);
+        logfile_sink->set_level(spdlog::level::debug);
 
         // globally register the loggers so they can be accessed using spdlog::get(logger_name)
         spdlog::register_logger(loading_logger);
@@ -73,10 +77,10 @@ int main()
     catch (const spdlog::spdlog_ex& ex)
     {
         std::cout << "Log initialization failed: " << ex.what() << std::endl;
+        return 1;
     }
 
-    auto loading_logger = spdlog::get("loading");
-
+    /// TODO: try-catch (lookup error type)
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
     RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
@@ -87,41 +91,49 @@ int main()
     loading_logger->info("Created window {}x{}", 1920, 1080);
 
     // load textures
-    // TODO: move to resource loader
+    /// TODO: move to resource loader
     Texture menu_texture;
+    int tex_counter = 0;
     if (!menu_texture.loadFromFile("Images/menu.jpg"))
     {
-        cout << "Failed to load texture\n";
+        loading_logger->critical("Failed to load texture");
         return 1;
     }
+    tex_counter++;
 
     Texture new_button_texture;
     if (!new_button_texture.loadFromFile("Images/new_game_button.png"))
     {
-        cout << "Failed to load texture\n";
+        loading_logger->critical("Failed to load texture");
         return 1;
     }
+    tex_counter++;
 
     Texture new_button_pushed_texture;
     if (!new_button_pushed_texture.loadFromFile("Images/new_game_button_pushed.png"))
     {
-        cout << "Failed to load texture\n";
+        loading_logger->critical("Failed to load texture");
         return 1;
     }
+    tex_counter++;
 
     Texture player_texture;
     if (!player_texture.loadFromFile("Images/player.png"))
     {
-        cout << "Failed to load texture\n";
+        loading_logger->critical("Failed to load texture");
         return 1;
     }
+    tex_counter++;
 
     Texture field_bg_texture;
     if (!field_bg_texture.loadFromFile("Images/field_bg.jpg"))
     {
-        cout << "Failed to load texture\n";
+        loading_logger->critical("Failed to load texture");
         return 1;
     }
+    tex_counter++;
+    loading_logger->info("Loaded {} textures", tex_counter);
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///--------------------------------------= TEST downloading =--------------------------------------------
@@ -132,26 +144,26 @@ int main()
     {
         std::string inputPath = "Images/test/";
 
+        tex_counter = 0;
         for (auto& p : std::filesystem::directory_iterator(inputPath))
         {
             std::filesystem::path path;
             path = p;
             std::string tempStr;
             tempStr = path.generic_string();
-            cout << inputPath << ": " << tempStr << ", ";
 
             Texture* cur_texture = new Texture;
             if (!cur_texture->loadFromFile(tempStr))
             {
-                cout << "Failed to load texture\n";
+                loading_logger->critical("Failed to load texture");
                 return 1;
             }
+            tex_counter++;
             std::string name = re_name(tempStr);
-            cout << name << endl;
+            loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
             test_images.insert({name, cur_texture});
         }
-        cout << endl;
-
+        loading_logger->info("Loaded {} textures", tex_counter);
     }
 **/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,25 +174,26 @@ int main()
 
     std::string inputPath = "Images/UI/";
 
+    tex_counter = 0;
     for (auto& p : std::filesystem::directory_iterator(inputPath))
     {
         std::filesystem::path path;
         path = p;
         std::string tempStr;
         tempStr = path.generic_string();
-        cout << inputPath << ": " << tempStr << ", ";
 
         Texture* cur_texture = new Texture;
         if (!cur_texture->loadFromFile(tempStr))
         {
-            cout << "Failed to load texture\n";
+            loading_logger->critical("Failed to load texture");
             return 1;
         }
+        tex_counter++;
         std::string name = re_name(tempStr);
-        cout << name << endl;
+        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
         UI_block.insert({name, cur_texture});
     }
-    cout << endl;
+    loading_logger->info("Loaded {} textures for UI", tex_counter);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************************************/
@@ -193,51 +206,52 @@ int main()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /*std::string*/ inputPath = "Images/CELLS/";
-
+    tex_counter = 0;
     for (auto& p : std::filesystem::directory_iterator(inputPath))
     {
         std::filesystem::path path;
         path = p;
         std::string tempStr;
         tempStr = path.generic_string();
-        cout << inputPath << ": " << tempStr << ", ";
 
         Texture* cur_texture = new Texture;
         if (!cur_texture->loadFromFile(tempStr))
         {
-            cout << "Failed to load texture\n";
+            loading_logger->critical("Failed to load texture");
             return 1;
         }
+        tex_counter++;
         std::string name = re_name(tempStr);
-        cout << name << endl;
+        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
         field_tex_map.insert({name, cur_texture});
     }
-    cout << endl;
+    loading_logger->info("Loaded {} textures for cells", tex_counter);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///-----------------------------------= CELL_objects downloading =---------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     inputPath = "Images/CELL_objects/";
+    tex_counter = 0;
     for (auto& p : std::filesystem::directory_iterator(inputPath))
     {
         std::filesystem::path path;
         path = p;
         std::string tempStr;
         tempStr = path.generic_string();
-        cout << inputPath << ": ";
 
         Texture* cur_texture = new Texture;
         if (!cur_texture->loadFromFile(tempStr))
         {
-            cout << "Failed to load texture\n";
+            loading_logger->critical("Failed to load texture");
             return 1;
         }
+        tex_counter++;
         std::string name = re_name(tempStr);
-        cout << name << endl;
+        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
         field_tex_map.insert({name, cur_texture});
     }
-    cout << endl;
+    loading_logger->info("Loaded {} textures for cell objects", tex_counter);
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -324,7 +338,6 @@ int main()
         "Images/Flametail/movement_2.png"
     };
 
-    std::cout << "Loading fields...\n";
     // Create field with map#1. Despite it being inactive, we load map and player
     Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);
@@ -365,7 +378,7 @@ int main()
     //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
     editor_scene.addUI_element(main_ui_elements);
 
-    cout << "field made\n";
+    loading_logger->info("Loaded fields");
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///----------------------------------------= START programm =--------------------------------------------
@@ -400,18 +413,26 @@ int main()
                 if (command_main == "editor_scene")
                 {
                     Current_Scene = &editor_scene;
+
+                    map_events_logger->info("Switched scene to editor_scene");
                 }
                 else if (command_main == "ESCAPE")
                 {
+                    loading_logger->info("Closed window");
+
                     window.close();
                 }
                 else if (command_main == "field_scene")
                 {
                     Current_Scene = &field_scene;
+
+                    map_events_logger->info("Switched scene to field_scene");
                 }
                 else if (command_main == "main_menu")
                 {
                     Current_Scene = &main_menu;
+
+                    map_events_logger->info("Switched scene to main_menu");
                 }
             }
         }
@@ -419,9 +440,7 @@ int main()
         // get time spent per last frame and update all drawables with it
         Time frameTime = frameClock.restart();
 
-//        std::cout << "! update in\n";
         Current_Scene->update(frameTime);
-//        std::cout << "! update out\n";
 
         // clear previous frame and draw from scratch
         window.clear();

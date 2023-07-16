@@ -14,6 +14,9 @@ class UI_layout : public sf::Drawable, public sf::Transformable
 
         bool isClicked = false;
         int last_clicked_index;
+
+        std::shared_ptr<spdlog::logger> loading_logger;
+
     public:
         UI_layout();
 

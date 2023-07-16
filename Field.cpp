@@ -4,6 +4,9 @@ bool isdrawed = false;
 
 Field::Field(int length, int width, std::string name) : background(NULL), name(name)
 {
+    map_events_logger = spdlog::get("map_events");
+    loading_logger = spdlog::get("loading");
+
     current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
     cells_changed = false;
 
@@ -22,6 +25,9 @@ Field::Field(int length, int width, std::string name) : background(NULL), name(n
 
 Field::Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions) : Field(length, width, name)
 {
+    map_events_logger = spdlog::get("map_events");
+    loading_logger = spdlog::get("loading");
+
     addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
     setScale((float)screenDimensions.x / 1920, (float)screenDimensions.y / 1080);
 }
@@ -112,24 +118,21 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
 // create player at cell [pos.x, pos.y] with animations files: [idle, movement_0]
 void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u frame_size, Vector2i pos)
 {
-//    std::cout << "Field: addPlayer\n";
+    map_events_logger->trace("Field: addPlayer");
 
     Texture* aaa = new Texture;
     if (!aaa->loadFromFile("Images/Flametail/default.png"))
     {
-        std::cout << "Failed to load texture\n";
+        loading_logger->error("Failed to load texture");
         throw;
     }
 
     /// TODO: change to no-default-texture-player
     player_0 = new Player("animated_player", aaa, IntRect(0, 0, frame_size.x, frame_size.y));
 
-//    std::cout << "Field: creating animations\n";
     // create default animation with some magic constants (to be resolved with addition of resources manager)
     Animation* idle_animation_0 = new Animation();
-//    std::cout << "Field: new anim out\n";
     idle_animation_0->load_from_file(animation_filenames[0], frame_size);
-//    std::cout << "Field: load from file out\n";
     idle_animation_0->add_joint(-1, "idle_animation_0", 1);
 
     idle_animation_0->add_joint(5,  "movement_0", 1);
@@ -147,7 +150,6 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     idle_animation_0->add_joint(25, "movement_2", 1);
     idle_animation_0->add_joint(30, "movement_2", 1);
     idle_animation_0->add_joint(35, "movement_2", 1);
-//    std::cout << "Field: add joints out file out\n";
 
     Animation* idle_animation_2 = new Animation();
     idle_animation_2->load_from_file(animation_filenames[1], frame_size);
@@ -184,7 +186,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     player_0->add_animation("movement_0", movement_0);
     player_0->add_animation("movement_2", movement_2);
 
-    std::cout << "Field: animations loaded, joints joined\n";
+    map_events_logger->trace("Field: created 4 animations, joints joined");
 
     // fit sprite into cell (horizontally)
     player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
@@ -352,11 +354,13 @@ void Field::update_view_center()
 // field_block provides textures for cells by names (instead of resources manager)
 void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id)
 {
-    // construct and cout path string
+    // construct and log path string
     std::string path = "Locations/loc_";
     path += std::to_string(loc_id);
     path += ".json";
-    std::cout << "load_field " << path << std::endl;
+
+    loading_logger->trace("load_field {}", path);
+
     Json::Value Location;
     std::ifstream ifs(path);
     ifs >> Location;

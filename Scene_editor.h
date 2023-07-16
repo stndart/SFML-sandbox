@@ -1,11 +1,13 @@
 #ifndef SCENE_EDITOR_H_INCLUDED
 #define SCENE_EDITOR_H_INCLUDED
 
-#include <SFML/Graphics/Text.hpp>
 #include <string>
 #include <cassert>
-#include "Scene_Field.h"
+
 #include "Field.h"
+#include "Scene_Field.h"
+
+#include <SFML/Graphics/Text.hpp>
 
 class Scene_editor : public Scene_Field
 {
@@ -20,6 +22,7 @@ class Scene_editor : public Scene_Field
 
         // save field to json
         void save_map();
+
     public:
         Scene_editor(std::string name, std::map <std::string, Texture*> *field_tex_map);
 

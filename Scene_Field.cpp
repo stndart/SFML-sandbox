@@ -2,6 +2,9 @@
 
 Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_tex_map(field_blocks)
 {
+    loading_logger = spdlog::get("loading");
+    map_events_logger = spdlog::get("map_events");
+
     current_field = -1;
 
     for (int i = 0; i < field_N; ++i)
@@ -39,11 +42,13 @@ void Scene_Field::change_current_field(int num)
     current_field = num;
 
     if (field[num] == nullptr) {
-        cout << "FATAL ERROR: Trying to load null field\n";
+        loading_logger->error("Trying to load null field");
         throw;
     }
 
     field[num]->load_field(*field_tex_map, num);
+
+    map_events_logger->info("Changed field to #{}", num);
 }
 
 /// TEMP

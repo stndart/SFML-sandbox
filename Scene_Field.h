@@ -20,6 +20,8 @@ protected:
     // map background textures by name
     std::map <std::string, Texture*> *field_tex_map;
 
+    std::shared_ptr<spdlog::logger> map_events_logger;
+
     /// UserInterface UI; // implement UserInterface to do
 
 public:

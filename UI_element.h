@@ -1,11 +1,12 @@
 #ifndef UI_ELEMENT_H
 #define UI_ELEMENT_H
 
+#include <iostream>
+#include "spdlog/spdlog.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Sprite.hpp>
-#include <iostream>
-
 
 class UI_element : public sf::Drawable, public sf::Transformable
 {
@@ -17,6 +18,8 @@ class UI_element : public sf::Drawable, public sf::Transformable
 
         // draw sprite
         void draw_element(sf::RenderTarget& target, sf::RenderStates states) const;
+
+        std::shared_ptr<spdlog::logger> loading_logger;
 
     public:
         std::string type_name;

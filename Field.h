@@ -7,10 +7,12 @@
 #include <fstream>
 #include <string>
 
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Window/Event.hpp>
 #include "json/json.h"
 #include <cassert>
+#include "spdlog/spdlog.h"
+
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Window/Event.hpp>
 
 #include "AnimatedSprite.h"
 #include "Cell.h"
@@ -44,6 +46,7 @@ private:
     // returns view center with field boundaries check
     Vector2f check_view_bounds(Vector2f view_center);
 
+    std::shared_ptr<spdlog::logger> map_events_logger, loading_logger;
 
 public:
     // field name

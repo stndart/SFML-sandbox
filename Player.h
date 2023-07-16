@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <typeinfo>
+#include "spdlog/spdlog.h"
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
@@ -27,6 +28,8 @@ private:
     Character* sprite;
     // removes "blocking checked" from movements queue
     void reset_blocking_check();
+
+    std::shared_ptr<spdlog::logger> map_events_logger;
 
 public:
     std::string name;

@@ -8,6 +8,7 @@
 #include <deque>
 #include <map>
 #include <set>
+#include "spdlog/spdlog.h"
 
 #include "Animation.h"
 #include "AnimatedSprite.h"
@@ -89,6 +90,8 @@ class Character : public Drawable, public Transformable
         // returns whole path to <animation_name> with next joing being the first in the deque
         // implements BFS
         deque<Joint> find_next_joint(string animation_name) const;
+
+        std::shared_ptr<spdlog::logger> map_events_logger, graphics_logger;
 
     public:
         string name;

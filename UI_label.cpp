@@ -6,7 +6,7 @@ UI_label::UI_label() : UI_element()
     sf::Font font;
     if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
     {
-        std::cout << "failed to load font - in label\n";
+        loading_logger->warn("failed to load font - in label");
     }
     sf::Text text;
     text.setFont(font);

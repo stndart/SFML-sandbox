@@ -1,14 +1,15 @@
 #ifndef ANIMATEDSPRITE_INCLUDE
 #define ANIMATEDSPRITE_INCLUDE
 
+#include <iostream>
+#include <string>
+#include "spdlog/spdlog.h"
+
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include <iostream>
-#include <string>
 
 #include "Animation.h"
 
@@ -43,6 +44,8 @@ protected:
     // Total animation duration
     Time duration;
     Time passed_after_stop;
+
+    std::shared_ptr<spdlog::logger> graphics_logger;
 
 public:
     std::string name; /// TEMP
