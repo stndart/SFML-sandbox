@@ -10,6 +10,7 @@ class Scene_Field : public Scene
 {
 public:
     // number of maps
+    /// MAGIC NUMBER (replace with vector)
     static const int field_N = 2;
 
 protected:
@@ -28,10 +29,10 @@ public:
     std::string name;
     Scene_Field(std::string name, std::map <std::string, Texture*> *field_tex_map);
 
-    // change field by index and swap to it
+    // change field by index
     void add_field(Field* field_to_add, int num);
     /// TEMP
-    // create field, add by index, then swap to it
+    // create field, add by index
     void add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num);
     // swap to field by index

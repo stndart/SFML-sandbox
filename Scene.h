@@ -2,12 +2,12 @@
 #define SCENE_INCLUDE
 
 #include <vector>
-#include "spdlog/spdlog.h"
 
 #include "AnimatedSprite.h"
 #include "Button.h"
 #include "UI_layout.h"
 
+#include <spdlog/spdlog.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 

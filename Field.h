@@ -7,17 +7,17 @@
 #include <fstream>
 #include <string>
 
-#include "json/json.h"
 #include <cassert>
-#include "spdlog/spdlog.h"
-
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Window/Event.hpp>
 
 #include "AnimatedSprite.h"
 #include "Cell.h"
 #include "Player.h"
 #include "extra_algorithms.h"
+
+#include <jsoncpp/json.h>
+#include <spdlog/spdlog.h>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Window/Event.hpp>
 
 using namespace sf;
 
@@ -54,9 +54,6 @@ public:
     // player object that is controlled by player. It is the only player object. Controls are bound to it
     Player* player_0;
 
-    /// не знаю, зачем это
-    bool field_changed;
-
     Field(int length, int width, std::string name);
     Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions);
 
@@ -71,7 +68,7 @@ public:
 
     // change field size and reshape cells 2d vector
     /// как оно работает если размер уменьшить - я хз
-    void field_resize(unsigned int length, unsigned int width);         // CHECK
+    void field_resize(unsigned int length, unsigned int width);         /// CHECK
     // return cell_type (name of the cell)
     std::string get_cellType_by_coord(unsigned int x, unsigned int y);
     // check player obstacles in direction

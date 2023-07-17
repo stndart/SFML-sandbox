@@ -16,15 +16,9 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character()
-{
-    map_events_logger = spdlog::get("map_events");
-    graphics_logger = spdlog::get("graphics");
-}
-
 Character::Character(string name, Texture &texture_default, IntRect frame0) :
-moving(false), moving_enabled(false), animated(false), is_order_completed(false), ignore_joints(false),
-facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
+moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
+current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
 name(name)
 {
@@ -35,8 +29,6 @@ name(name)
 
     /// MAGIC CONSTANT!
     base_sprite->setFrameTime(seconds(0.01));
-    //base_sprite->setFrameTime(seconds(0.04));
-    no_return_point_time = seconds(0.1);
 
     moving_sprite = base_sprite;
     set_facing_direction(0);
@@ -44,8 +36,6 @@ name(name)
     animations[idle_animation] = new Animation();
     int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
     animations[idle_animation]->addFrame(frame0, spritesheet_index);
-
-    after_last_animation = seconds(0);
 }
 
 string Character::get_animation_name_by_shift(Vector2f shift, int direction, string animation_name) const
@@ -321,10 +311,7 @@ void Character::set_animation(string animation_name, Time offset, int frame_star
     base_sprite->stop_after(frame_stop_after);
 
     animated = true;
-    if (animation_name != idle_animation)
-        base_sprite->setLooped(false);
-    else
-        base_sprite->setLooped(true);
+    base_sprite->setLooped(false);
 }
 
 // set current animation to idle with current direction
@@ -499,7 +486,6 @@ void Character::next_movement_start()
 
     graphics_logger->debug("Character::next_movement_start, has_VE={}, and direction {}", am.has_VE, am.direction);
     graphics_logger->debug("Paused? {}, time after stop {}", !base_sprite->isPlaying(), base_sprite->time_after_stop().asSeconds());
-    graphics_logger->trace("current time ", base_sprite->temp_current_time().asSeconds());
 
     next_animations.pop_front();
     set_animation(am.animation, base_sprite->time_after_stop(), am.j.frame_to, am.jnext.frame);

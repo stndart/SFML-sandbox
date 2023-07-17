@@ -1,13 +1,8 @@
 #include "Cell_object.h"
 
-Cell_object::Cell_object(std::string name, Texture* texture) : texture(texture), type_name(name)
+Cell_object::Cell_object(std::string name, Texture* texture, IntRect rect) : texture(texture), type_name(name), depth_level(1)
 {
-    depth_level = 1;
-}
-
-Cell_object::~Cell_object()
-{
-    // Nothing;
+    addTexCoords(rect);
 }
 
 // change m_vertices

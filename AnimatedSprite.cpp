@@ -18,10 +18,9 @@ AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame
 {
     graphics_logger = spdlog::get("graphics");
 
-    m_texture = &texture;
     m_animation = new Animation();
     m_animation->addFrame(frame0);
-    m_animation->setSpriteSheet(*m_texture);
+    m_animation->setSpriteSheet(texture);
     setFrame(m_currentFrame);
 }
 
@@ -103,6 +102,12 @@ void AnimatedSprite::stop()
 // sets frame to stop after
 void AnimatedSprite::stop_after(int frame)
 {
+    if (!m_animation)
+    {
+        frame_stop_after = 0;
+        return;
+    }
+
     if (frame != -1)
         frame_stop_after = (std::size_t)frame;
     else
@@ -253,11 +258,6 @@ size_t AnimatedSprite::getFrame() const
     return m_currentFrame;
 }
 
-Time AnimatedSprite::temp_current_time() const
-{
-    return m_currentTime;
-}
-
 Time AnimatedSprite::time_after_stop() const
 {
     return passed_after_stop;
@@ -273,10 +273,15 @@ Time AnimatedSprite::get_duration() const
 /// Not tested after repair
 Time AnimatedSprite::animation_remaining_time() const
 {
-    if (isReversed())
-        return animation_remaining_time(frame_stop_after - 1);
+    if (m_animation)
+    {
+        if (isReversed())
+            return animation_remaining_time(frame_stop_after - 1);
+        else
+            return animation_remaining_time(frame_stop_after + 1);
+    }
     else
-        return animation_remaining_time(frame_stop_after + 1);
+        return seconds(0);
 }
 
 Time AnimatedSprite::animation_remaining_time(size_t to_frame) const

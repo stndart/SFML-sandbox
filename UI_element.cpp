@@ -1,12 +1,5 @@
 #include "UI_element.h"
 
-UI_element::UI_element()
-{
-    loading_logger = spdlog::get("loading");
-
-    type_name = "unnamed element";
-}
-
 UI_element::UI_element(std::string name, sf::IntRect Input_scale,  sf::Texture* texture_sp) :
     command_output(""), Frame_scale(Input_scale),
     type_name(name), isClickable(false)

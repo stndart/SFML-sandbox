@@ -11,12 +11,11 @@
 
 class Scene_editor : public Scene_Field
 {
-
     private:
         // command line string
         std::string s_input;
         // activated command line input flag
-        bool if_input;
+        bool input_focus;
         // evaluate command line command
         void command(std::string data);
 

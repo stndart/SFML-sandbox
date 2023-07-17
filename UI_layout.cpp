@@ -1,6 +1,6 @@
 #include "UI_layout.h"
 
-UI_layout::UI_layout()
+UI_layout::UI_layout() : isClicked(false), last_clicked_index(-1)
 {
     loading_logger = spdlog::get("loading");
 }

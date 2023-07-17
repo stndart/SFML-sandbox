@@ -10,7 +10,6 @@ class UI_button : public UI_element
         Button* button;
 
     public:
-        UI_button();
         UI_button(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, Button* new_button);
 
         // changes button state

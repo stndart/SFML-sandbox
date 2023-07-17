@@ -3,15 +3,15 @@
 
 #include <iostream>
 #include <string>
-#include "spdlog/spdlog.h"
 
+#include "Animation.h"
+
+#include <spdlog/spdlog.h>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include "Animation.h"
 
 using namespace sf;
 
@@ -48,7 +48,7 @@ protected:
     std::shared_ptr<spdlog::logger> graphics_logger;
 
 public:
-    std::string name; /// TEMP
+    std::string name;
 
     explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true, bool reversible = false);
     AnimatedSprite(std::string name, Texture& texture, IntRect frame0);
@@ -98,9 +98,6 @@ public:
     virtual Time getFrameTime() const;
     virtual void setFrame(std::size_t newFrame, bool resetTime = true);
     virtual size_t getFrame() const;
-
-    /// TEMP
-    Time temp_current_time() const;
 
     // whole animation duration
     Time get_duration() const;

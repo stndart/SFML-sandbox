@@ -2,6 +2,7 @@
 #define UI_LAYOUT_H
 
 #include <vector>
+
 #include "UI_element.h"
 #include "UI_label.h"
 #include "UI_button.h"
@@ -12,7 +13,7 @@ class UI_layout : public sf::Drawable, public sf::Transformable
         // list of UI_elements
         std::vector <UI_element*> elements;
 
-        bool isClicked = false;
+        bool isClicked;
         int last_clicked_index;
 
         std::shared_ptr<spdlog::logger> loading_logger;

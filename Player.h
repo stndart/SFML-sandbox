@@ -3,14 +3,14 @@
 
 #include <iostream>
 #include <typeinfo>
-#include "spdlog/spdlog.h"
-
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Window/Event.hpp>
-#include "extra_algorithms.h"
 
 #include "AnimatedSprite.h"
 #include "Character.h"
+#include "extra_algorithms.h"
+
+#include <spdlog/spdlog.h>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Window/Event.hpp>
 
 using namespace sf;
 
@@ -33,15 +33,15 @@ private:
 
 public:
     std::string name;
-    // cell coords
-    unsigned int x_cell_coord, y_cell_coord;
     // queued movements up-down-right-left
     deque<Movement> queued_movement_direction;
 
+    // cell coords
+    unsigned int x_cell_coord, y_cell_coord;
     // screen coords
     double x_cell_movement_coord, y_cell_movement_coord;
     // smooth movement flag
-    bool movement_animation;
+    bool movement_animation; /// NOT IMPLEMENTED (look Character::moving_enabled)
 
     Player(std::string name);
     Player(std::string name, Texture* texture, IntRect frame0);

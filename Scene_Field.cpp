@@ -13,9 +13,11 @@ Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *fie
     }
 }
 
-// change field by index and swap to it
+// change field by index
 void Scene_Field::add_field(Field* field_to_add, int num)
 {
+    loading_logger->trace("Add field #{} to scene", num);
+
     field[num] = field_to_add;
     if (current_field == -1)
     {
@@ -24,10 +26,12 @@ void Scene_Field::add_field(Field* field_to_add, int num)
 }
 
 /// TEMP
-// create field, add by index, then swap to it
+// create field, add by index
 void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
                             Texture* player_texture, Vector2i screen_dimensions, int num)
 {
+    loading_logger->trace("Create field #{} to scene", num);
+
     Field* field_0 = new_field(bg, length, width, (*field_blocks)["null"], player_texture, screen_dimensions);
     field[num] = field_0;
     if (current_field == -1)
@@ -39,6 +43,8 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 // swap to field by index
 void Scene_Field::change_current_field(int num)
 {
+    map_events_logger->trace("Changed current field to {}", num);
+
     current_field = num;
 
     if (field[num] == nullptr) {
@@ -60,87 +66,86 @@ void Scene_Field::load_field(int num, std::string who_call)
 
 void Scene_Field::set_player_movement_direction(int direction)
 {
-    field[current_field]->set_player_movement_direction(direction);
+    if (current_field != -1)
+    {
+        field[current_field]->set_player_movement_direction(direction);
+    }
 }
 
 void Scene_Field::release_player_movement_direction(int direction)
 {
-    field[current_field]->release_player_movement_direction(direction);
+    if (current_field != -1)
+    {
+        field[current_field]->release_player_movement_direction(direction);
+    }
 }
 
 void Scene_Field::update(Event& event, std::string& command_main)
 {
-    if (event.type == sf::Event::KeyPressed)
+    if (current_field != -1)
     {
-        // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
-        switch (event.key.code)
+        if (event.type == sf::Event::KeyPressed)
         {
-        case sf::Keyboard::W:
-            field[current_field]->set_player_movement_direction(3);
-            //field[current_field]->move_player(3);
-            break;
-        case sf::Keyboard::D:
-            field[current_field]->set_player_movement_direction(0);
-            //field[current_field]->move_player(0);
-            break;
-        case sf::Keyboard::S:
-            field[current_field]->set_player_movement_direction(1);
-            //field[current_field]->move_player(1);
-            break;
-        case sf::Keyboard::A:
-            field[current_field]->set_player_movement_direction(2);
-            //field[current_field]->move_player(2);
-            break;
-        case sf::Keyboard::Space:
-            field[current_field]->action((*field_tex_map)["stump"]);
-            break;
-        case sf::Keyboard::Tab:
-            change_current_field((current_field+1)%2);
-            break;
-        default:
-            break;
+            // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
+            /// MAGIC NUMBERS: set controls in config file
+            switch (event.key.code)
+            {
+            case sf::Keyboard::W:
+                field[current_field]->set_player_movement_direction(3);
+                break;
+            case sf::Keyboard::D:
+                field[current_field]->set_player_movement_direction(0);
+                break;
+            case sf::Keyboard::S:
+                field[current_field]->set_player_movement_direction(1);
+                break;
+            case sf::Keyboard::A:
+                field[current_field]->set_player_movement_direction(2);
+                break;
+            case sf::Keyboard::Space:
+                field[current_field]->action((*field_tex_map)["stump"]);
+                break;
+            case sf::Keyboard::Tab:
+                change_current_field((current_field+1)%2);
+                break;
+            default:
+                break;
+            }
+        }
+        if (event.type == sf::Event::KeyReleased)
+        {
+            switch (event.key.code)
+            {
+            case sf::Keyboard::W:
+                field[current_field]->release_player_movement_direction(3);
+                break;
+            case sf::Keyboard::D:
+                field[current_field]->release_player_movement_direction(0);
+                break;
+            case sf::Keyboard::S:
+                field[current_field]->release_player_movement_direction(1);
+                break;
+            case sf::Keyboard::A:
+                field[current_field]->release_player_movement_direction(2);
+                break;
+            default:
+                break;
+            }
         }
     }
-    if (event.type == sf::Event::KeyReleased)
-    {
-        switch (event.key.code)
-        {
-        case sf::Keyboard::W:
-            field[current_field]->release_player_movement_direction(3);
-            break;
-        case sf::Keyboard::D:
-            field[current_field]->release_player_movement_direction(0);
-            break;
-        case sf::Keyboard::S:
-            field[current_field]->release_player_movement_direction(1);
-            break;
-        case sf::Keyboard::A:
-            field[current_field]->release_player_movement_direction(2);
-            break;
-        default:
-            break;
-        }
-    }
-    /*if (event.type == Event::MouseButtonReleased) // ?
-    {
-        switch (event.mouseButton.button)
-        {
-        case Mouse::Left:
-            break;
-
-        default:
-            break;
-        }
-    }*/
 }
 
 void Scene_Field::update(Time deltaTime)
 {
-    field[current_field]->update(deltaTime);
+    if (current_field != -1)
+    {
+        field[current_field]->update(deltaTime);
+    }
 }
 
 void Scene_Field::draw(RenderTarget& target, RenderStates states) const
 {
+    /// WHY?
     /*if (background)
     {
         states.transform *= getTransform();

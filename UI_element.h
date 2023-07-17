@@ -2,8 +2,8 @@
 #define UI_ELEMENT_H
 
 #include <iostream>
-#include "spdlog/spdlog.h"
 
+#include <spdlog/spdlog.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -26,7 +26,6 @@ class UI_element : public sf::Drawable, public sf::Transformable
         bool isClickable;
 
         /// need destructor
-        UI_element();
         UI_element(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp);
 
         // move left top angle and child sprite to pos
@@ -36,7 +35,7 @@ class UI_element : public sf::Drawable, public sf::Transformable
 
         // mouse push action
         virtual void push() const;
-        // returns its name when unpushed
+        // returns its name when released
         virtual std::string release() const;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

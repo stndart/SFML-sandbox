@@ -1,26 +1,22 @@
 #include "Player.h"
 
-Player::Player(std::string name) : name(name),
+Player::Player(std::string name) : sprite(NULL), name(name),
 x_cell_coord(0), y_cell_coord(0),
-queued_movement_direction(deque<Movement>()),
-x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
     map_events_logger = spdlog::get("map_events");
-
-    sprite = NULL;
 
     map_events_logger->debug("Constructing player, \"{}\" with no sprite", name);
 }
 
-Player::Player(std::string name, Texture* texture, IntRect frame0) : name(name),
+Player::Player(std::string name, Texture* texture, IntRect frame0) : sprite(NULL), name(name),
 x_cell_coord(0), y_cell_coord(0),
-queued_movement_direction(deque<Movement>()),
-x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
     map_events_logger = spdlog::get("map_events");
 
     sprite = new Character(name, *texture, frame0);
-    sprite->set_moving_enabled(true);
+    sprite->set_moving_enabled(movement_animation);
 
     map_events_logger->debug("Constructing player, \"{}\", with sprite \"{}\"", name, name);
 }
@@ -43,6 +39,8 @@ bool Player::is_moving() const
 // push back direction to queue
 void Player::add_movement_direction(Vector2f shift, int direction)
 {
+    map_events_logger->trace("Adding player movement direction {}", direction);
+
     Movement m = {direction, shift, false, false};
     queued_movement_direction.push_back(m);
 }
@@ -50,6 +48,8 @@ void Player::add_movement_direction(Vector2f shift, int direction)
 // pop all coinciding directions from queue
 void Player::release_movement_direction(int direction)
 {
+    map_events_logger->trace("Releasing player movement direction {}", direction);
+
     std::erase_if(queued_movement_direction, [direction](Movement x) { return x.direction == direction; });
 }
 

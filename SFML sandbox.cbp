@@ -67,9 +67,7 @@
 		<Unit filename="VisualEffect.h" />
 		<Unit filename="extra_algorithms.cpp" />
 		<Unit filename="extra_algorithms.h" />
-		<Unit filename="json/json-forwards.h" />
-		<Unit filename="json/json.h" />
-		<Unit filename="jsoncpp.cpp" />
+		<Unit filename="jsoncpp/jsoncpp.cpp" />
 		<Unit filename="main.cpp" />
 		<Extensions />
 	</Project>

@@ -22,9 +22,12 @@
 /Images/archive/*
 
 # third party
-/json/*
+/jsoncpp/*
 /spdlog/*
 /SFML/*
+
+# logs
+/logs/*
 
 # notes
 *.txt

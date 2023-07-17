@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <vector>
-#include "spdlog/spdlog.h"
 
+#include <spdlog/spdlog.h>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Texture.hpp>
 

@@ -2,19 +2,20 @@
 
 bool isdrawed = false;
 
-Field::Field(int length, int width, std::string name) : background(NULL), name(name)
+Field::Field(int length, int width, std::string name) : background(NULL), name(name), player_0(NULL)
 {
     map_events_logger = spdlog::get("map_events");
     loading_logger = spdlog::get("loading");
 
-    current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
-    cells_changed = false;
-
+    /// MAGIC NUMBERS!
+    cell_length_x = 120;
+    cell_length_y = 120;
     cell_center_x = 0;
     cell_center_y = 0;
 
-    cell_length_x = 120;
-    cell_length_y = 120;
+    current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
+    default_player_pos = Vector2i(1, 1);
+    cells_changed = false;
 
     cells.resize(length);
     for (int i = 0; i < length; ++i)
@@ -25,9 +26,7 @@ Field::Field(int length, int width, std::string name) : background(NULL), name(n
 
 Field::Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions) : Field(length, width, name)
 {
-    map_events_logger = spdlog::get("map_events");
-    loading_logger = spdlog::get("loading");
-
+    /// MAGIC NUMBERS!
     addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
     setScale((float)screenDimensions.x / 1920, (float)screenDimensions.y / 1080);
 }
@@ -94,11 +93,14 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 // create player at cell [pos.x, pos.y] with texture
 void Field::addPlayer(Texture* player_texture, Vector2i pos)
 {
+    map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
+
     player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
     Animation* idle_animation = new Animation();
     idle_animation->addSpriteSheet(*player_texture);
+    /// MAGIC NUMBERS!
     idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
     idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
     player_0->add_animation("idle_animation", idle_animation);
@@ -118,17 +120,17 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
 // create player at cell [pos.x, pos.y] with animations files: [idle, movement_0]
 void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u frame_size, Vector2i pos)
 {
-    map_events_logger->trace("Field: addPlayer");
+    map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
 
-    Texture* aaa = new Texture;
-    if (!aaa->loadFromFile("Images/Flametail/default.png"))
+    Texture* p_tex = new Texture;
+    if (!p_tex->loadFromFile("Images/Flametail/default.png"))
     {
         loading_logger->error("Failed to load texture");
         throw;
     }
 
     /// TODO: change to no-default-texture-player
-    player_0 = new Player("animated_player", aaa, IntRect(0, 0, frame_size.x, frame_size.y));
+    player_0 = new Player("animated_player", p_tex, IntRect(0, 0, frame_size.x, frame_size.y));
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
     Animation* idle_animation_0 = new Animation();
@@ -189,6 +191,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
     map_events_logger->trace("Field: created 4 animations, joints joined");
 
     // fit sprite into cell (horizontally)
+    /// MAGIC NUMBERS!
     player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
 
     if (pos.x == -1)
@@ -207,6 +210,8 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u fra
 /// как оно работает если размер уменьшить - я хз
 void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
 {
+    map_events_logger->debug("Changed field size to {}x{}", length, width);
+
     cells.resize(length);
     for (unsigned int i = 0; i < length; i++)
     {
@@ -284,8 +289,9 @@ void Field::action(Texture* texture)
 {
     int cell_x = player_0->x_cell_coord;
     int cell_y = player_0->y_cell_coord;
-    Cell* target_cell = cells[cell_x][cell_y];
+    map_events_logger->debug("Calling action on cell {}x{}", cell_x, cell_y);
 
+    Cell* target_cell = cells[cell_x][cell_y];
     if (target_cell->hasObject("tree"))
     {
         target_cell->action_change("tree", texture);
@@ -319,6 +325,8 @@ void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Textur
 // update all movables screen coordinates as well as View
 void Field::place_characters()
 {
+    map_events_logger->trace("Updating player and view screen coords");
+
     if (player_0)
     {
         double player_screen_x, player_screen_y;
@@ -359,7 +367,7 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     path += std::to_string(loc_id);
     path += ".json";
 
-    loading_logger->trace("load_field {}", path);
+    loading_logger->info("Loading field from \"{}\"", path);
 
     Json::Value Location;
     std::ifstream ifs(path);
@@ -368,6 +376,9 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     // get field size
     unsigned int field_length = int(Location["scale"][0].asInt());
     unsigned int field_width = int(Location["scale"][1].asInt());
+
+    loading_logger->info("Loading field with size of {}x{}", field_length, field_width);
+
     default_player_pos.x = Location["default_player_pos"][0].asInt();
     default_player_pos.y = Location["default_player_pos"][1].asInt();
     field_resize(field_length, field_width);
@@ -407,6 +418,8 @@ void Field::save_field(int loc_id)
     std::string path = "Locations/loc_";
     path += std::to_string(loc_id);
     path += ".json";
+
+    loading_logger->info("Saving field to \"{}\"", path);
 
     Json::Value Location;
     Location["default_player_pos"][0] = 10;
@@ -484,6 +497,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     // center cell in view
     int center_cell_x = current_view.getCenter().x / cell_length_x;
     int center_cell_y = current_view.getCenter().y / cell_length_y;
+
+    /// MAGIC NUMBERS!
     /// Что за магические 5 и 8?
     /// Это (1080/120) / 2 и (1920/120) / 2, т.е. центр.
 
