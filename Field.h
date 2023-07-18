@@ -62,9 +62,9 @@ public:
     // add cell by indexes [x, y] with texture
     void addCell(Texture* texture, unsigned int x, unsigned int y);
     // create player at cell [cell_x, cell_y] with texture
-    void addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1)); // pos default = (-1, -1)
+    void addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1));
     // create player at cell [cell_x, cell_y] with animation given by list [idle_animation, movement_0]
-    void addPlayer(std::vector<std::string> animation_filenames, Vector2u frame_size = Vector2u(530, 530), Vector2i pos = Vector2i(-1, -1));
+    void addPlayer(std::vector<std::string> animation_filenames, Vector2i pos = Vector2i(-1, -1), Vector2u frame_size = Vector2u(530, 530));
 
     // change field size and reshape cells 2d vector
     /// как оно работает если размер уменьшить - я хз

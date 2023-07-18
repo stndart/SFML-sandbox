@@ -3,6 +3,7 @@
 Scene::Scene(std::string name) : background(NULL), name(name)
 {
     loading_logger = spdlog::get("loading");
+    input_logger = spdlog::get("input");
 
     Interface = new UI_layout();
 }

@@ -93,6 +93,9 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 // create player at cell [pos.x, pos.y] with texture
 void Field::addPlayer(Texture* player_texture, Vector2i pos)
 {
+    if (pos == Vector2i(-1, -1))
+        pos = default_player_pos;
+
     map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
 
     player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
@@ -118,8 +121,11 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
 }
 
 // create player at cell [pos.x, pos.y] with animations files: [idle, movement_0]
-void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2u frame_size, Vector2i pos)
+void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos, Vector2u frame_size)
 {
+    if (pos == Vector2i(-1, -1))
+        pos = default_player_pos;
+
     map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
 
     Texture* p_tex = new Texture;

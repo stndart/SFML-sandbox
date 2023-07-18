@@ -136,7 +136,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
     // if <Enter> then mess with command line
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
     {
-        map_events_logger->debug("Pressed enter with current string ", s_input);
+        input_logger->debug("Pressed enter with current string \"{}\"", s_input);
 
         // save old content
         std::string data = s_input;
@@ -144,15 +144,15 @@ void Scene_editor::update(Event& event, std::string& command_main)
         // if smth present then run command
         if (data != "")
         {
-            map_events_logger->info("running command: [{}]", data);
+            input_logger->info("running command: \"{}\"", data);
             command(data);
         }
         input_focus = !input_focus;
     }
-    if (current_field != -1)
+    // if keyboard press and command line deactivated
+    if (event.type == sf::Event::KeyPressed && !input_focus)
     {
-        // if keyboard press and command line deactivated
-        if (event.type == sf::Event::KeyPressed && !input_focus)
+        if (current_field != -1)
         {
             // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
             switch (event.key.code)
@@ -183,7 +183,10 @@ void Scene_editor::update(Event& event, std::string& command_main)
                 break;
             }
         }
-        else if (event.type == sf::Event::KeyReleased && !input_focus)
+    }
+    else if (event.type == sf::Event::KeyReleased && !input_focus)
+    {
+        if (current_field != -1)
         {
             switch (event.key.code)
             {
@@ -215,6 +218,8 @@ void Scene_editor::update(Event& event, std::string& command_main)
     // if command line active and pressed any letter
     else if (input_focus && event.type == sf::Event::TextEntered)
     {
+        input_logger->trace("Logging pressed symbol: \"{}\"", event.text.unicode);
+
         // ignore special symbols
         if (event.text.unicode != '\r' && event.text.unicode != '\b' && event.text.unicode != '\n')
         {

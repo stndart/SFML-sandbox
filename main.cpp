@@ -60,7 +60,7 @@ int main()
         map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
         graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
-        loading_logger->set_level(spdlog::level::trace);
+        loading_logger->set_level(spdlog::level::info);
         input_logger->set_level(spdlog::level::info);
         map_events_logger->set_level(spdlog::level::debug);
         graphics_logger->set_level(spdlog::level::info);

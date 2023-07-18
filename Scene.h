@@ -35,7 +35,7 @@ protected:
     void draw_scene_buttons(RenderTarget& target, RenderStates states) const;
     void draw_scene_Interface(RenderTarget& target, RenderStates states) const;
 
-    std::shared_ptr<spdlog::logger> loading_logger;
+    std::shared_ptr<spdlog::logger> loading_logger, input_logger;
 
 public:
     std::string name;
