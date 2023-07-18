@@ -45,7 +45,7 @@ State curstate(State start, State finish, Time duration, Time now)
     return mid;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite("default veffect"),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite("default VEffect"),
     sprite(sprite)
 {
 
@@ -85,13 +85,14 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : Anim
     now = start;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish) : AnimatedSprite("default veffect"),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish) : AnimatedSprite("default VEffect"),
     start(start), finish(finish), sprite(sprite)
 {
     duration = m_duration;
     m_currentTime = offset;
     now = start;
-    //std::cout << name << " now owns " << sprite->name << std::endl;
+
+    graphics_logger->debug("{} VE is now owned by {} ASprite", name, sprite->name);
 }
 
 VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos) : AnimatedSprite("default motion effect"),
@@ -122,7 +123,8 @@ void VisualEffect::setAnimation(Animation& animation)
 
 void VisualEffect::play()
 {
-//    std::cout << "VE";
+    graphics_logger->trace("VE play");
+
     m_isPaused = false;
     passed_after_stop = seconds(0);
     if (sprite)
@@ -131,14 +133,16 @@ void VisualEffect::play()
 
 void VisualEffect::play(Animation& animation, Time shift)
 {
-//    std::cout << "VE";
+    graphics_logger->trace("VE play");
+
     if (sprite)
         sprite->play(animation, shift);
 }
 
 void VisualEffect::pause()
 {
-//    std::cout << "VE pause\n";
+    graphics_logger->trace("VE pause");
+
     m_isPaused = true;
     // even if movement has stopped, we don't stop animation (leg movement)
 //    if (sprite)
@@ -147,7 +151,8 @@ void VisualEffect::pause()
 
 void VisualEffect::stop()
 {
-//    std::cout << "VE stop\n";
+    graphics_logger->trace("VE stop");
+
     m_isPaused = true;
     // even if movement has stopped, we don't stop animation (leg movement)
 //    if (sprite)
@@ -189,7 +194,8 @@ Time VisualEffect::animation_remaining_time() const
 
 Time VisualEffect::movement_remaining_time() const
 {
-    //std::cout << "movement remains: mcur " << m_currentTime.asMilliseconds() << " dur " << duration.asMilliseconds() << std::endl;
+    graphics_logger->trace("movement remains: mcur {}, dur {}", m_currentTime.asMilliseconds(), duration.asMilliseconds());
+
     Time remain = std::max(seconds(0), duration - m_currentTime);
     return std::max(remain, sprite->movement_remaining_time());
 }

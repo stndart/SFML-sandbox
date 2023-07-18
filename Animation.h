@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <vector>
+
+#include <spdlog/spdlog.h>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
@@ -28,6 +30,8 @@ private:
 
     // joints, i.e. frames with available transition to other animation
     std::vector<Joint> joints;
+
+    std::shared_ptr<spdlog::logger> loading_logger, graphics_logger;
 
 public:
     Animation();

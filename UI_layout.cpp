@@ -1,8 +1,8 @@
 #include "UI_layout.h"
 
-UI_layout::UI_layout()
+UI_layout::UI_layout() : isClicked(false), last_clicked_index(-1)
 {
-    //ctor
+    loading_logger = spdlog::get("loading");
 }
 
 // push UI_element into list
@@ -21,7 +21,6 @@ bool UI_layout::contains(sf::Vector2f curPos)
         //if (g->type_name == "main_menu") {ans = true; break;}
         if (tek) {ans = true; break;}
     }
-    //std::cout << ans << std::endl;
     return ans;
 }
 
@@ -62,7 +61,6 @@ void UI_layout::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     for (auto g : elements)
     {
-        //std::cout << elements.size() << std::endl;
         target.draw(*g);
     }
 }

@@ -2,8 +2,10 @@
 
 Scene::Scene(std::string name) : background(NULL), name(name)
 {
-    UI_layout* new_interface = new UI_layout();
-    Interface = new_interface;
+    loading_logger = spdlog::get("loading");
+    input_logger = spdlog::get("input");
+
+    Interface = new UI_layout();
 }
 
 // change texture and update background from it
@@ -29,12 +31,16 @@ void Scene::addTexture(Texture* texture, IntRect rect)
 
 void Scene::addSprite(AnimatedSprite* sprite)
 {
+    loading_logger->debug("Added sprite \"{}\" to scene", sprite->name);
+
     sprites.push_back(sprite);
 }
 
 // add and place button
 void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y)
 {
+    loading_logger->debug("Added button \"{}\" to scene", name);
+
     Button* new_button = new Button(name, texture_default, texture_released);
     new_button->change_position(sf::Vector2f{x, y});
     buttons.push_back(new_button);
@@ -42,10 +48,11 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 
 void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
 {
+    loading_logger->debug("Added ui elements[{}] to scene", new_ui_elements.size());
+
     for (auto g : new_ui_elements)
     {
         Interface->addElement(g);
-        //std::cout << Interface->get_elements_size() << "|" << std::endl;
     }
 }
 
@@ -196,7 +203,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
 
     if (new_button == new_button_pressed)
     {
-        std::cout << "FATAL ERROR: same textures for pressed/not button\n";
+        spdlog::get("loading")->error("Same textures for pressed/released button");
         throw;
     }
 

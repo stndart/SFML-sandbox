@@ -1,20 +1,22 @@
 #include "Cell.h"
-#include <iostream>
-#include <typeinfo>
 
-Cell::Cell(std::string name) : type_name(name)
+Cell::Cell(std::string name) : background(NULL), type_name(name)
 {
-
+    map_events_logger = spdlog::get("map_events");
 }
 
 Cell::Cell(std::string name, Texture* texture) : background(texture), type_name(name)
 {
+    map_events_logger = spdlog::get("map_events");
+
+    /// MAGIC NUMBERS
     addTexCoords(IntRect(0, 0, 120, 120));
 }
 
 // change tile texture and name
 void Cell::change_texture(std::string name, Texture* texture)
 {
+    /// potential bug: m_vertices uninitialized
     background = texture;
     type_name = name;
 }
@@ -58,14 +60,14 @@ bool Cell::hasObject(std::string name)
 // add object with name and z-coordinate
 Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
 {
-    Cell_object* new_object = new Cell_object(name, texture);
+    map_events_logger->debug("Adding object \"{}\" to cell with z-level {}", name, depth_level);
+
+    Cell_object* new_object;
     /// Что за магическое число 120?
     if (name == "house")
-    {
-        new_object->addTexCoords(IntRect(0, 0, 360, 240));
-    }
+        new_object = new Cell_object(name, texture, IntRect(0, 0, 360, 240));
     else
-        new_object->addTexCoords(IntRect(0, 0, 120, 120));
+        new_object = new Cell_object(name, texture, IntRect(0, 0, 120, 120));
 
     new_object->depth_level = depth_level;
     /// TODO: обработать, если objects[name] уже существует
@@ -76,12 +78,16 @@ Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level
 // remove object from map by name
 void Cell::removeObject(std::string name)
 {
+    map_events_logger->debug("Removed object \"{}\" from cell", name);
+
     objects.erase(name);
 }
 
 // invoke action by name. texture - temporary variable, used for creating <stump>
 void Cell::action_change(std::string name, Texture* texture)
 {
+    map_events_logger->debug("Action change on cell with action name {}", name);
+
     /// TODO: запихнуть все именные действия в json
     /// Что-то вроде "choptree" = remove: "tree", add: "stump"
     /// Этот метод превратится в "заменить %a на %b"

@@ -1,8 +1,9 @@
 #ifndef CELL_OBJECT_INCLUDE
 #define CELL_OBJECT_INCLUDE
 
-#include <SFML/Graphics/Sprite.hpp>
 #include "AnimatedSprite.h"
+
+#include <SFML/Graphics/Sprite.hpp>
 
 class Cell_object : public Drawable, public Transformable
 {
@@ -16,8 +17,7 @@ public:
     // z-coordinate
     int depth_level;
 
-    Cell_object(std::string name, Texture* texture);
-    ~Cell_object();
+    Cell_object(std::string name, Texture* texture, IntRect rect);
 
     // change m_vertices
     void addTexCoords(IntRect rect);

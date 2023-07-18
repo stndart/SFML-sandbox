@@ -2,6 +2,9 @@
 
 Animation::Animation()
 {
+    loading_logger = spdlog::get("loading");
+    graphics_logger = spdlog::get("graphics");
+
     m_frames = std::vector<IntRect>(0);
     textures = std::vector<Texture*>(0);
     texture_index = std::vector<int>(0);
@@ -50,13 +53,13 @@ void Animation::add_joint(Joint j)
 {
     if (j.frame == -1)
         j.frame = getSize() - 1;
-//    std::cout << "adding joint with f: " << j.frame << std::endl;
 
     auto j_iter = joints.begin();
     while (j_iter != joints.end() && j_iter->frame < j.frame)
         j_iter++;
 
-//    std::cout << "Animation::add_joint about to insert\n";
+    //graphics_logger->trace("Animation::add_joint about to insert");
+
     joints.insert(j_iter, j);
 }
 
@@ -96,10 +99,13 @@ Joint Animation::get_next_joint(int cur_frame, std::string animation) const
 // if multiple joints are found within one frame, they are sorted as <animation>
 Joint Animation::get_next_joint(int cur_frame, std::vector<std::string> animation) const
 {
-//    std::cout << "Animation: We search for next joint with curframe " << cur_frame << " and animations vector";
-//    for (std::size_t i = 0; i < animation.size(); ++i)
-//        std::cout << ", " << animation[i];
-//    std::cout << std::endl;
+    graphics_logger->trace("Animation: We search for next joint with curframe {} and animations vector", cur_frame);
+
+    std::string s = "";
+    for (std::size_t i = 0; i < animation.size(); ++i)
+        s += ", " + animation[i];
+
+    graphics_logger->trace(s);
 
     Joint default_j = {-1, "", 0};
     std::vector<Joint> res;
@@ -120,15 +126,17 @@ Joint Animation::get_next_joint(int cur_frame, std::vector<std::string> animatio
                     res.push_back(j);
                 }
     }
-//    if (default_j.frame == -1)
-//        std::cout << "Found no joint until the end\n";
-//    else
-//    {
-//        std::cout << "Found joint with frame " << default_j.frame << std::endl;
-//        for (Joint j : res)
-//            std::cout << ", " << j.anim_to;
-//        std::cout << std::endl;
-//    }
+    if (default_j.frame == -1)
+        graphics_logger->trace("Found no joint until the end");
+    else
+    {
+        graphics_logger->trace("Found joint with frame {}", default_j.frame);
+
+        s = "";
+        for (Joint j : res)
+            s +=  ", " + j.anim_to;
+        graphics_logger->trace(s);
+    }
 
     for (std::string anim : animation)
         for (Joint j : res)
@@ -205,7 +213,7 @@ void Animation::load_from_file(std::string animation_filename, Vector2u frame_si
     Texture* ssheet = new Texture;
     if (!ssheet->loadFromFile(fname))
     {
-        std::cout << "Failed to load animation texture\n";
+        loading_logger->error("Failed to load animation texture");
         throw;
     }
     Vector2u sheet_size = ssheet->getSize();
@@ -217,10 +225,10 @@ void Animation::load_from_file(std::string animation_filename, Vector2u frame_si
 
     if (Nx * Ny < N)
     {
-        std::cout << "Spritesheet contains less frames than requested\n";
-        std::cout << "In spritesheet row: " << Nx << ", requested: " << N << std::endl;
-        std::cout << "Sritesheet size " << sheet_size.x << "x" << sheet_size.y << std::endl;
-        std::cout << "Frame size " << frame_size.x << "x" << frame_size.y << std::endl;
+        loading_logger->error("Spritesheet contains less frames than requested\n");
+        loading_logger->error("In spritesheet row: {}, requested: {}", Nx, N);
+        loading_logger->error("Sritesheet size {}x{}", sheet_size.x, sheet_size.y);
+        loading_logger->error("Frame size {}x{}", frame_size.x, frame_size.y);
         throw;
     }
 
@@ -229,7 +237,6 @@ void Animation::load_from_file(std::string animation_filename, Vector2u frame_si
     {
         int x = frame_size.x * (i % Nx);
         int y = frame_size.y * (int)(i / Nx);
-//        std::cout << "x, y, fx, fy: " << x << "x" << y << ", " << frame_size.x << "x" << frame_size.y << std::endl;
         addFrame(IntRect(x, y, frame_size.x, frame_size.y), textures.size() - 1);
     }
 }

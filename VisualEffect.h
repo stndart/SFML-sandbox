@@ -1,12 +1,13 @@
 #ifndef VISUALEFFECT_INCLUDE
 #define VISUALEFFECT_INCLUDE
 
-#include <SFML/System/Time.hpp>
 
 #include <iostream>
 #include <string>
 
 #include "AnimatedSprite.h"
+
+#include <SFML/System/Time.hpp>
 
 using namespace sf;
 

@@ -1,25 +1,27 @@
 #ifndef SCENE_EDITOR_H_INCLUDED
 #define SCENE_EDITOR_H_INCLUDED
 
-#include <SFML/Graphics/Text.hpp>
 #include <string>
 #include <cassert>
-#include "Scene_Field.h"
+
 #include "Field.h"
+#include "Scene_Field.h"
+
+#include <SFML/Graphics/Text.hpp>
 
 class Scene_editor : public Scene_Field
 {
-
     private:
         // command line string
         std::string s_input;
         // activated command line input flag
-        bool if_input;
+        bool input_focus;
         // evaluate command line command
         void command(std::string data);
 
         // save field to json
         void save_map();
+
     public:
         Scene_editor(std::string name, std::map <std::string, Texture*> *field_tex_map);
 

@@ -1,25 +1,24 @@
 #include "Player.h"
 
-Player::Player(std::string name) : name(name),
+Player::Player(std::string name) : sprite(NULL), name(name),
 x_cell_coord(0), y_cell_coord(0),
-queued_movement_direction(deque<Movement>()),
-x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
-    cout << "CONSTRUCTING player, name " << name << " with no sprite" << endl;
+    map_events_logger = spdlog::get("map_events");
 
-    sprite = NULL;
+    map_events_logger->debug("Constructing player, \"{}\" with no sprite", name);
 }
 
-Player::Player(std::string name, Texture* texture, IntRect frame0) : name(name),
+Player::Player(std::string name, Texture* texture, IntRect frame0) : sprite(NULL), name(name),
 x_cell_coord(0), y_cell_coord(0),
-queued_movement_direction(deque<Movement>()),
-x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(false)
+x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
-    cout << "CONSTRUCTING player, name " << name << " sprite " << sprite << endl;
+    map_events_logger = spdlog::get("map_events");
 
     sprite = new Character(name, *texture, frame0);
-    sprite->set_moving_enabled(true);
-    sprite->set_ignore_joints(true);
+    sprite->set_moving_enabled(movement_animation);
+
+    map_events_logger->debug("Constructing player, \"{}\", with sprite \"{}\"", name, name);
 }
 
 // removes "blocking checked" from movements queue
@@ -40,6 +39,8 @@ bool Player::is_moving() const
 // push back direction to queue
 void Player::add_movement_direction(Vector2f shift, int direction)
 {
+    map_events_logger->trace("Adding player movement direction {}", direction);
+
     Movement m = {direction, shift, false, false};
     queued_movement_direction.push_back(m);
 }
@@ -47,6 +48,8 @@ void Player::add_movement_direction(Vector2f shift, int direction)
 // pop all coinciding directions from queue
 void Player::release_movement_direction(int direction)
 {
+    map_events_logger->trace("Releasing player movement direction {}", direction);
+
     std::erase_if(queued_movement_direction, [direction](Movement x) { return x.direction == direction; });
 }
 
@@ -63,7 +66,8 @@ bool Player::has_queued_direction(int direction)
 // request sprite movement by shift. Direction is optional
 void Player::move_player(Vector2f shift, int direction)
 {
-    //std::cout << "PLayer requests movement\n";
+    map_events_logger->trace("Player requests movement in direction ", direction);
+
     sprite->plan_movement(shift, direction);
 }
 
@@ -91,12 +95,14 @@ void Player::update(Time deltaTime)
     // find next available direction
     if (queued_movement_direction.size() > 0)
     {
-        // std::cout << "trying to schedule smth\n";
+        map_events_logger->trace("trying to schedule smth");
+
         // find next valid direction (not blocked movement)
         for (auto r_iter = queued_movement_direction.begin();
              r_iter != queued_movement_direction.end(); r_iter++)
         {
-//            std::cout << "block dir: " << r_iter->direction << ", check: " << r_iter->blocking_checked << ", block: " << r_iter->blocked << std::endl;
+            map_events_logger->trace("block dir: {}, check: {}, block: {}", r_iter->direction, r_iter->blocking_checked, r_iter->blocked);
+
             if (r_iter->blocking_checked && !r_iter->blocked)
             {
                 mov_dir = r_iter->direction;
@@ -110,8 +116,9 @@ void Player::update(Time deltaTime)
     {
         // cancels previous planned move if present
         // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
-        std::cout << "+++ Player::update plan movement with dir: " << mov_dir << std::endl;
-//        std::cout << "because next_planned: " << sprite->is_next_movement_planned() << " and next_dir: " << sprite->get_next_movement_direction() << std::endl;
+        map_events_logger->debug("Player::update plan movement with dir: {}", mov_dir);
+        map_events_logger->trace("because next_planned: {}, and next_dir: ", sprite->is_next_movement_planned(), sprite->get_next_movement_direction());
+
         sprite->plan_movement(mov_shift, mov_dir);
     }
 
@@ -123,7 +130,8 @@ void Player::update(Time deltaTime)
         // if it is not "standing"
         if (mov_shift != Vector2f(0, 0))
         {
-            std::cout << "=== Player::update movement from " << x_cell_coord << " " << y_cell_coord << " with dir: " << mov_dir << std::endl;
+            map_events_logger->debug("Player::update coords with movement from {}x{} with direction {}", x_cell_coord, y_cell_coord, mov_dir);
+
             x_cell_coord += direction_x[mov_dir];
             y_cell_coord += direction_y[mov_dir];
             // every time we move, check blocking again

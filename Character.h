@@ -1,8 +1,6 @@
 #ifndef CHARACTER_INCLUDE
 #define CHARACTER_INCLUDE
 
-#include <SFML/System/Time.hpp>
-
 #include <iostream>
 #include <string>
 #include <deque>
@@ -13,6 +11,9 @@
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "extra_algorithms.h"
+
+#include <spdlog/spdlog.h>
+#include <SFML/System/Time.hpp>
 
 using namespace std;
 using namespace sf;
@@ -42,7 +43,7 @@ class Character : public Drawable, public Transformable
         // flag if VE is active
         bool moving;
         // flag if smooth movement is enabled (teleports otherwise)
-        /// DEPRECATED: reverse backward compatibility required
+        /// DEPRECATED: backward compatibility required
         bool moving_enabled;
         // flag if has valid animation
         bool animated;
@@ -65,15 +66,8 @@ class Character : public Drawable, public Transformable
 
         // scheduled movement parameters
         deque<AnimMovement> next_animations;
-        // scheduled joint for current animation. Update looks if animation has reached this joint
-        Joint jnext;
         // next animation direction (main one, transitions skipped). -1 if not scheduled.
         int next_animation_dir;
-        // if animation ends between frames, we save remaining time to transfer it to the next animation
-        Time after_last_animation; /// TO IMPLEMENT. /// DEPRECATED ?
-        // Constant. Represents minimum lag between next movement request and next found joint
-        // Allows to press keys before movement has started, to schedule next one (redundant??)
-        Time no_return_point_time;
 
         // stores animations by name
         map<string, Animation*> animations;
@@ -85,10 +79,12 @@ class Character : public Drawable, public Transformable
         string get_animation_name_by_shift(Vector2f shift, int dir=-1, string animation_name="") const;
         // find last joint of transition between <current_animation> and <animation_name>
         Joint last_joint(string animation_name="") const;
-        // find next joint of transition between <current_animation> and <animation_name>, that is not sooner than no_return_point_time
+        // find next joint of transition between <current_animation> and <animation_name>
         // returns whole path to <animation_name> with next joing being the first in the deque
         // implements BFS
         deque<Joint> find_next_joint(string animation_name) const;
+
+        std::shared_ptr<spdlog::logger> map_events_logger, graphics_logger;
 
     public:
         string name;
@@ -117,9 +113,8 @@ class Character : public Drawable, public Transformable
         bool is_ignore_joints() const;
         void set_ignore_joints(bool ignore);
 
-        Character();
         Character(string name, Texture& texture_default, IntRect frame0);
-        Character(string name, map<string, Animation*> animations);
+        Character(string name, map<string, Animation*> animations); /// NOT IMPLEMENTED
 
         // add animation to map by name
         void add_animation(string animation_name, Animation* p_animation);

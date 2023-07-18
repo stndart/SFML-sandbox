@@ -7,7 +7,7 @@ AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bo
     m_currentTime(seconds(0)), m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)),
     name(name)
 {
-
+    graphics_logger = spdlog::get("graphics");
 }
 
 AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) :
@@ -16,11 +16,11 @@ AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame
     m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
     name(name)
 {
+    graphics_logger = spdlog::get("graphics");
 
-    m_texture = &texture;
     m_animation = new Animation();
     m_animation->addFrame(frame0);
-    m_animation->setSpriteSheet(*m_texture);
+    m_animation->setSpriteSheet(texture);
     setFrame(m_currentFrame);
 }
 
@@ -44,14 +44,16 @@ void AnimatedSprite::setFrameTime(Time time)
 
 void AnimatedSprite::play()
 {
-//    std::cout << "play: frame=" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
+    graphics_logger->trace("play: frame={}, time {}", m_currentFrame, m_currentTime.asSeconds());
+
     m_isPaused = false;
 }
 
 // Play with offset. Use <shift> and <frame_start> to manage offset
 void AnimatedSprite::play(std::size_t frame_start, Time shift)
 {
-//    std::cout << "play with shift: " << shift.asSeconds() << std::endl;
+    graphics_logger->trace("play with shift: {}", shift.asSeconds());
+
     setFrame(frame_start);
     m_currentTime = shift;
     play();
@@ -61,7 +63,8 @@ void AnimatedSprite::play(std::size_t frame_start, Time shift)
 // set Animation, cur_time and then play
 void AnimatedSprite::play(Animation& animation, Time shift)
 {
-//    std::cout << "play with shift: " << shift.asSeconds() << std::endl;
+    graphics_logger->trace("play with shift: {}", shift.asSeconds());
+
     setAnimation(animation);
     m_currentTime = shift;
     play();
@@ -71,7 +74,8 @@ void AnimatedSprite::play(Animation& animation, Time shift)
 // set Animation, cur_frame, cur_time and then play
 void AnimatedSprite::play(Animation& animation, std::size_t frame_start, Time shift)
 {
-//    std::cout << "play with shift: " << shift.asSeconds() << std::endl;
+    graphics_logger->trace("play with shift: {}", shift.asSeconds());
+
     setAnimation(animation);
     setFrame(frame_start);
     m_currentTime = shift;
@@ -81,14 +85,16 @@ void AnimatedSprite::play(Animation& animation, std::size_t frame_start, Time sh
 
 void AnimatedSprite::pause()
 {
-//    std::cout << "pause: frame=" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
+    graphics_logger->trace("pause: frame={}, time {}", m_currentFrame, m_currentTime.asSeconds());
+
     m_isPaused = true;
 }
 
 // pause and reset animation timer (revert to first frame)
 void AnimatedSprite::stop()
 {
-//    std::cout << "stop: frame=" << m_currentFrame << " time " << m_currentTime.asSeconds() << std::endl;
+    graphics_logger->trace("stop: frame={}, time {}", m_currentFrame, m_currentTime.asSeconds());
+
     m_isPaused = true;
     m_currentFrame = 0;
     setFrame(m_currentFrame);
@@ -96,6 +102,12 @@ void AnimatedSprite::stop()
 // sets frame to stop after
 void AnimatedSprite::stop_after(int frame)
 {
+    if (!m_animation)
+    {
+        frame_stop_after = 0;
+        return;
+    }
+
     if (frame != -1)
         frame_stop_after = (std::size_t)frame;
     else
@@ -246,11 +258,6 @@ size_t AnimatedSprite::getFrame() const
     return m_currentFrame;
 }
 
-Time AnimatedSprite::temp_current_time() const
-{
-    return m_currentTime;
-}
-
 Time AnimatedSprite::time_after_stop() const
 {
     return passed_after_stop;
@@ -266,10 +273,15 @@ Time AnimatedSprite::get_duration() const
 /// Not tested after repair
 Time AnimatedSprite::animation_remaining_time() const
 {
-    if (isReversed())
-        return animation_remaining_time(frame_stop_after - 1);
+    if (m_animation)
+    {
+        if (isReversed())
+            return animation_remaining_time(frame_stop_after - 1);
+        else
+            return animation_remaining_time(frame_stop_after + 1);
+    }
     else
-        return animation_remaining_time(frame_stop_after + 1);
+        return seconds(0);
 }
 
 Time AnimatedSprite::animation_remaining_time(size_t to_frame) const
@@ -324,8 +336,6 @@ Time AnimatedSprite::movement_remaining_time() const
 
 void AnimatedSprite::update(Time deltaTime)
 {
-//    std::cout << "AS::update\n";
-
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
@@ -374,7 +384,7 @@ void AnimatedSprite::update(Time deltaTime)
                             m_isReversed = false;
                             passed_after_stop = m_currentTime;
                             stop();
-                            //std::cout << "last first frame reached\n";
+                            graphics_logger->trace("AS: last(first, since reversed) frame reached");
                             break;
                         }
                     }
@@ -394,7 +404,7 @@ void AnimatedSprite::update(Time deltaTime)
                         {
                             passed_after_stop = m_currentTime;
                             pause();
-                            //std::cout << "last frame reached\n";
+                            graphics_logger->trace("AS: last frame reached");
                             break;
                         }
                     }
@@ -415,8 +425,8 @@ void AnimatedSprite::update(Time deltaTime)
     else if (m_animation)
         passed_after_stop += deltaTime;
 
-//    std::cout << "Playing? " << !m_isPaused << ", cur time " << m_currentTime.asSeconds() << ", stop time " << passed_after_stop.asSeconds();
-//    std::cout << ", deltaTime " << deltaTime.asSeconds() << std::endl;
+//    graphics_logger->trace("AS:{}:update Playing? {}, cur time {}, stop time {}, deltaTime {}", name,
+//                           !m_isPaused, m_currentTime.asSeconds(), passed_after_stop.asSeconds(), deltaTime.asSeconds());
 }
 
 void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const

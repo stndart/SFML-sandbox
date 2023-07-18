@@ -2,11 +2,15 @@
 #define CELL_INCLUDE
 
 #include <map>
+#include <iostream>
+#include <typeinfo>
 
-#include <SFML/Graphics/Sprite.hpp>
 #include "AnimatedSprite.h"
 #include "Cell_object.h"
-#include "json/json.h"
+
+#include <jsoncpp/json.h>
+#include <spdlog/spdlog.h>
+#include <SFML/Graphics/Sprite.hpp>
 
 using namespace sf;
 
@@ -18,6 +22,10 @@ private:
     const Texture* background;
     // placeable objects by name
     std::map <std::string, Cell_object*> objects;
+
+protected:
+    std::shared_ptr<spdlog::logger> map_events_logger;
+
 public:
     // tile type
     std::string type_name;
@@ -45,7 +53,7 @@ public:
     virtual void draw(RenderTarget& target, RenderStates states) const override;
     void draw_objects(RenderTarget& target, RenderStates states) const;
 
-    // TEMP
+    /// TEMP
     int mapsize() const;
 };
 

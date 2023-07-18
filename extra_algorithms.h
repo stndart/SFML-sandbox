@@ -1,8 +1,9 @@
 #ifndef EXTRA_ALGORITHMS
 #define EXTRA_ALGORITHMS
 
-#include <SFML/Graphics.hpp>
 #include <iostream>
+
+#include <SFML/Graphics.hpp>
 
 // extract filename (without extension) from full path
 std::string re_name(std::string path);

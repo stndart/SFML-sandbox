@@ -1,16 +1,11 @@
 #include "Button.h"
 
-Button::Button()
-{
-    //NONE
-}
-
 Button::Button(std::string name, sf::Texture* texture_default, sf::Texture* texture_pushed) : type_name(name)
 {
+    current_sprite = 0; //default
+
     sprite_default = new sf::Sprite(*texture_default);
     sprite_pushed = new sf::Sprite(*texture_pushed);
-
-    current_sprite = 0; //default
 }
 
 // changes position of both child sprites
