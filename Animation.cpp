@@ -54,8 +54,6 @@ void Animation::add_joint(Joint j)
     if (j.frame == -1)
         j.frame = getSize() - 1;
 
-    graphics_logger->trace("adding joint with f: {}", j.frame);
-
     auto j_iter = joints.begin();
     while (j_iter != joints.end() && j_iter->frame < j.frame)
         j_iter++;

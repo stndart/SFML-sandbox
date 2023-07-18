@@ -336,8 +336,6 @@ Time AnimatedSprite::movement_remaining_time() const
 
 void AnimatedSprite::update(Time deltaTime)
 {
-    graphics_logger->trace("AS::update");
-
     // if not paused and we have a valid animation
     if (!m_isPaused && m_animation)
     {
@@ -386,7 +384,7 @@ void AnimatedSprite::update(Time deltaTime)
                             m_isReversed = false;
                             passed_after_stop = m_currentTime;
                             stop();
-                            graphics_logger->trace("last first frame reached");
+                            graphics_logger->trace("AS: last(first, since reversed) frame reached");
                             break;
                         }
                     }
@@ -406,7 +404,7 @@ void AnimatedSprite::update(Time deltaTime)
                         {
                             passed_after_stop = m_currentTime;
                             pause();
-                            graphics_logger->trace("last frame reached");
+                            graphics_logger->trace("AS: last frame reached");
                             break;
                         }
                     }
@@ -427,8 +425,8 @@ void AnimatedSprite::update(Time deltaTime)
     else if (m_animation)
         passed_after_stop += deltaTime;
 
-    graphics_logger->trace("Playing? {}, cur time {}, stop time {}, deltaTime {}",
-                           !m_isPaused, m_currentTime.asSeconds(), passed_after_stop.asSeconds(), deltaTime.asSeconds());
+//    graphics_logger->trace("AS:{}:update Playing? {}, cur time {}, stop time {}, deltaTime {}", name,
+//                           !m_isPaused, m_currentTime.asSeconds(), passed_after_stop.asSeconds(), deltaTime.asSeconds());
 }
 
 void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const

@@ -155,7 +155,7 @@ struct ParentJoint
 
 deque<Joint> Character::find_next_joint(string animation_name) const
 {
-    graphics_logger->debug("Character::find_next_joint from {} with frame {} to {}", current_animation, base_sprite->getFrame(), animation_name);
+    graphics_logger->debug("Character::find_next_joint from \"{}\":{} to \"{}\"", current_animation, base_sprite->getFrame(), animation_name);
 
     // queue of animations until min_frame
     deque<Joint> min_call_stack;
@@ -213,7 +213,7 @@ deque<Joint> Character::find_next_joint(string animation_name) const
         visited_frame.pop_front();
         int duration;
 
-        graphics_logger->trace("bfs anim: {}, frame: {}", anim, frame);
+        graphics_logger->trace("bfs: current anim: {}, frame: {}", anim, frame);
 
         // if we found the path to target animation then update min
         if (anim == animation_name && !first_cycle)
@@ -285,7 +285,7 @@ void Character::add_animation(string animation_name, Animation* p_animation)
     animations[animation_name] = p_animation;
     for (Joint j : p_animation->get_joints())
     {
-        graphics_logger->trace("Character: adding pair of anim: {} -> {}", animation_name, j.anim_to);
+        graphics_logger->trace("Character: adding pair of anim: {}:{} -> {}:{}", animation_name, j.frame, j.anim_to, j.frame_to);
 
         // <animation_name> can be followed by <j.anim_to> and vice versa
         animation_subsequent[animation_name].insert(j.anim_to);
@@ -317,7 +317,8 @@ void Character::set_animation(string animation_name, Time offset, int frame_star
 // set current animation to idle with current direction
 void Character::set_animation_to_idle(Time offset)
 {
-    string animation_name = get_idle_animation_s(get_current_direction());
+    string animation_name = get_idle_animation_s(facing_direction);
+    graphics_logger->trace("Character::trying to set idle animation to {} since curdir is {}", animation_name, facing_direction);
     if (animations.count(animation_name) == 0)
         animation_name = idle_animation;
 
@@ -401,7 +402,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     {
         next_joints = find_next_joint(animation_name);
 
-        graphics_logger->debug("Character::plan_movement found queue of {} from {} to {}", next_joints.size(), current_animation, animation_name);
+        graphics_logger->debug("Character::plan_movement found queue of {}", next_joints.size());
 
         // if no path to target animation_name found, then break
         if (next_joints.size() == 0)
@@ -422,7 +423,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     for (; i < next_joints.size() - 1; ++i)
     {
         j = next_joints[i];
-        graphics_logger->debug("Character::plan_movement: pushing joint to {}", j.anim_to);
+        graphics_logger->trace("Character::plan_movement: pushing joint to {}", j.anim_to);
 
         AnimMovement am;
         am.direction = direction;
@@ -439,7 +440,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
             am.VE_shift = shift;
             am.VE_duration = duration;
 
-            graphics_logger->debug("with VE");
+            graphics_logger->trace("with VE");
         }
         am.j = next_joints[i];
         am.jnext = next_joints[i + 1];
@@ -450,7 +451,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     // last AnimMovement
     {
         j = next_joints.back();
-        graphics_logger->debug("Character::plan_movement: pushing final joint to {}", j.anim_to);
+        graphics_logger->trace("Character::plan_movement: pushing final joint to {}", j.anim_to);
 
         AnimMovement am;
         am.direction = direction;
@@ -485,7 +486,7 @@ void Character::next_movement_start()
     AnimMovement am = next_animations.front();
 
     graphics_logger->debug("Character::next_movement_start, has_VE={}, and direction {}", am.has_VE, am.direction);
-    graphics_logger->debug("Paused? {}, time after stop {}", !base_sprite->isPlaying(), base_sprite->time_after_stop().asSeconds());
+    graphics_logger->trace("Paused? {}, time after stop {}", !base_sprite->isPlaying(), base_sprite->time_after_stop().asSeconds());
 
     next_animations.pop_front();
     set_animation(am.animation, base_sprite->time_after_stop(), am.j.frame_to, am.jnext.frame);
@@ -550,8 +551,6 @@ Vector2f Character::getPosition() const
 
 void Character::update(Time deltaTime)
 {
-    graphics_logger->trace("Character::update");
-
     // if VE has reached the end, unwrap VE
     if (moving_sprite != base_sprite && moving_sprite->movement_remaining_time() <= seconds(0))
     {
@@ -573,13 +572,14 @@ void Character::update(Time deltaTime)
             bool no_VE_correct_start = !next_animations.front().has_VE && moving && next_animations.front().VE_allowed;
             if (!moving || has_VE_correct_start || no_VE_correct_start)
             {
-                graphics_logger->trace("Character::update moving? {}, b==m? {}", moving, (base_sprite==moving_sprite));
+                graphics_logger->trace("Character::update; Moving? {}; b==m? {}", moving, (base_sprite==moving_sprite));
 
                 next_movement_start();
             }
         }
         else
         {
+            graphics_logger->trace("Character::update setting animation to idle");
             next_movement_planned = false;
             // set to idle if no next animation scheduled
             if (!moving)
