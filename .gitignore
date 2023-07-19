@@ -26,6 +26,9 @@
 /spdlog/*
 /SFML/*
 
+# images sources
+/Images/resources/*
+
 # logs
 /logs/*
 
