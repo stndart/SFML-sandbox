@@ -53,15 +53,15 @@ public:
     // child sprite to take visual effect on
     AnimatedSprite *sprite;
 
-    VisualEffect(AnimatedSprite *sprite, Preset p = RFADE, Time offset = seconds(0));
-    VisualEffect(AnimatedSprite *sprite, Time offset, Time duration, State start, State finish);
+    VisualEffect(AnimatedSprite* sprite, Preset p = RFADE, Time offset = seconds(0));
+    VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, State start, State finish);
     VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos);
 
     // overriding AnimatedSprite methods
     Animation* getAnimation() override;
-    void setAnimation(Animation& animation);
+    void setAnimation(Animation* animation);
     void play() override;
-    void play(Animation &animation, Time shift=seconds(0)) override;
+    void play(Animation *animation, Time shift=seconds(0)) override;
     void pause() override;
     void stop() override;
     void setLooped(bool looped) override;

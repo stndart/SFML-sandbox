@@ -4,8 +4,7 @@
 #include <vector>
 
 #include "AnimatedSprite.h"
-#include "Button.h"
-#include "UI_layout.h"
+#include "UI_window.h"
 
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/Sprite.hpp>
@@ -23,12 +22,7 @@ protected:
     Texture* background;
     Vertex m_vertices[4];
     // Object of user interface. Drawable
-    UI_layout* Interface;
-
-    /// TEMP
-    // list of buttons
-    std::vector <Button*> buttons;
-    std::vector <Button*> pushed_buttons;
+    UI_window* Interface;
 
     // draw different parts interface
     void draw_scene_back(RenderTarget& target, RenderStates states) const;
@@ -45,7 +39,8 @@ public:
     // adding elements to certain lists
     void addTexture(Texture* texture, IntRect rect);
     void addSprite(AnimatedSprite* sprite);
-    void addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y);
+    void addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame);
+    void addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y);
     void addUI_element(std::vector<UI_element*> &new_ui_elements);
     // transfer mouse event to hovered interface part
     // if mouse doesn't hover over UI - return false

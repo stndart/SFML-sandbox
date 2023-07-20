@@ -1,38 +1,66 @@
 #include "UI_button.h"
 
-UI_button::UI_button(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, Button* new_button) :
-    UI_element(name, Input_scale, texture_sp), button(new_button)
+// label with texture
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, bool is_clickable) :
+    UI_element(name, UIFrame, button_spritesheet), clickable(is_clickable), pressed(false), callback(NULL), text("")
 {
-    isClickable = true;
-
-    button->change_position(sf::Vector2f{(float)Input_scale.left, (float)Input_scale.top});
+    // None
 }
 
-// changes button state
-void UI_button::push() const
+// label with text
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, std::string ntext, Animation* button_spritesheet) :
+    UI_element(name, UIFrame, button_spritesheet), clickable(false), pressed(false), callback(NULL), text(ntext)
 {
-    button->push_button();
+    // None
 }
 
-// returns button name and changes button state
-std::string UI_button::release() const
+// button with callback
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, void (*ncallback)()) :
+    UI_element(name, UIFrame, button_spritesheet), clickable(true), pressed(false), callback(ncallback), text("")
 {
-    return button->release_button();
+    // None
 }
 
-// moves UI element as well as button
-void UI_button::change_position(sf::Vector2f Pos)
+// clickable setter/getter
+void UI_button::set_clickable(bool is_clickable)
 {
-    Frame_scale.left = Pos.x;
-    Frame_scale.top = Pos.y;
-    button->change_position(Pos);
+    clickable = is_clickable;
 }
 
-void UI_button::draw(sf::RenderTarget& target, sf::RenderStates states) const
+bool UI_button::is_clickable() const
 {
-    draw_element(target, states);
-    if (button)
+    return clickable;
+}
+
+// callback setter
+void UI_button::set_callback(void (*new_callback)())
+{
+    callback = new_callback;
+}
+
+// pushes hovered element
+void UI_button::push_click(sf::Vector2f cursor)
+{
+    if (!contains(cursor))
     {
-       target.draw(*button);
+        set_focus(false);
+        return;
     }
+
+    set_focus(true);
+    pressed = true;
+
+    // by default: 1 - pressed button, 0 - unpressed
+    if (background)
+        set_current_frame(1);
+}
+// releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
+void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
+{
+    pressed = false;
+    // by default: 1 - pressed button, 0 - unpressed
+    set_current_frame(0);
+
+    if (contains(cursor) && !skip_action && callback)
+        callback();
 }

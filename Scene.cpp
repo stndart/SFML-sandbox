@@ -5,7 +5,7 @@ Scene::Scene(std::string name) : background(NULL), name(name)
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
-    Interface = new UI_layout();
+    Interface = new UI_window("Interface", IntRect(0, 0, 1920, 1080));
 }
 
 // change texture and update background from it
@@ -37,13 +37,27 @@ void Scene::addSprite(AnimatedSprite* sprite)
 }
 
 // add and place button
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y)
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame)
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
-    Button* new_button = new Button(name, texture_default, texture_released);
-    new_button->change_position(sf::Vector2f{x, y});
-    buttons.push_back(new_button);
+    /// MEMORY LEAK
+    Animation* tAn = new Animation;
+    tAn->addSpriteSheet(texture_default);
+    tAn->addSpriteSheet(texture_released);
+
+    UI_element* new_button = new UI_button(name, pos_frame, tAn, true);
+    Interface->addElement(new_button);
+}
+
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y)
+{
+    IntRect pos_frame(pos_x, pos_y, 0, 0);
+    Vector2u tex_size = texture_default->getSize();
+    pos_frame.width = tex_size.x;
+    pos_frame.height = tex_size.y;
+
+    addButton(name, texture_default, texture_released, pos_frame);
 }
 
 void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
@@ -70,11 +84,10 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
     }
     else if (event.type == Event::MouseButtonReleased)
     {
-        if (Interface->get_isClicked())
+        if (Interface->is_clicked())
         {
-            std::string ans = Interface->release_click();
-            if (Interface->contains(curPos)) command_main = ans;
-            return true;
+            Interface->release_click(curPos);
+            return Interface->contains(curPos);
         }
     }
     return false;
@@ -99,15 +112,7 @@ void Scene::update(Event& event, std::string& command_main)
                     s->onClick(true);
                 }
             }
-            for (auto b : buttons)
-            {
-                if (b->contains(curPos))
-                {
-                    b->push_button();
-                    pushed_buttons.push_back(b);
-                    break;
-                }
-            }
+            Interface->push_click(curPos);
             break;
 
         default:
@@ -130,16 +135,7 @@ void Scene::update(Event& event, std::string& command_main)
                     command_main = "editor_scene";
                 }
             }
-            while (pushed_buttons.size() > 0)
-            {
-                // if cursor still hovers pushed button then extract action from button
-                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
-                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
-                {
-                    command_main = answer;
-                }
-                pushed_buttons.pop_back();
-            }
+            Interface->release_click(curPos);
             break;
 
         default:
@@ -174,16 +170,12 @@ void Scene::draw_scene_buttons(RenderTarget& target, RenderStates states) const
     for (std::size_t i = 0; i < sprites.size(); ++i)
         if (sprites[i])
             target.draw(*sprites[i]);
-
-    for (std::size_t i = 0; i < buttons.size(); ++i)
-        if (buttons[i])
-            target.draw(*buttons[i]);
 }
 
 void Scene::draw_scene_Interface(RenderTarget& target, RenderStates states) const
 {
     if (Interface)
-        target.draw(*Interface);
+        Interface->draw(target, states);
 }
 
 void Scene::draw(RenderTarget& target, RenderStates states) const
@@ -207,17 +199,8 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
         throw;
     }
 
-    AnimatedSprite* button = new AnimatedSprite("asprite", *new_button, IntRect(0, 0, 1000, 500));
-    button->getAnimation()->addSpriteSheet(*new_button_pressed);
-    button->getAnimation()->addFrame(IntRect(0, 0, 1000, 500), 1);
-    button->setLooped(false);
-    button->setScale(0.5f, 0.5f);
-    button->setOrigin(button->getLocalBounds().width / 2.0f,
-                      button->getLocalBounds().height / 2.0f);
-    button->setPosition(Vector2f(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3));
-    button->setFrameTime(milliseconds(1.0f));
-
-    main_menu.addSprite(button);
+    IntRect button_frame = IntRect(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3, 1000, 500);
+    main_menu.addButton("button", new_button, new_button_pressed, button_frame);
 
     return main_menu;
 }

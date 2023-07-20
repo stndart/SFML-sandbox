@@ -15,7 +15,7 @@ x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
     map_events_logger = spdlog::get("map_events");
 
-    sprite = new Character(name, *texture, frame0);
+    sprite = new Character(name, texture, frame0);
     sprite->set_moving_enabled(movement_animation);
 
     map_events_logger->debug("Constructing player, \"{}\", with sprite \"{}\"", name, name);

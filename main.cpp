@@ -4,6 +4,7 @@
 #include <map>
 #include <cassert>
 #include <filesystem>
+#include <string>
 
 // for logging, printing, and make_shared
 #include <iostream>
@@ -21,9 +22,9 @@
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
-#include "UI_element.h"
-#include "UI_label.h"
-#include "UI_button.h"
+
+//#include "UI_element.h"
+//#include "UI_button.h"
 
 using namespace sf;
 using namespace std;
@@ -266,7 +267,9 @@ int main()
         Vector2u v1 = UI_block["horizontal_column"]->getSize();
         m1.width = v1.x;
         m1.height = v1.y;
-        UI_element* element1 = new UI_element("horizontal", m1, UI_block["horizontal_column"]);
+        Animation tAn(UI_block["horizontal_column"]);
+        tAn.addFrame(m1, 0);
+        UI_button* element1 = new UI_button("horizontal", m1, &tAn);
         main_ui_elements.push_back(element1);
 
         IntRect m2;
@@ -275,7 +278,7 @@ int main()
         Vector2u v2 = UI_block["horizontal_column"]->getSize();
         m2.width = v2.x;
         m2.height = v2.y;
-        UI_element* element2 = new UI_element("horizontal", m2, UI_block["horizontal_column"]);
+        UI_button* element2 = new UI_button("horizontal", m2, &tAn);
         main_ui_elements.push_back(element2);
 
         IntRect m3;
@@ -284,7 +287,9 @@ int main()
         Vector2u v3 = UI_block["vertical_column"]->getSize();
         m3.width = v3.x;
         m3.height = v3.y;
-        UI_element* element3 = new UI_element("vertical", m3, UI_block["vertical_column"]);
+        Animation tAn2(UI_block["vertical_column"]);
+        tAn2.addFrame(m3, 0);
+        UI_button* element3 = new UI_button("vertical", m3, &tAn2);
         main_ui_elements.push_back(element3);
 
         IntRect m4;
@@ -293,20 +298,22 @@ int main()
         Vector2u v4 = UI_block["vertical_column"]->getSize();
         m4.width = v4.x;
         m4.height = v4.y;
-        UI_element* element4 = new UI_element("vertical", m4, UI_block["vertical_column"]);
+        UI_button* element4 = new UI_button("vertical", m4, &tAn2);
         main_ui_elements.push_back(element4);
 
 //////////////////////////////////////////////////////////////////
 
-        IntRect mb1;
-        mb1.left = 1820;
-        mb1.top = 0;
+        IntRect mb1(1820, 0, 0, 0);
         Vector2u vb1 = UI_block["ESCAPE"]->getSize();
         mb1.width = vb1.x;
         mb1.height = vb1.y;
 
-        Button* b1 = new Button("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"]);
-        UI_button* elementb1 = new UI_button("main_menu", mb1, UI_block["ESCAPE_null"], b1);
+        Animation tAnb;
+        tAnb.addSpriteSheet(UI_block["ESCAPE"]);
+        tAnb.addFrame(mb1, 0);
+        tAnb.addSpriteSheet(UI_block["ESCAPE_pushed"]);
+        tAnb.addFrame(mb1, 1);
+        UI_button* elementb1 = new UI_button("main_menu_button", mb1, &tAnb);
         main_ui_elements.push_back(elementb1);
     }
 

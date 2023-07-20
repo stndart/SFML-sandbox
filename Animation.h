@@ -35,11 +35,12 @@ private:
 
 public:
     Animation();
+    Animation(Texture* texture);
 
     // set texture by link for spritesheet #i
-    void setSpriteSheet(Texture& texture, std::size_t i=0);
+    void setSpriteSheet(Texture* texture, std::size_t i=0);
     // append spritesheet with texture by link
-    int addSpriteSheet(Texture& texture);
+    int addSpriteSheet(Texture* texture);
     // get spritesheet by index
     Texture* getSpriteSheet(int i=0);
     // get number of frames
@@ -66,6 +67,8 @@ public:
     void addFrame(IntRect rect, int i=0);
     // return frame coordinates of n-th frame
     const IntRect& getFrame(std::size_t n) const;
+    // return spritesheet of n-th frame
+    Texture* getTexture(std::size_t n) const;
     // return spritesheet index of n frame
     int getTextureIndex(std::size_t n) const;
 

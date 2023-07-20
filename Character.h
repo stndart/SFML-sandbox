@@ -113,7 +113,7 @@ class Character : public Drawable, public Transformable
         bool is_ignore_joints() const;
         void set_ignore_joints(bool ignore);
 
-        Character(string name, Texture& texture_default, IntRect frame0);
+        Character(string name, Texture* texture_default, IntRect frame0);
         Character(string name, map<string, Animation*> animations); /// NOT IMPLEMENTED
 
         // add animation to map by name

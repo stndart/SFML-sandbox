@@ -16,7 +16,7 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character(string name, Texture &texture_default, IntRect frame0) :
+Character::Character(string name, Texture *texture_default, IntRect frame0) :
 moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
 current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
@@ -307,7 +307,7 @@ void Character::set_animation(string animation_name, Time offset, int frame_star
 
     current_animation = animation_name;
 
-    base_sprite->play(*animations[animation_name], frame_start, offset);
+    base_sprite->play(animations[animation_name], frame_start, offset);
     base_sprite->stop_after(frame_stop_after);
 
     animated = true;
@@ -326,7 +326,7 @@ void Character::set_animation_to_idle(Time offset)
 
     current_animation = animation_name;
 
-    base_sprite->play(*animations[animation_name], offset);
+    base_sprite->play(animations[animation_name], offset);
     animated = true;
     base_sprite->setLooped(true);
 }

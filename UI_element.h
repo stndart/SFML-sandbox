@@ -2,45 +2,68 @@
 #define UI_ELEMENT_H
 
 #include <iostream>
+#include <string>
+
+#include "AnimatedSprite.h"
 
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 
 class UI_element : public sf::Drawable, public sf::Transformable
 {
     protected:
-        std::string command_output;
         // sprite position and rectangle to hover checks
         sf::IntRect Frame_scale;
-        sf::Sprite* sprite;
+        // spritesheet with textures
+        Animation* background;
+        // coordinates of frame on spritesheet
+        Vertex m_vertices[4];
+        // index of current frame in the spritesheet
+        int cur_frame;
 
-        // draw sprite
-        void draw_element(sf::RenderTarget& target, sf::RenderStates states) const;
+        // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)
+        bool focus;
 
         std::shared_ptr<spdlog::logger> loading_logger;
 
     public:
-        std::string type_name;
-        bool isClickable;
+        std::string name;
+        // is displayer or hidden;
+        bool displayed;
 
-        /// need destructor
-        UI_element(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp);
+        UI_element(std::string name, sf::IntRect UIFrame);
+        UI_element(std::string name, sf::IntRect UIFrame, Animation* spritesheet);
 
-        // move left top angle and child sprite to pos
-        void change_position(sf::Vector2f Pos);
-        // cursor hover check
-        bool contains(sf::Vector2f curPos);
+        // Frame_scale setter/getter
+        void setUIFrame(sf::IntRect new_frame_scale);
+        sf::IntRect getUIFrame() const;
+        // Animation setter
+        void setAnimation(Animation* spritesheet);
+        // current frame setter/getter
+        void set_current_frame(int new_frame);
+        sf::Texture* getTexture() const;
+        const sf::IntRect& getTextureFrame() const;
+        // focus setter/getter
+        void set_focus(bool new_focus);
+        bool is_focused() const;
 
-        // mouse push action
-        virtual void push() const;
-        // returns its name when released
-        virtual std::string release() const;
+        // mouse hover check
+        bool contains(sf::Vector2f cursor) const;
 
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        // pushes hovered element
+        virtual void push_click(sf::Vector2f cursor);
+        // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
+        virtual void release_click(sf::Vector2f cursor, bool skip_action=false);
 
-    private:
+        // overriding Transformable methods
+        virtual void move(const Vector2f &offset);
+        FloatRect getLocalBounds() const;
+        FloatRect getGlobalBounds() const;
+        virtual void setPosition(const Vector2f &position);
+
+        // overriding Drawable methods
+        virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 
 #endif // UI_ELEMENT_H

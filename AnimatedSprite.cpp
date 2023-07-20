@@ -10,7 +10,7 @@ AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bo
     graphics_logger = spdlog::get("graphics");
 }
 
-AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) :
+AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect frame0) :
     m_frameTime(seconds(0.2f)), m_currentFrame(0), frame_stop_after(0),
     m_isLooped(true), m_isReversed(false), m_isReversible(false),
     m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
@@ -25,9 +25,9 @@ AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame
 }
 
 // Load animation, spritesheet and set current frame to 0
-void AnimatedSprite::setAnimation(Animation& animation)
+void AnimatedSprite::setAnimation(Animation* animation)
 {
-    m_animation = &animation;
+    m_animation = animation;
     m_texture = m_animation->getSpriteSheet();
 
     m_currentFrame = 0;
@@ -61,7 +61,7 @@ void AnimatedSprite::play(std::size_t frame_start, Time shift)
 }
 
 // set Animation, cur_time and then play
-void AnimatedSprite::play(Animation& animation, Time shift)
+void AnimatedSprite::play(Animation* animation, Time shift)
 {
     graphics_logger->trace("play with shift: {}", shift.asSeconds());
 
@@ -72,7 +72,7 @@ void AnimatedSprite::play(Animation& animation, Time shift)
 }
 
 // set Animation, cur_frame, cur_time and then play
-void AnimatedSprite::play(Animation& animation, std::size_t frame_start, Time shift)
+void AnimatedSprite::play(Animation* animation, std::size_t frame_start, Time shift)
 {
     graphics_logger->trace("play with shift: {}", shift.asSeconds());
 
@@ -246,7 +246,7 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_vertices[3].texCoords = Vector2f(right, top);
 
         // Ensure correct texture is selected
-        m_texture = m_animation->getSpriteSheet(m_animation->getTextureIndex(newFrame));
+        m_texture = m_animation->getTexture(newFrame);
     }
 
     if (resetTime)

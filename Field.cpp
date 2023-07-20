@@ -102,7 +102,7 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
     Animation* idle_animation = new Animation();
-    idle_animation->addSpriteSheet(*player_texture);
+    idle_animation->addSpriteSheet(player_texture);
     /// MAGIC NUMBERS!
     idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
     idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);

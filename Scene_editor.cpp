@@ -227,7 +227,6 @@ void Scene_editor::update(Event& event, std::string& command_main)
             s_input += letter;
         }
     }
-    /// TEMP
     // pressing buttons
     if (event.type == Event::MouseButtonPressed)
     {
@@ -235,23 +234,16 @@ void Scene_editor::update(Event& event, std::string& command_main)
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
-            if (UI_update_mouse(curPos, event, command_main)) return;
-            for (auto b : buttons)
-            {
-                if (b->contains(curPos))
-                {
-                    b->push_button();
-                    pushed_buttons.push_back(b);
-                    break;
-                }
-            }
+            /// WHY?
+            if (UI_update_mouse(curPos, event, command_main))
+                return;
+            Interface->push_click(curPos);
             break;
 
         default:
             break;
         }
     }
-    /// TEMP
     // unpressing buttons
     if (event.type == Event::MouseButtonReleased)
     {
@@ -259,16 +251,10 @@ void Scene_editor::update(Event& event, std::string& command_main)
         switch (event.mouseButton.button)
         {
         case Mouse::Left:
-            if (UI_update_mouse(curPos, event, command_main)) return;
-            while (pushed_buttons.size() > 0)
-            {
-                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
-                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
-                {
-                    command_main = answer;
-                }
-                pushed_buttons.pop_back();
-            }
+            /// WHY?
+            if (UI_update_mouse(curPos, event, command_main))
+                return;
+            Interface->release_click(curPos);
             break;
 
         default:

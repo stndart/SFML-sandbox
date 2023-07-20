@@ -51,18 +51,18 @@ public:
     std::string name;
 
     explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true, bool reversible = false);
-    AnimatedSprite(std::string name, Texture& texture, IntRect frame0);
+    AnimatedSprite(std::string name, Texture* texture, IntRect frame0);
 
-    void setAnimation(Animation& animation);
+    void setAnimation(Animation* animation);
     // set time for which each frame lasts
     void setFrameTime(Time time);
     virtual void play();
     // Play with offset. Use <shift> and <frame_start> to manage offset
     virtual void play(std::size_t frame_start, Time shift=seconds(0));
     // set Animation and then play. You can play animation not from the beginning with <shift>
-    virtual void play(Animation& animation, Time shift=seconds(0));
+    virtual void play(Animation* animation, Time shift=seconds(0));
     // set Animation and then play. You can play animation not from the beginning with <shift> and <frame_start>
-    virtual void play(Animation& animation, std::size_t frame_start, Time shift=seconds(0));
+    virtual void play(Animation* animation, std::size_t frame_start, Time shift=seconds(0));
     virtual void pause();
     // pause and reset animation timer (revert to first frame)
     virtual void stop();
