@@ -191,6 +191,11 @@ void Animation::addFrame(IntRect rect, int i)
 // return frame coordinates of n-th frame
 const IntRect& Animation::getFrame(std::size_t n) const
 {
+    if (n >= m_frames.size())
+    {
+        loading_logger->error("ERROR: Animation::getFrame with n = {} and m_frames size = {}", n, m_frames.size());
+        throw;
+    }
     return m_frames[n];
 }
 

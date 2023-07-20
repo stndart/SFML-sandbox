@@ -15,7 +15,7 @@ class UI_window : public UI_element
         // checks if frame (with _, o, x buttons) is displayed
         bool isFramed;
         // checks if pushed by mouse
-        bool isClicked;
+        bool pressed;
         // remember clicked child to invoke release on him later
         UI_element* clicked_child;
 

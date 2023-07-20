@@ -41,12 +41,21 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
+    IntRect tex_frame(0, 0, 0, 0);
+    Vector2u tex_size = texture_default->getSize();
+    tex_frame.width = tex_size.x;
+    tex_frame.height = tex_size.y;
+
     /// MEMORY LEAK
     Animation* tAn = new Animation;
     tAn->addSpriteSheet(texture_default);
+    tAn->addFrame(tex_frame, 0);
     tAn->addSpriteSheet(texture_released);
+    tAn->addFrame(tex_frame, 1);
 
-    UI_element* new_button = new UI_button(name, pos_frame, tAn, true);
+    loading_logger->warn("Created new Animation for button: MEMORY LEAK");
+
+    UI_button* new_button = new UI_button(name, pos_frame, tAn, true);
     Interface->addElement(new_button);
 }
 
@@ -112,7 +121,6 @@ void Scene::update(Event& event, std::string& command_main)
                     s->onClick(true);
                 }
             }
-            Interface->push_click(curPos);
             break;
 
         default:
@@ -135,7 +143,6 @@ void Scene::update(Event& event, std::string& command_main)
                     command_main = "editor_scene";
                 }
             }
-            Interface->release_click(curPos);
             break;
 
         default:
@@ -199,7 +206,7 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
         throw;
     }
 
-    IntRect button_frame = IntRect(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3, 1000, 500);
+    IntRect button_frame = IntRect(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3, 500, 250);
     main_menu.addButton("button", new_button, new_button_pressed, button_frame);
 
     return main_menu;

@@ -1,34 +1,43 @@
 #include "UI_window.h"
 
-UI_window::UI_window(std::string name, sf::IntRect UIFrame, bool is_framed) : UI_element(name, UIFrame), isFramed(is_framed)
+UI_window::UI_window(std::string name, sf::IntRect UIFrame, bool is_framed) : UI_element(name, UIFrame),
+isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
-    // None
+    displayed = true;
 }
 
 // adds UI_element into set with z_index
 void UI_window::addElement(UI_element* new_element, int z_index)
 {
+    displayed = true;
+
     elements.insert(std::make_pair(z_index, new_element));
 }
 
 // mouse hover check
 bool UI_window::contains(sf::Vector2f cursor)
 {
-    for (auto g : elements)
-        if (g.second->contains(cursor))
-            return true;
+    bool res = UI_element::contains(cursor);
 
-    return UI_element::contains(cursor);
+    for (auto pi : elements)
+        if (pi.second->contains(cursor))
+            res = true;
+
+//    input_logger->trace("Window {} at {}x{} contains? {}", name, cursor.x, cursor.y, res);
+
+    return res;
 }
 
 bool UI_window::is_clicked() const
 {
-    return isClicked;
+    return pressed;
 }
 
 // pushes hovered element
 void UI_window::push_click(sf::Vector2f cursor)
 {
+    input_logger->trace("Window {} clicked at {}x{}", name, cursor.x, cursor.y);
+
     // if cursor missed, then don't click, and release focus
     if (!contains(cursor))
     {
@@ -40,7 +49,7 @@ void UI_window::push_click(sf::Vector2f cursor)
         return;
     }
 
-    isClicked = true;
+    pressed = true;
 
     for (auto pi : elements)
     {
@@ -57,9 +66,15 @@ void UI_window::push_click(sf::Vector2f cursor)
 // releases push (and invokes callback if hovered element is pushed)
 void UI_window::release_click(sf::Vector2f cursor, bool skip_action)
 {
-    isClicked = false;
+    input_logger->trace("Window {} released from {}x{}", name, cursor.x, cursor.y);
+
+    pressed = false;
     // transfer event to pushed child. If <skip_action>, no callback is called regardless of <cursor>
-    clicked_child->release_click(cursor, skip_action);
+    if (clicked_child)
+    {
+        clicked_child->release_click(cursor, skip_action);
+        clicked_child = NULL;
+    }
 }
 
 // return number of elements

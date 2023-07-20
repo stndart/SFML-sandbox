@@ -25,7 +25,7 @@ class UI_element : public sf::Drawable, public sf::Transformable
         // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)
         bool focus;
 
-        std::shared_ptr<spdlog::logger> loading_logger;
+        std::shared_ptr<spdlog::logger> loading_logger, input_logger;
 
     public:
         std::string name;
@@ -36,8 +36,8 @@ class UI_element : public sf::Drawable, public sf::Transformable
         UI_element(std::string name, sf::IntRect UIFrame, Animation* spritesheet);
 
         // Frame_scale setter/getter
-        void setUIFrame(sf::IntRect new_frame_scale);
-        sf::IntRect getUIFrame() const;
+        void setFrame(sf::IntRect new_frame_scale);
+        sf::IntRect getFrame() const;
         // Animation setter
         void setAnimation(Animation* spritesheet);
         // current frame setter/getter

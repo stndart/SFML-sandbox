@@ -63,11 +63,11 @@ int main()
 
         loading_logger->set_level(spdlog::level::info);
         input_logger->set_level(spdlog::level::info);
-        map_events_logger->set_level(spdlog::level::debug);
+        map_events_logger->set_level(spdlog::level::info);
         graphics_logger->set_level(spdlog::level::info);
 
-        stdout_sink->set_level(spdlog::level::info);
-        logfile_sink->set_level(spdlog::level::debug);
+        stdout_sink->set_level(spdlog::level::debug);
+        logfile_sink->set_level(spdlog::level::trace);
 
         // globally register the loggers so they can be accessed using spdlog::get(logger_name)
         spdlog::register_logger(loading_logger);
@@ -269,8 +269,8 @@ int main()
         m1.height = v1.y;
         Animation tAn(UI_block["horizontal_column"]);
         tAn.addFrame(m1, 0);
-        UI_button* element1 = new UI_button("horizontal", m1, &tAn);
-        main_ui_elements.push_back(element1);
+        //UI_button* element1 = new UI_button("horizontal", m1, &tAn);
+        //main_ui_elements.push_back(element1);
 
         IntRect m2;
         m2.left = 0;
@@ -278,8 +278,8 @@ int main()
         Vector2u v2 = UI_block["horizontal_column"]->getSize();
         m2.width = v2.x;
         m2.height = v2.y;
-        UI_button* element2 = new UI_button("horizontal", m2, &tAn);
-        main_ui_elements.push_back(element2);
+        //UI_button* element2 = new UI_button("horizontal", m2, &tAn);
+        //main_ui_elements.push_back(element2);
 
         IntRect m3;
         m3.left = 0;
@@ -289,8 +289,8 @@ int main()
         m3.height = v3.y;
         Animation tAn2(UI_block["vertical_column"]);
         tAn2.addFrame(m3, 0);
-        UI_button* element3 = new UI_button("vertical", m3, &tAn2);
-        main_ui_elements.push_back(element3);
+        //UI_button* element3 = new UI_button("vertical", m3, &tAn2);
+        //main_ui_elements.push_back(element3);
 
         IntRect m4;
         m4.left = 1900;
@@ -298,8 +298,8 @@ int main()
         Vector2u v4 = UI_block["vertical_column"]->getSize();
         m4.width = v4.x;
         m4.height = v4.y;
-        UI_button* element4 = new UI_button("vertical", m4, &tAn2);
-        main_ui_elements.push_back(element4);
+        //UI_button* element4 = new UI_button("vertical", m4, &tAn2);
+        //main_ui_elements.push_back(element4);
 
 //////////////////////////////////////////////////////////////////
 
@@ -313,8 +313,8 @@ int main()
         tAnb.addFrame(mb1, 0);
         tAnb.addSpriteSheet(UI_block["ESCAPE_pushed"]);
         tAnb.addFrame(mb1, 1);
-        UI_button* elementb1 = new UI_button("main_menu_button", mb1, &tAnb);
-        main_ui_elements.push_back(elementb1);
+        //UI_button* elementb1 = new UI_button("main_menu_button", mb1, &tAnb);
+        //main_ui_elements.push_back(elementb1);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +330,7 @@ int main()
     // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader
     Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
     // Add button with text to desired position. Textures are passed with name->texture* map "UI_block"
-    main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
+    // main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
 
     ///--------------------------------------------------------
     // Create field scene. At first it is inactive
