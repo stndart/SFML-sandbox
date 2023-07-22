@@ -4,6 +4,7 @@ Player::Player(std::string name) : sprite(NULL), name(name),
 x_cell_coord(0), y_cell_coord(0),
 x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
+    // Reaching out to global "map_events" logger by names
     map_events_logger = spdlog::get("map_events");
 
     map_events_logger->debug("Constructing player, \"{}\" with no sprite", name);
@@ -19,6 +20,25 @@ x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
     sprite->set_moving_enabled(movement_animation);
 
     map_events_logger->debug("Constructing player, \"{}\", with sprite \"{}\"", name, name);
+}
+
+// current_field pointer setter/getter
+void Player::set_current_field(Field* nfield)
+{
+    current_field = nfield;
+
+    // reset blocking and moving
+    reset_blocking_check();
+    for (int i = 0; i < 4; ++i)
+        release_movement_direction(i);
+
+    sprite->stop_movement_by_force();
+    sprite->stop_animation_by_force();
+}
+
+Field* Player::get_current_field() const
+{
+    return current_field;
 }
 
 // removes "blocking checked" from movements queue

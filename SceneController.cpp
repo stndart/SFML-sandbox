@@ -3,6 +3,7 @@
 
 SceneController::SceneController()
 {
+    // Reaching out to global "loading" logger by names
     loading_logger = spdlog::get("loading");
 
     cur_scene_name = "";
@@ -18,6 +19,7 @@ void SceneController::add_scene(std::string name, std::shared_ptr<Scene> scene)
         cur_scene_name = name;
     loading_logger->info("set cur_scene_name to {}", cur_scene_name);
 
+    // sets new map with scen_contoller as self
     scene_map[name]->set_scene_controller(*this);
     loading_logger->info("Setting to {} weak_ptr to self", name);
 }

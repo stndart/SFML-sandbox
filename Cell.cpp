@@ -2,6 +2,7 @@
 
 Cell::Cell(std::string name) : background(NULL), type_name(name)
 {
+    // Reaching out to global "map_events" logger by name
     map_events_logger = spdlog::get("map_events");
 }
 
@@ -24,6 +25,8 @@ void Cell::change_texture(std::string name, Texture* texture)
 // change m_vertices
 void Cell::addTexCoords(IntRect rect)
 {
+    cutout_texture_to_frame(m_vertices, rect);
+
     m_vertices[0].position = Vector2f(0.f, 0.f);
     m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
     m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));

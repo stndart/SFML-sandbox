@@ -22,6 +22,7 @@ current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Ve
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
 name(name)
 {
+    // Reaching out to global "map_events" logger and "graphics" logger by names
     map_events_logger = spdlog::get("map_events");
     graphics_logger = spdlog::get("graphics");
 
@@ -530,6 +531,32 @@ void Character::next_movement_start()
         moving_shift = am.VE_shift;
         moving = true;
     }
+}
+
+// stop and delete VE forcefully
+void Character::stop_movement_by_force()
+{
+    // unwrap VE
+    if (moving_sprite != base_sprite)
+    {
+        graphics_logger->debug("Deleting VisualEffect by force");
+
+        delete moving_sprite;
+        moving_sprite = base_sprite;
+
+        moving = false;
+    }
+}
+
+// flush animation queue by force
+void Character::stop_animation_by_force()
+{
+    // cancel all scheduled animations
+    next_animations.clear();
+    // stop current animation
+    base_sprite->stop();
+
+    // the rest is up to update
 }
 
 void Character::setPosition(const Vector2f &position)

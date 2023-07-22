@@ -49,8 +49,8 @@ public:
     // adding elements to certain lists
     void addTexture(Texture* texture, IntRect rect);
     void addSprite(AnimatedSprite* sprite);
-    void addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> callback = std::function<void()>{nullptr});
-    void addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> callback = std::function<void()>{nullptr});
+    void addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> callback = std::function<void()>{nullptr}, std::string origin = "center");
+    void addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> callback = std::function<void()>{nullptr}, std::string origin = "center");
     void addUI_element(std::vector<UI_element*> &new_ui_elements);
     // transfer mouse event to hovered interface part
     // if mouse doesn't hover over UI - return false

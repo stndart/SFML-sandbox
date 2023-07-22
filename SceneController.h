@@ -6,11 +6,13 @@
 #include <memory>
 
 #include "Scene.h"
+#include "Player.h"
 
-// stores all Scenes and swithces through them
+// stores all Scenes and swithces between them
 class SceneController
 {
 private:
+    // map, where Scenes are stored
     std::map<std::string, std::shared_ptr<Scene> > scene_map;
 
     // current scene name and pointer

@@ -141,6 +141,11 @@ class Character : public Drawable, public Transformable
         // pops and plays an animation from AnimMovement deque (VEs as well)
         void next_movement_start();
 
+        // stop and delete VE forcefully
+        void stop_movement_by_force();
+        // flush animation queue by force
+        void stop_animation_by_force();
+
         // overriding Transformable methods
         virtual void setPosition(const Vector2f &position);
         virtual Vector2f getPosition() const;

@@ -59,31 +59,43 @@ void UI_button::push_click(sf::Vector2f cursor)
 {
     input_logger->trace("Button {} clicked at {}x{}", name, cursor.x, cursor.y);
 
+    // becomes not focused, when clicked anywhere else
     if (!contains(cursor))
     {
         set_focus(false);
         return;
     }
 
+    // becomes focused when clicked
     set_focus(true);
     pressed = true;
 
+    // button logic: changes texture, when <pressed> is changed
     // by default: 1 - pressed button, 0 - unpressed
-    if (background)
+    if (background && clickable)
         set_current_frame(1);
 }
+
 // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
 void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
 {
     input_logger->trace("Button {} released from {}x{}", name, cursor.x, cursor.y);
 
     pressed = false;
-    // by default: 1 - pressed button, 0 - unpressed
-    set_current_frame(0);
 
-    if (contains(cursor) && !skip_action && callback)
+    // button logic
+    if (clickable)
     {
-        input_logger->debug("Button {} calling callback", name);
-        callback();
+        // changes texture, when <pressed> is changed
+        // by default: 1 - pressed button, 0 - unpressed
+        if (background)
+            set_current_frame(1);
+
+        // if released due to focus change, then don't invoke callback
+        if (contains(cursor) && !skip_action && callback)
+        {
+            input_logger->debug("Button {} calling callback", name);
+            callback();
+        }
     }
 }

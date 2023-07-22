@@ -18,6 +18,11 @@ int direction_from_shift(sf::Vector2f shift);
 
 // creates callback to change scene in SceneController
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to);
+// creates callback that closes window
+std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWindow> window);
+
+void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect, sf::IntRect texFrame);
+void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect);
 
 extern int direction_x[4];
 extern int direction_y[4];

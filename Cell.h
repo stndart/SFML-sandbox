@@ -7,6 +7,7 @@
 
 #include "AnimatedSprite.h"
 #include "Cell_object.h"
+#include "extra_algorithms.h"
 
 #include <jsoncpp/json.h>
 #include <spdlog/spdlog.h>

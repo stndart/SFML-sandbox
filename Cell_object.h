@@ -2,6 +2,7 @@
 #define CELL_OBJECT_INCLUDE
 
 #include "AnimatedSprite.h"
+#include "extra_algorithms.h"
 
 #include <SFML/Graphics/Sprite.hpp>
 

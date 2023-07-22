@@ -3,9 +3,11 @@
 
 Scene::Scene(std::string name) : background(NULL), name(name)
 {
+    // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
+    // Create new user interface
     Interface = new UI_window("Interface", IntRect(0, 0, 1920, 1080));
 }
 
@@ -19,7 +21,7 @@ SceneController& Scene::get_scene_controller() const
 {
     if (!scene_controller)
     {
-        loading_logger->error("getting empty scene_controller");
+        loading_logger->error("Scene:: trying to get empty scene_controller");
         throw;
     }
 
@@ -31,20 +33,7 @@ void Scene::addTexture(Texture* texture, IntRect rect)
 {
     background = texture;
 
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-    float left = static_cast<float>(rect.left) + 0.0001f;
-    float right = left + static_cast<float>(rect.width);
-    float top = static_cast<float>(rect.top);
-    float bottom = top + static_cast<float>(rect.height);
-
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+    cutout_texture_to_frame(m_vertices, rect);
 }
 
 void Scene::addSprite(AnimatedSprite* sprite)
@@ -55,14 +44,13 @@ void Scene::addSprite(AnimatedSprite* sprite)
 }
 
 // add and place button
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> ncallback)
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> ncallback, std::string origin)
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
-    IntRect tex_frame(0, 0, 0, 0);
+    // get animation frame from texture size
     Vector2u tex_size = texture_default->getSize();
-    tex_frame.width = tex_size.x;
-    tex_frame.height = tex_size.y;
+    IntRect tex_frame(0, 0, tex_size.x, tex_size.y);
 
     /// MEMORY LEAK
     Animation* tAn = new Animation;
@@ -74,17 +62,33 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
     loading_logger->warn("Created new Animation for button: MEMORY LEAK");
 
     UI_button* new_button = new UI_button(name, pos_frame, tAn, ncallback);
+    // default origin is "center"
+    if (origin == "center")
+    {
+        loading_logger->trace("trying center");
+        new_button->setOrigin((float)pos_frame.width / 2.f, (float)pos_frame.height / 2.f);
+    }
+    else if (origin == "top left")
+    {
+        loading_logger->trace("trying top left");
+        new_button->setOrigin(0, 0);
+    }
+    else
+    {
+        loading_logger->warn("Unknown button alignment origin {}, set to \"center\"", origin);
+    }
+
+    // register new button to Interface
     Interface->addElement(new_button);
 }
 
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> ncallback)
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> ncallback, std::string origin)
 {
-    IntRect pos_frame(pos_x, pos_y, 0, 0);
+    // creating animation frame from args
     Vector2u tex_size = texture_default->getSize();
-    pos_frame.width = tex_size.x;
-    pos_frame.height = tex_size.y;
+    IntRect pos_frame(pos_x, pos_y, tex_size.x, tex_size.y);
 
-    addButton(name, texture_default, texture_released, pos_frame, ncallback);
+    addButton(name, texture_default, texture_released, pos_frame, ncallback, origin);
 }
 
 void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)

@@ -9,8 +9,11 @@
 class UI_button : public UI_element
 {
     private:
+        // flag if callback is invoked, when clicked (and background change also)
         bool clickable;
+        // flag if is currently press (to invoke callback, when unpressed)
         bool pressed;
+        // callback. Call it and see, what happens
         std::function<void()> callback;
 
     public:

@@ -13,7 +13,7 @@ class UI_window : public UI_element
         // list of UI_elements
         std::set<std::pair<int, UI_element*> > elements;
         // checks if frame (with _, o, x buttons) is displayed
-        bool isFramed;
+        bool isFramed; /// NOT IMPLEMENTED
         // checks if pushed by mouse
         bool pressed;
         // remember clicked child to invoke release on him later

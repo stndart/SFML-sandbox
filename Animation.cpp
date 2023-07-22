@@ -2,6 +2,7 @@
 
 Animation::Animation()
 {
+    // Reaching out to global "loading" logger and "graphics" logger by names
     loading_logger = spdlog::get("loading");
     graphics_logger = spdlog::get("graphics");
 

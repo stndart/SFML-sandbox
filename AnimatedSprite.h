@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Animation.h"
+#include "extra_algorithms.h"
 
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/RenderTarget.hpp>

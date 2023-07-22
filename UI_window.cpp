@@ -19,6 +19,7 @@ bool UI_window::contains(sf::Vector2f cursor)
 {
     bool res = UI_element::contains(cursor);
 
+    // not only if this->contains cursor, but any child counts
     for (auto pi : elements)
         if (pi.second->contains(cursor))
             res = true;
@@ -45,20 +46,22 @@ void UI_window::push_click(sf::Vector2f cursor)
 
         for (auto pi : elements)
             pi.second->set_focus(false);
-
-        return;
     }
-
-    pressed = true;
-
-    for (auto pi : elements)
+    else
     {
-        UI_element* uie = pi.second;
-        if (uie->contains(cursor))
+        set_focus(true);
+        pressed = true;
+
+        // find the clicked child and remember
+        for (auto pi : elements)
         {
-            uie->push_click(cursor);
-            clicked_child = uie;
-            break;
+            UI_element* uie = pi.second;
+            if (uie->contains(cursor))
+            {
+                uie->push_click(cursor);
+                clicked_child = uie;
+                break;
+            }
         }
     }
 }
@@ -69,6 +72,7 @@ void UI_window::release_click(sf::Vector2f cursor, bool skip_action)
     input_logger->trace("Window {} released from {}x{}", name, cursor.x, cursor.y);
 
     pressed = false;
+    // release_click doens't trigger any focus logic, so only release_click pressed child
     // transfer event to pushed child. If <skip_action>, no callback is called regardless of <cursor>
     if (clicked_child)
     {

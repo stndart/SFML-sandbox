@@ -5,6 +5,7 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame) :
     focus(false),
     name(name), displayed(false)
 {
+    // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
@@ -53,31 +54,12 @@ void UI_element::set_current_frame(int new_frame)
         if (cur_frame == -1)
             cur_frame = 0;
 
-        //calculate new vertex positions and texture coordiantes
+        //calculate new vertex positions and texture coordinates
         sf::IntRect rect = getFrame();
+        sf::IntRect texFrame = background->getFrame(cur_frame);
+        cutout_texture_to_frame(m_vertices, rect, texFrame);
 
         loading_logger->trace("set_current_frame. display frame +{}+{}, {}x{}", Frame_scale.left, Frame_scale.top, Frame_scale.width, Frame_scale.height);
-
-        // Where to draw texture (relative to sprite anchor)
-        m_vertices[0].position = Vector2f(0.f, 0.f);
-        m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-        m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-        m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-        sf::IntRect texFrame = background->getFrame(cur_frame);
-
-        loading_logger->trace("set_current_frame. texture frame +{}+{}, {}x{}", texFrame.left, texFrame.top, texFrame.width, texFrame.height);
-
-        float left = static_cast<float>(texFrame.left);/// + 0.0001f;
-        float right = left + static_cast<float>(texFrame.width);
-        float top = static_cast<float>(texFrame.top);
-        float bottom = top + static_cast<float>(texFrame.height);
-
-        // What to draw (coordinate on texture)
-        m_vertices[0].texCoords = Vector2f(left, top);
-        m_vertices[1].texCoords = Vector2f(left, bottom);
-        m_vertices[2].texCoords = Vector2f(right, bottom);
-        m_vertices[3].texCoords = Vector2f(right, top);
     }
 }
 
@@ -95,6 +77,8 @@ const sf::IntRect& UI_element::getTextureFrame() const
 void UI_element::set_focus(bool new_focus)
 {
     focus = new_focus;
+
+    // when losing focus, release click
     if (!focus)
     {
         release_click(sf::Vector2f(0, 0), true);
@@ -111,6 +95,7 @@ bool UI_element::contains(sf::Vector2f cursor) const
 {
     bool res = false;
 
+    // if not displayed, cursor ignores element
     if (displayed)
         res = Frame_scale.contains(sf::Vector2i(cursor + getOrigin()));
 

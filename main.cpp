@@ -1,5 +1,3 @@
-#include <SFML/Graphics.hpp>
-
 #include <conio.h>
 #include <map>
 #include <cassert>
@@ -23,6 +21,8 @@
 #include "Scene_Field.h"
 #include "Scene_editor.h"
 #include "SceneController.h"
+
+#include <SFML/Graphics.hpp>
 
 //#include "UI_element.h"
 //#include "UI_button.h"
@@ -62,7 +62,7 @@ int main()
         map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
         graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
-        loading_logger->set_level(spdlog::level::info);
+        loading_logger->set_level(spdlog::level::trace);
         input_logger->set_level(spdlog::level::info);
         map_events_logger->set_level(spdlog::level::info);
         graphics_logger->set_level(spdlog::level::info);
@@ -75,6 +75,12 @@ int main()
         spdlog::register_logger(input_logger);
         spdlog::register_logger(map_events_logger);
         spdlog::register_logger(graphics_logger);
+
+        /*
+        loading_logger - логгер загрузки ресурсов (поля, текстур)
+        input_logger - логгер ввода с клавиатуры/мышки, и сетевого (мб потом будет отдельно)
+        map_events_logger - логгер изменения объектов на карте, включая игрока и entities
+        graphics_logger - логгер событий отрисовки, в том числе анимаций и их логики */
     }
     catch (const spdlog::spdlog_ex& ex)
     {
@@ -85,11 +91,11 @@ int main()
     /// TODO: try-catch (lookup error type)
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
-    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
+    shared_ptr<RenderWindow> window = make_shared<RenderWindow>(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
 //    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
-    window.setFramerateLimit(60);
+    window->setFramerateLimit(60);
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
-    window.setKeyRepeatEnabled(false);
+    window->setKeyRepeatEnabled(false);
     loading_logger->info("Created window {}x{}", 1920, 1080);
 
     // load textures
@@ -328,16 +334,25 @@ int main()
     Clock frameClock;
 
     // Create main menu scene. Scene is drawable and calls all subsequent draws for children drawable elements
-    // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader
+    // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader through config json
     shared_ptr<Scene> main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
-    // Add button with text to desired position. Textures are passed with name->texture* map "UI_block"
-     main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
+    // Add button with text to desired position. Textures are passed via name->texture* map "UI_block"
+    main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_window_closed_callback(window), "top left");
 
-    ///--------------------------------------------------------
-    // Create field scene. At first it is inactive
+    // Create field scene. At first it is inactive. Name and textures are passed
     shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), &field_tex_map);
 
+    // Create editor scene. At first it is inactive. Scenes are swapped with callbacks to SceneController
+    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &field_tex_map);
+
+    // Set default scene. It is displayed first
+    SceneController scene_controller;
+    scene_controller.add_scene("main_menu", main_menu);
+    scene_controller.add_scene("Scene_editor", editor_scene);
+    scene_controller.add_scene("Scene_field", field_scene);
+
     // current ready animations
+    // each animation are loaded x4, because no resourceloader
     vector<string> player_animation_fnames =
     {
         "Images/Flametail/idle_animation_0.png",
@@ -347,43 +362,39 @@ int main()
     };
 
     // Create field with map#1. Despite it being inactive, we load map and player
-    Field* field_0 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
+    Field* field_0 = new Field("field_scene 0", &field_bg_texture, screenDimensions);
     field_0->load_field(field_tex_map, 0);
-//    field_0->addPlayer(&player_texture, pos = player_default_pos);
+    // Create first and only player.
+    // Player knows, where he stands, and the field also
     field_0->addPlayer(player_animation_fnames);
+    shared_ptr<Player> player_0 = field_0->player_0;
 
     // place_characters sets position of all dynamic sprites on field and updates view position (player in center)
     field_0->place_characters();
     field_scene->add_field(field_0, 0);
 
     // Create field with map#2.
-    Field* field_1 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
+    Field* field_1 = new Field("field_scene 1", &field_bg_texture, screenDimensions);
     field_1->load_field(field_tex_map, 1);
-    //field_1->addPlayer(&player_texture, pos = player_default_pos);
-    field_1->addPlayer(player_animation_fnames);
-    field_1->place_characters();
+    field_1->player_0 = player_0;
     field_scene->add_field(field_1, 1);
 
-    // Create editor scene. At first it is inactive. Scenes are currently changed via command_main switch in main loop
-    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &field_tex_map);
-
     // Create field with map#1 in editor scene
-    Field* field_3 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
+    Field* field_3 = new Field("field_scene 0", &field_bg_texture, screenDimensions);
     field_3->load_field(field_tex_map, 0);
-//    field_3->addPlayer(&player_texture, pos = player_default_pos);
-    field_3->addPlayer(player_animation_fnames);
-    field_3->place_characters();
+    field_3->player_0 = player_0;
     editor_scene->add_field(field_3, 0);
 
+    // because whould be the first displayed field
+    player_0->set_current_field(field_3);
+
     // Create field with map#2 in editor scene
-    Field* field_4 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
+    Field* field_4 = new Field("field_scene 1", &field_bg_texture, screenDimensions);
     field_4->load_field(field_tex_map, 1);
-//    field_4->addPlayer(&player_texture, pos = player_default_pos);
-    field_4->addPlayer(player_animation_fnames);
-    field_4->place_characters();
+    field_4->player_0 = player_0;
     editor_scene->add_field(field_4, 1);
 
-    editor_scene->addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"));
+    editor_scene->addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
     editor_scene->addUI_element(main_ui_elements);
 
     loading_logger->info("Loaded fields");
@@ -392,30 +403,26 @@ int main()
 ///----------------------------------------= START programm =--------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Set default scene. It is displayed first
-    SceneController scene_controller;
-    scene_controller.add_scene("main_menu", main_menu);
-    scene_controller.add_scene("Scene_editor", editor_scene);
-    scene_controller.add_scene("Scene_field", field_scene);
-
-//    scene_controller.set_current_scene("main_menu");
+    // Well, because we start with main menu
+    scene_controller.set_current_scene("main_menu");
 
     // main loop
-    while (window.isOpen())
+    while (window->isOpen())
     {
         // Handle events loop
         Event event;
         Scene* cur_scene = scene_controller.get_current_scene();
 
-        while (window.pollEvent(event))
+        while (window->pollEvent(event))
         {
             // Occures when x-mark in the corner of the window is pressed
+            // TODO: research, which system events exist and when occur
             if (event.type == Event::Closed){
-                window.close();
+                window->close();
             }
-            // Processes all keyboard keys
+            // Processes all input (and not only) events
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
-                window.close();
+                window->close();
             }
             // Treats commands got from current scene.
             // Commands examples:
@@ -432,11 +439,11 @@ int main()
             cur_scene->update(frameTime);
 
         // clear previous frame and draw from scratch
-        window.clear();
+        window->clear();
         if (cur_scene)
-            window.draw(*cur_scene);
+            window->draw(*cur_scene);
 
-        window.display();
+        window->display();
 
     }
 

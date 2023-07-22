@@ -29,7 +29,7 @@ class UI_element : public sf::Drawable, public sf::Transformable
 
     public:
         std::string name;
-        // is displayer or hidden;
+        // is displayed or hidden;
         bool displayed;
 
         UI_element(std::string name, sf::IntRect UIFrame);
