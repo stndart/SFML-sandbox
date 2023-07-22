@@ -54,6 +54,8 @@ void Scene_Field::change_current_field(int num)
 
     field[num]->load_field(*field_tex_map, num);
 
+    field[num]->teleport_to();
+
     map_events_logger->info("Changed field to #{}", num);
 }
 

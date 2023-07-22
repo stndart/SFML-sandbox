@@ -12,6 +12,8 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 
+class Field;
+
 using namespace sf;
 
 struct Movement
@@ -31,6 +33,9 @@ private:
 
     std::shared_ptr<spdlog::logger> map_events_logger;
 
+    // to update blocking correctly
+    Field* current_field;
+
 public:
     std::string name;
     // queued movements up-down-right-left
@@ -45,6 +50,11 @@ public:
 
     Player(std::string name);
     Player(std::string name, Texture* texture, IntRect frame0);
+
+    // current_field pointer setter/getter
+    void set_current_field(Field* nfield);
+    Field* get_current_field() const;
+
     bool is_moving() const;
 
     // push back direction to queue

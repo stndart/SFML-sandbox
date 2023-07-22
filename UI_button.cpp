@@ -1,38 +1,101 @@
 #include "UI_button.h"
 
-UI_button::UI_button(std::string name, sf::IntRect Input_scale, sf::Texture* texture_sp, Button* new_button) :
-    UI_element(name, Input_scale, texture_sp), button(new_button)
+// label with texture
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, bool is_clickable) : UI_element(name, UIFrame)
 {
-    isClickable = true;
+    loading_logger->trace("UI_button:UI_button {} #1, UIFRame +{}+{}, {}x{}", name,
+                          UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
+    displayed = true;
 
-    button->change_position(sf::Vector2f{(float)Input_scale.left, (float)Input_scale.top});
+    setAnimation(button_spritesheet);
+
+    callback = NULL;
+    clickable = is_clickable;
+    pressed = false;
+    text = "";
 }
 
-// changes button state
-void UI_button::push() const
+// label with text
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, std::string ntext, Animation* button_spritesheet) :
+    UI_element(name, UIFrame, button_spritesheet), clickable(false), pressed(false), text(ntext)
 {
-    button->push_button();
+    callback = NULL;
+    displayed = true;
+
+    loading_logger->trace("UI_button:UI_button {} #2, UIFRame +{}+{}, {}x{}", name,
+                          UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
-// returns button name and changes button state
-std::string UI_button::release() const
+// button with callback
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, std::function<void()> ncallback) :
+    UI_element(name, UIFrame, button_spritesheet), clickable(true), pressed(false), text("")
 {
-    return button->release_button();
+    callback = ncallback;
+    displayed = true;
+
+    loading_logger->trace("UI_button:UI_button {} #3, UIFRame +{}+{}, {}x{}", name,
+                          UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
-// moves UI element as well as button
-void UI_button::change_position(sf::Vector2f Pos)
+// clickable setter/getter
+void UI_button::set_clickable(bool is_clickable)
 {
-    Frame_scale.left = Pos.x;
-    Frame_scale.top = Pos.y;
-    button->change_position(Pos);
+    clickable = is_clickable;
 }
 
-void UI_button::draw(sf::RenderTarget& target, sf::RenderStates states) const
+bool UI_button::is_clickable() const
 {
-    draw_element(target, states);
-    if (button)
+    return clickable;
+}
+
+// callback setter
+void UI_button::set_callback(std::function<void()> new_callback)
+{
+    callback = new_callback;
+}
+
+// pushes hovered element
+void UI_button::push_click(sf::Vector2f cursor)
+{
+    input_logger->trace("Button {} clicked at {}x{}", name, cursor.x, cursor.y);
+
+    // becomes not focused, when clicked anywhere else
+    if (!contains(cursor))
     {
-       target.draw(*button);
+        set_focus(false);
+        return;
+    }
+
+    // becomes focused when clicked
+    set_focus(true);
+    pressed = true;
+
+    // button logic: changes texture, when <pressed> is changed
+    // by default: 1 - pressed button, 0 - unpressed
+    if (background && clickable)
+        set_current_frame(1);
+}
+
+// releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
+void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
+{
+    input_logger->trace("Button {} released from {}x{}", name, cursor.x, cursor.y);
+
+    pressed = false;
+
+    // button logic
+    if (clickable)
+    {
+        // changes texture, when <pressed> is changed
+        // by default: 1 - pressed button, 0 - unpressed
+        if (background)
+            set_current_frame(1);
+
+        // if released due to focus change, then don't invoke callback
+        if (contains(cursor) && !skip_action && callback)
+        {
+            input_logger->debug("Button {} calling callback", name);
+            callback();
+        }
     }
 }

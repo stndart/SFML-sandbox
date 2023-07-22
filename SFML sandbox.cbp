@@ -37,8 +37,6 @@
 		<Unit filename="AnimatedSprite.h" />
 		<Unit filename="Animation.cpp" />
 		<Unit filename="Animation.h" />
-		<Unit filename="Button.cpp" />
-		<Unit filename="Button.h" />
 		<Unit filename="Cell.cpp" />
 		<Unit filename="Cell.h" />
 		<Unit filename="Cell_object.cpp" />
@@ -51,6 +49,8 @@
 		<Unit filename="Player.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
+		<Unit filename="SceneController.cpp" />
+		<Unit filename="SceneController.h" />
 		<Unit filename="Scene_Field.cpp" />
 		<Unit filename="Scene_Field.h" />
 		<Unit filename="Scene_editor.cpp" />
@@ -59,10 +59,8 @@
 		<Unit filename="UI_button.h" />
 		<Unit filename="UI_element.cpp" />
 		<Unit filename="UI_element.h" />
-		<Unit filename="UI_label.cpp" />
-		<Unit filename="UI_label.h" />
-		<Unit filename="UI_layout.cpp" />
-		<Unit filename="UI_layout.h" />
+		<Unit filename="UI_window.cpp" />
+		<Unit filename="UI_window.h" />
 		<Unit filename="VisualEffect.cpp" />
 		<Unit filename="VisualEffect.h" />
 		<Unit filename="extra_algorithms.cpp" />

@@ -1,11 +1,31 @@
 #include "Scene.h"
+#include "SceneController.h"
 
 Scene::Scene(std::string name) : background(NULL), name(name)
 {
+    // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
-    Interface = new UI_layout();
+    // Create new user interface
+    Interface = new UI_window("Interface", IntRect(0, 0, 1920, 1080));
+}
+
+// sets scene controller to invoke callbacks of switching scenes
+void Scene::set_scene_controller(SceneController& sc)
+{
+    scene_controller = &sc;
+}
+
+SceneController& Scene::get_scene_controller() const
+{
+    if (!scene_controller)
+    {
+        loading_logger->error("Scene:: trying to get empty scene_controller");
+        throw;
+    }
+
+    return *scene_controller;
 }
 
 // change texture and update background from it
@@ -13,20 +33,7 @@ void Scene::addTexture(Texture* texture, IntRect rect)
 {
     background = texture;
 
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-    float left = static_cast<float>(rect.left) + 0.0001f;
-    float right = left + static_cast<float>(rect.width);
-    float top = static_cast<float>(rect.top);
-    float bottom = top + static_cast<float>(rect.height);
-
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+    cutout_texture_to_frame(m_vertices, rect);
 }
 
 void Scene::addSprite(AnimatedSprite* sprite)
@@ -37,13 +44,51 @@ void Scene::addSprite(AnimatedSprite* sprite)
 }
 
 // add and place button
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, float x, float y)
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> ncallback, std::string origin)
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
-    Button* new_button = new Button(name, texture_default, texture_released);
-    new_button->change_position(sf::Vector2f{x, y});
-    buttons.push_back(new_button);
+    // get animation frame from texture size
+    Vector2u tex_size = texture_default->getSize();
+    IntRect tex_frame(0, 0, tex_size.x, tex_size.y);
+
+    /// MEMORY LEAK
+    Animation* tAn = new Animation;
+    tAn->addSpriteSheet(texture_default);
+    tAn->addFrame(tex_frame, 0);
+    tAn->addSpriteSheet(texture_released);
+    tAn->addFrame(tex_frame, 1);
+
+    loading_logger->warn("Created new Animation for button: MEMORY LEAK");
+
+    UI_button* new_button = new UI_button(name, pos_frame, tAn, ncallback);
+    // default origin is "center"
+    if (origin == "center")
+    {
+        loading_logger->trace("trying center");
+        new_button->setOrigin((float)pos_frame.width / 2.f, (float)pos_frame.height / 2.f);
+    }
+    else if (origin == "top left")
+    {
+        loading_logger->trace("trying top left");
+        new_button->setOrigin(0, 0);
+    }
+    else
+    {
+        loading_logger->warn("Unknown button alignment origin {}, set to \"center\"", origin);
+    }
+
+    // register new button to Interface
+    Interface->addElement(new_button);
+}
+
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> ncallback, std::string origin)
+{
+    // creating animation frame from args
+    Vector2u tex_size = texture_default->getSize();
+    IntRect pos_frame(pos_x, pos_y, tex_size.x, tex_size.y);
+
+    addButton(name, texture_default, texture_released, pos_frame, ncallback, origin);
 }
 
 void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
@@ -70,11 +115,10 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
     }
     else if (event.type == Event::MouseButtonReleased)
     {
-        if (Interface->get_isClicked())
+        if (Interface->is_clicked())
         {
-            std::string ans = Interface->release_click();
-            if (Interface->contains(curPos)) command_main = ans;
-            return true;
+            Interface->release_click(curPos);
+            return Interface->contains(curPos);
         }
     }
     return false;
@@ -99,15 +143,6 @@ void Scene::update(Event& event, std::string& command_main)
                     s->onClick(true);
                 }
             }
-            for (auto b : buttons)
-            {
-                if (b->contains(curPos))
-                {
-                    b->push_button();
-                    pushed_buttons.push_back(b);
-                    break;
-                }
-            }
             break;
 
         default:
@@ -129,16 +164,6 @@ void Scene::update(Event& event, std::string& command_main)
                     s->onClick(false);
                     command_main = "editor_scene";
                 }
-            }
-            while (pushed_buttons.size() > 0)
-            {
-                // if cursor still hovers pushed button then extract action from button
-                std::string answer = pushed_buttons[pushed_buttons.size()-1]->release_button();
-                if (pushed_buttons[pushed_buttons.size()-1]->contains(curPos))
-                {
-                    command_main = answer;
-                }
-                pushed_buttons.pop_back();
             }
             break;
 
@@ -174,16 +199,12 @@ void Scene::draw_scene_buttons(RenderTarget& target, RenderStates states) const
     for (std::size_t i = 0; i < sprites.size(); ++i)
         if (sprites[i])
             target.draw(*sprites[i]);
-
-    for (std::size_t i = 0; i < buttons.size(); ++i)
-        if (buttons[i])
-            target.draw(*buttons[i]);
 }
 
 void Scene::draw_scene_Interface(RenderTarget& target, RenderStates states) const
 {
     if (Interface)
-        target.draw(*Interface);
+        Interface->draw(target, states);
 }
 
 void Scene::draw(RenderTarget& target, RenderStates states) const
@@ -195,11 +216,11 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
 
 /// TEMP
 // MyFirstScene constructor
-Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
+std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
 {
-    Scene main_menu("Main menu");
-    main_menu.addTexture(bg, IntRect(0, 0, 1920, 1080));
-    main_menu.setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
+    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu");
+    main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));
+    main_menu->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
     if (new_button == new_button_pressed)
     {
@@ -207,17 +228,15 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
         throw;
     }
 
-    AnimatedSprite* button = new AnimatedSprite("asprite", *new_button, IntRect(0, 0, 1000, 500));
-    button->getAnimation()->addSpriteSheet(*new_button_pressed);
-    button->getAnimation()->addFrame(IntRect(0, 0, 1000, 500), 1);
-    button->setLooped(false);
-    button->setScale(0.5f, 0.5f);
-    button->setOrigin(button->getLocalBounds().width / 2.0f,
-                      button->getLocalBounds().height / 2.0f);
-    button->setPosition(Vector2f(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3));
-    button->setFrameTime(milliseconds(1.0f));
+    spdlog::get("loading")->debug("Making NEWGAME button with callback");
 
-    main_menu.addSprite(button);
+    IntRect button_frame = IntRect(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3, 500, 250);
+
+    std::function<void()> ncallback = create_change_scene_callback(main_menu, "Scene_editor");
+    spdlog::get("loading")->debug("Constructed callback");
+
+    main_menu->addButton("button", new_button, new_button_pressed, button_frame, ncallback);
+    spdlog::get("loading")->debug("Constructed button");
 
     return main_menu;
 }

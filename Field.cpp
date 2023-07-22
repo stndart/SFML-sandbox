@@ -2,8 +2,9 @@
 
 bool isdrawed = false;
 
-Field::Field(int length, int width, std::string name) : background(NULL), name(name), player_0(NULL)
+Field::Field(std::string name) : background(NULL), name(name), player_0(NULL)
 {
+    // Reaching out to global "loading" logger and "map_events" logger by names
     map_events_logger = spdlog::get("map_events");
     loading_logger = spdlog::get("loading");
 
@@ -16,15 +17,9 @@ Field::Field(int length, int width, std::string name) : background(NULL), name(n
     current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
     default_player_pos = Vector2i(1, 1);
     cells_changed = false;
-
-    cells.resize(length);
-    for (int i = 0; i < length; ++i)
-    {
-        cells[i].resize(width);
-    }
 }
 
-Field::Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions) : Field(length, width, name)
+Field::Field(std::string name, Texture* bg_texture, Vector2i screenDimensions) : Field(name)
 {
     /// MAGIC NUMBERS!
     addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
@@ -65,20 +60,7 @@ void Field::addTexture(Texture* texture, IntRect rect)
 {
     background = texture;
 
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-    float left = static_cast<float>(rect.left) + 0.0001f;
-    float right = left + static_cast<float>(rect.width);
-    float top = static_cast<float>(rect.top);
-    float bottom = top + static_cast<float>(rect.height);
-
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+    cutout_texture_to_frame(m_vertices, rect);
 
     current_view.setSize(rect.width, rect.height);
 }
@@ -90,6 +72,26 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
     cells_changed = true;
 }
 
+// change field size and reshape cells 2d vector
+/// как оно работает если размер уменьшить - я хз
+void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
+{
+    map_events_logger->debug("Changed field size to {}x{}", length, width);
+
+    cells.resize(length);
+    for (unsigned int i = 0; i < length; i++)
+    {
+        cells[i].resize(width);
+    }
+    cells_changed = true;
+}
+
+// return cell_type (name of the cell)
+std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
+{
+    return cells[x][y]->type_name;
+}
+
 // create player at cell [pos.x, pos.y] with texture
 void Field::addPlayer(Texture* player_texture, Vector2i pos)
 {
@@ -98,11 +100,12 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
 
     map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
 
-    player_0 = new Player("default_player", player_texture, IntRect(120, 0, 120, 120));
+    player_0 = std::make_shared<Player>("default_player", player_texture, IntRect(120, 0, 120, 120));
+    player_0->set_current_field(this);
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
     Animation* idle_animation = new Animation();
-    idle_animation->addSpriteSheet(*player_texture);
+    idle_animation->addSpriteSheet(player_texture);
     /// MAGIC NUMBERS!
     idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
     idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
@@ -136,7 +139,8 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     }
 
     /// TODO: change to no-default-texture-player
-    player_0 = new Player("animated_player", p_tex, IntRect(0, 0, frame_size.x, frame_size.y));
+    player_0 = std::make_shared<Player>("animated_player", p_tex, IntRect(0, 0, frame_size.x, frame_size.y));
+    player_0->set_current_field(this);
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
     Animation* idle_animation_0 = new Animation();
@@ -212,63 +216,78 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     }
 }
 
-// change field size and reshape cells 2d vector
-/// как оно работает если размер уменьшить - я хз
-void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
+// places player onto this field by coords
+void Field::teleport_to(std::shared_ptr<Player> player)
 {
-    map_events_logger->debug("Changed field size to {}x{}", length, width);
+    map_events_logger->info("Teleporting player to default position on field {}", name);
 
-    cells.resize(length);
-    for (unsigned int i = 0; i < length; i++)
-    {
-        cells[i].resize(width);
-    }
-    cells_changed = true;
+    Vector2i coords = default_player_pos;
+    teleport_to(coords, player);
 }
 
-// return cell_type (name of the cell)
-std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
+void Field::teleport_to(Vector2i coords, std::shared_ptr<Player> player)
 {
-    return cells[x][y]->type_name;
+    map_events_logger->info("Teleporting player position {}x{} on field {}", coords.x, coords.y, name);
+
+    if (player)
+        player_0 = player;
+
+    if (player_0)
+    {
+        player_0->set_current_field(this);
+
+        player_0->x_cell_coord = coords.x;
+        player_0->y_cell_coord = coords.y;
+
+        place_characters();
+    }
 }
 
 // check player obstacles in direction
 bool Field::is_player_movable(int direction)
 {
-    int cell_x = player_0->x_cell_coord;
-    int cell_y = player_0->y_cell_coord;
+    if (player_0 && player_0->get_current_field() == this)
+    {
+        int cell_x = player_0->x_cell_coord;
+        int cell_y = player_0->y_cell_coord;
 
-    if (cells[cell_x][cell_y]->type_name == "border")
-        return false;  // Player is stuck
+        if (cells[cell_x][cell_y]->type_name == "border")
+            return false;  // Player is stuck
 
-    cell_x += direction_x[direction];
-    cell_y += direction_y[direction];
-    if (cells[cell_x][cell_y]->type_name == "border")
-        return false;  // Next cell is border
+        cell_x += direction_x[direction];
+        cell_y += direction_y[direction];
+        if (cells[cell_x][cell_y]->type_name == "border")
+            return false;  // Next cell is border
 
-    return true;
+        return true;
+    }
+    // if there is no player, then it is unmovable
+    return false;
 }
 
 // move player by on cell in direction
 void Field::move_player(int direction)
 {
-    // If player is unmovable - don't move
-    if (!is_player_movable(direction))
-        return;
+    if (player_0 && player_0->get_current_field() == this)
+    {
+        // If player is unmovable - don't move
+        if (!is_player_movable(direction))
+            return;
 
-    // If player is moving - don't give new movement
-    if (player_0->is_moving())
-        return;
+        // If player is moving - don't give new movement
+        if (player_0->is_moving())
+            return;
 
-    // Instantly change cells_coords
-    // player screen coords are updated via movement
-    player_0->x_cell_coord += direction_x[direction];
-    player_0->y_cell_coord += direction_y[direction];
+        // Instantly change cells_coords
+        // player screen coords are updated via movement
+        player_0->x_cell_coord += direction_x[direction];
+        player_0->y_cell_coord += direction_y[direction];
 
-    double movement_x = direction_x[direction] * cell_length_x;
-    double movement_y = direction_y[direction] * cell_length_y;
+        double movement_x = direction_x[direction] * cell_length_x;
+        double movement_y = direction_y[direction] * cell_length_y;
 
-    player_0->move_player(Vector2f(movement_x, movement_y), direction);
+        player_0->move_player(Vector2f(movement_x, movement_y), direction);
+    }
 }
 
 // schedule player movement in direction
@@ -276,42 +295,51 @@ void Field::set_player_movement_direction(int direction)
 {
     /// TODO: add cell coords
 
-    double movement_x = direction_x[direction] * cell_length_x;
-    double movement_y = direction_y[direction] * cell_length_y;
+    if (player_0 && player_0->get_current_field() == this)
+    {
+        double movement_x = direction_x[direction] * cell_length_x;
+        double movement_y = direction_y[direction] * cell_length_y;
 
-    player_0->add_movement_direction(Vector2f(movement_x, movement_y), direction);
+        player_0->add_movement_direction(Vector2f(movement_x, movement_y), direction);
+    }
 }
 
 // cancel scheduled movement. If direction doesn't match - do nothing. If there are few directions scheduled - pop only coinciding
 void Field::release_player_movement_direction(int direction)
 {
-    /// TODO: add cell coords
-    player_0->release_movement_direction(direction);
+    if (player_0 && player_0->get_current_field() == this)
+    {
+        /// TODO: add cell coords
+        player_0->release_movement_direction(direction);
+    }
 }
 
 // invoke an action on cell where player stands, with texture (temp)
 // currently changes <tree> to <stump>
 void Field::action(Texture* texture)
 {
-    int cell_x = player_0->x_cell_coord;
-    int cell_y = player_0->y_cell_coord;
-    map_events_logger->debug("Calling action on cell {}x{}", cell_x, cell_y);
-
-    Cell* target_cell = cells[cell_x][cell_y];
-    if (target_cell->hasObject("tree"))
+    if (player_0 && player_0->get_current_field() == this)
     {
-        target_cell->action_change("tree", texture);
-    }
-    else if (target_cell->hasObject("stump"))
-    {
-        target_cell->action_change("stump", texture);
-    }
-    else if (target_cell->hasObject("portal"))
-    {
+        int cell_x = player_0->x_cell_coord;
+        int cell_y = player_0->y_cell_coord;
+        map_events_logger->debug("Calling action on cell {}x{}", cell_x, cell_y);
 
-    }
+        Cell* target_cell = cells[cell_x][cell_y];
+        if (target_cell->hasObject("tree"))
+        {
+            target_cell->action_change("tree", texture);
+        }
+        else if (target_cell->hasObject("stump"))
+        {
+            target_cell->action_change("stump", texture);
+        }
+        else if (target_cell->hasObject("portal"))
+        {
 
-    cells_changed = true;
+        }
+
+        cells_changed = true;
+    }
 }
 
 // adds placeable object to cell by coords, name and with texture
@@ -333,7 +361,7 @@ void Field::place_characters()
 {
     map_events_logger->trace("Updating player and view screen coords");
 
-    if (player_0)
+    if (player_0 && player_0->get_current_field() == this)
     {
         double player_screen_x, player_screen_y;
         player_screen_x = player_0->x_cell_coord * cell_length_x;
@@ -355,7 +383,8 @@ void Field::update_view_center()
 {
     Vector2f view_center = Vector2f(cell_center_x * cell_length_x,
                                     cell_center_y * cell_length_y);
-    if (player_0)
+
+    if (player_0 && player_0->get_current_field() == this)
     {
         view_center = player_0->getPosition();
     }
@@ -462,7 +491,7 @@ void Field::update(Time deltaTime)
         cells_changed = false;
     }
 
-    if (player_0)
+    if (player_0 && player_0->get_current_field() == this)
     {
         if (player_0->queued_movement_direction.size() > 0)
         {
@@ -536,8 +565,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         }
     }
 
-    // draw player atop of everything
-    if (player_0)
+    // draw player atop of everythinghas current field? {}", (player_0->get_current_field() == this));
+    if (player_0 && player_0->get_current_field() == this)
     {
         player_0->draw(target, states);
     }
@@ -549,7 +578,7 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 // MyFirstFieldConstructor (to be removed)
 Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
 {
-    Field* field = new Field(cell_length, cell_width, "Main field");
+    Field* field = new Field("Main field");
     field->addTexture(bg, IntRect(0, 0, 1920, 1080));
     field->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 

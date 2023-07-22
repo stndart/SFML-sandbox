@@ -16,12 +16,13 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character(string name, Texture &texture_default, IntRect frame0) :
+Character::Character(string name, Texture *texture_default, IntRect frame0) :
 moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
 current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
 name(name)
 {
+    // Reaching out to global "map_events" logger and "graphics" logger by names
     map_events_logger = spdlog::get("map_events");
     graphics_logger = spdlog::get("graphics");
 
@@ -307,7 +308,7 @@ void Character::set_animation(string animation_name, Time offset, int frame_star
 
     current_animation = animation_name;
 
-    base_sprite->play(*animations[animation_name], frame_start, offset);
+    base_sprite->play(animations[animation_name], frame_start, offset);
     base_sprite->stop_after(frame_stop_after);
 
     animated = true;
@@ -326,7 +327,7 @@ void Character::set_animation_to_idle(Time offset)
 
     current_animation = animation_name;
 
-    base_sprite->play(*animations[animation_name], offset);
+    base_sprite->play(animations[animation_name], offset);
     animated = true;
     base_sprite->setLooped(true);
 }
@@ -530,6 +531,32 @@ void Character::next_movement_start()
         moving_shift = am.VE_shift;
         moving = true;
     }
+}
+
+// stop and delete VE forcefully
+void Character::stop_movement_by_force()
+{
+    // unwrap VE
+    if (moving_sprite != base_sprite)
+    {
+        graphics_logger->debug("Deleting VisualEffect by force");
+
+        delete moving_sprite;
+        moving_sprite = base_sprite;
+
+        moving = false;
+    }
+}
+
+// flush animation queue by force
+void Character::stop_animation_by_force()
+{
+    // cancel all scheduled animations
+    next_animations.clear();
+    // stop current animation
+    base_sprite->stop();
+
+    // the rest is up to update
 }
 
 void Character::setPosition(const Vector2f &position)

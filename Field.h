@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <memory>
 
 #include <cassert>
 
@@ -51,26 +52,32 @@ private:
 public:
     // field name
     std::string name;
-    // player object that is controlled by player. It is the only player object. Controls are bound to it
-    Player* player_0;
+    // player that is controlled by user. It is the only player. Controls are bound to it
+    std::shared_ptr<Player> player_0;
 
-    Field(int length, int width, std::string name);
-    Field(int length, int width, std::string name, Texture* bg_texture, Vector2i screenDimensions);
+    Field(std::string name);
+    Field(std::string name, Texture* bg_texture, Vector2i screenDimensions);
 
     // update background with texture, View size with rect, m_vertices with rect as well
     void addTexture(Texture* texture, IntRect rect);
     // add cell by indexes [x, y] with texture
     void addCell(Texture* texture, unsigned int x, unsigned int y);
-    // create player at cell [cell_x, cell_y] with texture
-    void addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1));
-    // create player at cell [cell_x, cell_y] with animation given by list [idle_animation, movement_0]
-    void addPlayer(std::vector<std::string> animation_filenames, Vector2i pos = Vector2i(-1, -1), Vector2u frame_size = Vector2u(530, 530));
 
     // change field size and reshape cells 2d vector
     /// как оно работает если размер уменьшить - я хз
     void field_resize(unsigned int length, unsigned int width);         /// CHECK
     // return cell_type (name of the cell)
     std::string get_cellType_by_coord(unsigned int x, unsigned int y);
+
+    // create player at cell [cell_x, cell_y] with texture
+    void addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1));
+    // create player at cell [cell_x, cell_y] with animation given by list [idle_animation, movement_0]
+    void addPlayer(std::vector<std::string> animation_filenames, Vector2i pos = Vector2i(-1, -1), Vector2u frame_size = Vector2u(530, 530));
+
+    // places player onto this field by coords
+    void teleport_to(std::shared_ptr<Player> player = std::shared_ptr<Player>(nullptr));
+    void teleport_to(Vector2i coords, std::shared_ptr<Player> player = std::shared_ptr<Player>(nullptr));
+
     // check player obstacles in direction
     bool is_player_movable(int direction);
     // move player by on cell in direction
@@ -103,7 +110,7 @@ public:
     virtual void update(Time deltaTime);
     virtual void draw(RenderTarget& target, RenderStates states) const override;
 
-    //TEMP
+    ///TEMP
     int mapsize(int x, int y)
     {
         return cells[x][y]->mapsize();

@@ -10,12 +10,13 @@ AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bo
     graphics_logger = spdlog::get("graphics");
 }
 
-AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame0) :
+AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect frame0) :
     m_frameTime(seconds(0.2f)), m_currentFrame(0), frame_stop_after(0),
     m_isLooped(true), m_isReversed(false), m_isReversible(false),
     m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
     name(name)
 {
+    // Reaching out to global "graphics" logger by names
     graphics_logger = spdlog::get("graphics");
 
     m_animation = new Animation();
@@ -25,9 +26,9 @@ AnimatedSprite::AnimatedSprite(std::string name, Texture& texture, IntRect frame
 }
 
 // Load animation, spritesheet and set current frame to 0
-void AnimatedSprite::setAnimation(Animation& animation)
+void AnimatedSprite::setAnimation(Animation* animation)
 {
-    m_animation = &animation;
+    m_animation = animation;
     m_texture = m_animation->getSpriteSheet();
 
     m_currentFrame = 0;
@@ -61,7 +62,7 @@ void AnimatedSprite::play(std::size_t frame_start, Time shift)
 }
 
 // set Animation, cur_time and then play
-void AnimatedSprite::play(Animation& animation, Time shift)
+void AnimatedSprite::play(Animation* animation, Time shift)
 {
     graphics_logger->trace("play with shift: {}", shift.asSeconds());
 
@@ -72,7 +73,7 @@ void AnimatedSprite::play(Animation& animation, Time shift)
 }
 
 // set Animation, cur_frame, cur_time and then play
-void AnimatedSprite::play(Animation& animation, std::size_t frame_start, Time shift)
+void AnimatedSprite::play(Animation* animation, std::size_t frame_start, Time shift)
 {
     graphics_logger->trace("play with shift: {}", shift.asSeconds());
 
@@ -228,25 +229,10 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         //calculate new vertex positions and texture coordiantes
         IntRect rect = m_animation->getFrame(newFrame);
 
-        // Where to draw texture (relative to sprite anchor)
-        m_vertices[0].position = Vector2f(0.f, 0.f);
-        m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-        m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-        m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-        float left = static_cast<float>(rect.left) + 0.0001f;
-        float right = left + static_cast<float>(rect.width);
-        float top = static_cast<float>(rect.top);
-        float bottom = top + static_cast<float>(rect.height);
-
-        // What to draw (coordinate on texture)
-        m_vertices[0].texCoords = Vector2f(left, top);
-        m_vertices[1].texCoords = Vector2f(left, bottom);
-        m_vertices[2].texCoords = Vector2f(right, bottom);
-        m_vertices[3].texCoords = Vector2f(right, top);
+        cutout_texture_to_frame(m_vertices, rect);
 
         // Ensure correct texture is selected
-        m_texture = m_animation->getSpriteSheet(m_animation->getTextureIndex(newFrame));
+        m_texture = m_animation->getTexture(newFrame);
     }
 
     if (resetTime)

@@ -116,7 +116,7 @@ Animation* VisualEffect::getAnimation()
     return NULL;
 }
 
-void VisualEffect::setAnimation(Animation& animation)
+void VisualEffect::setAnimation(Animation* animation)
 {
     sprite->setAnimation(animation);
 }
@@ -131,7 +131,7 @@ void VisualEffect::play()
         sprite->play();
 }
 
-void VisualEffect::play(Animation& animation, Time shift)
+void VisualEffect::play(Animation* animation, Time shift)
 {
     graphics_logger->trace("VE play");
 
