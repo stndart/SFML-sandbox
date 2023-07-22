@@ -2,6 +2,8 @@
 #define SCENE_INCLUDE
 
 #include <vector>
+#include <deque>
+#include <map>
 #include <functional>
 
 #include "AnimatedSprite.h"
@@ -18,20 +20,28 @@ using namespace sf;
 
 class Scene : public Drawable, public Transformable
 {
+    static int UI_Z_INDEX;
+
 private:
-    // list of all animated objects
-    std::vector <AnimatedSprite*> sprites;
+    // map of callbacks by timers. When timer expires, callback is evaluated and poped from map
+    std::map <Time, std::vector<std::function<void()> > > scheduled_callbacks;
+    // queue of callbacks to call
+    // they need to be stored before evaluation since exist callbacks, that invalidate others
+    std::deque<std::function<void()> > callbacks_to_call;
+    // shift timer used to sweep through map of callbacks
+    Time timer;
 
 protected:
+    // set of all animated objects sorted by z-index.
+    // Z-index of Field is typically 0, z-index of UI is typically 10
+    std::set <std::pair<int, Drawable*> > sorted_drawables;
+    // list of all sprites
+    std::vector <AnimatedSprite*> sprites;
+
     Texture* background;
     Vertex m_vertices[4];
     // Object of user interface. Drawable
     UI_window* Interface;
-
-    // draw different parts interface
-    void draw_scene_back(RenderTarget& target, RenderStates states) const;
-    void draw_scene_buttons(RenderTarget& target, RenderStates states) const;
-    void draw_scene_Interface(RenderTarget& target, RenderStates states) const;
 
     SceneController* scene_controller;
 
@@ -48,7 +58,10 @@ public:
 
     // adding elements to certain lists
     void addTexture(Texture* texture, IntRect rect);
-    void addSprite(AnimatedSprite* sprite);
+    void addSprite(AnimatedSprite* sprite, int z_index=1);
+    /// TEMP
+    void delete_sprites();
+
     void addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> callback = std::function<void()>{nullptr}, std::string origin = "center");
     void addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> callback = std::function<void()>{nullptr}, std::string origin = "center");
     void addUI_element(std::vector<UI_element*> &new_ui_elements);
@@ -56,10 +69,15 @@ public:
     // if mouse doesn't hover over UI - return false
     bool UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main);
 
+    // schedule callback to call after <t> seconds
+    void add_callback(std::function<void()> callback, Time t = seconds(0.5));
+    // cancels callback
+    void cancel_callbacks();
+
     // overriding Drawable methods
-    virtual void draw(RenderTarget& target, RenderStates states) const override;
     virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
+    virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 
 /// TEMP

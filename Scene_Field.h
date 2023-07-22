@@ -8,6 +8,8 @@
 
 class Scene_Field : public Scene
 {
+    static int FIELD_Z_INDEX;
+
 public:
     // number of maps
     /// MAGIC NUMBER (replace with vector)
@@ -50,7 +52,7 @@ public:
     // overriding Drawable methods
     virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
-    void draw(RenderTarget& target, RenderStates states) const override;
+    // we don't override draw since it stays the same
 
     ///TEMP
     int mapsize(int x, int y)

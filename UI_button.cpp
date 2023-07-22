@@ -1,7 +1,8 @@
 #include "UI_button.h"
+#include "Scene.h"
 
 // label with texture
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, bool is_clickable) : UI_element(name, UIFrame)
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* button_spritesheet, bool is_clickable) : UI_element(name, UIFrame, parent)
 {
     loading_logger->trace("UI_button:UI_button {} #1, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
@@ -16,8 +17,8 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_sp
 }
 
 // label with text
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, std::string ntext, Animation* button_spritesheet) :
-    UI_element(name, UIFrame, button_spritesheet), clickable(false), pressed(false), text(ntext)
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, Animation* button_spritesheet) :
+    UI_element(name, UIFrame, parent, button_spritesheet), clickable(false), pressed(false), text(ntext)
 {
     callback = NULL;
     displayed = true;
@@ -27,8 +28,8 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, std::string ntext, A
 }
 
 // button with callback
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, std::function<void()> ncallback) :
-    UI_element(name, UIFrame, button_spritesheet), clickable(true), pressed(false), text("")
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* button_spritesheet, std::function<void()> ncallback) :
+    UI_element(name, UIFrame, parent, button_spritesheet), clickable(true), pressed(false), text("")
 {
     callback = ncallback;
     displayed = true;
@@ -89,13 +90,13 @@ void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
         // changes texture, when <pressed> is changed
         // by default: 1 - pressed button, 0 - unpressed
         if (background)
-            set_current_frame(1);
+            set_current_frame(0);
 
         // if released due to focus change, then don't invoke callback
         if (contains(cursor) && !skip_action && callback)
         {
             input_logger->debug("Button {} calling callback", name);
-            callback();
+            parent_scene->add_callback(callback);
         }
     }
 }

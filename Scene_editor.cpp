@@ -265,7 +265,8 @@ void Scene_editor::update(Event& event, std::string& command_main)
 
 void Scene_editor::update(Time deltaTime)
 {
-    field[current_field]->update(deltaTime);
+    Scene_Field::update(deltaTime);
+
 /**
     пишет в левом верхнем углу текущий тип клетки
 
@@ -277,17 +278,8 @@ void Scene_editor::update(Time deltaTime)
 
 void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 {
-    /*if (background)
-    {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
-    }*/
-    if (current_field != -1)
-    {
-        field[current_field]->draw(target, states);
-    }
-    draw_scene_Interface(target, states);
+    Scene_Field::draw(target, states);
+
     if (s_input != "")
     {
         Font font;
@@ -304,7 +296,6 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         text.setPosition(0, 0);
         target.draw(text);
     }
-    draw_scene_buttons(target, states);
 }
 
 /// TEMP

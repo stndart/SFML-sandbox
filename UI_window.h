@@ -22,7 +22,7 @@ class UI_window : public UI_element
         // logger is inherited and constructed in parent constructor
 
     public:
-        UI_window(std::string name, sf::IntRect UIFrame, bool is_framed = false);
+        UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, bool is_framed = false);
 
         // push UI_element into list
         void addElement(UI_element* new_element, int z_index = 0);

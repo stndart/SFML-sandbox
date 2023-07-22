@@ -47,6 +47,12 @@ int direction_from_shift(sf::Vector2f shift)
     return direction;
 }
 
+bool comparator_pair_time_func(std::pair<sf::Time, std::function<void()> > a,
+                               std::pair<sf::Time, std::function<void()> > b)
+{
+    return a.first > b.first;
+}
+
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to)
 {
     std::function<void()> callback = [scene, scene_to]{
@@ -59,6 +65,31 @@ std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWi
 {
     std::function<void()> callback = [window] {
         window->close();
+    };
+    return callback;
+}
+
+/// MEMORY LEAK
+// creates semi-transparent colored sprite, that covers field
+std::function<void()> create_bloodscreen(std::shared_ptr<Scene> scene, const sf::Color& color)
+{
+    std::function<void()> callback = [scene, color] {
+        AnimatedSprite* as = new AnimatedSprite("bloodscreen", sf::IntRect(0, 0, 1920, 1080));
+        State start = {0, Color(0, 0, 0, 0),
+            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+        State finish = {0, color,
+            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+        VisualEffect* ve = new VisualEffect(as, seconds(1), seconds(3), start, finish);
+        scene->addSprite(ve);
+    };
+    return callback;
+}
+
+// cleares scene->sprites
+std::function<void()> clear_bloodscreen(std::shared_ptr<Scene> scene)
+{
+    std::function<void()> callback = [scene] {
+        scene->delete_sprites();
     };
     return callback;
 }

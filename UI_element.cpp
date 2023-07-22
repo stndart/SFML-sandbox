@@ -1,8 +1,8 @@
 #include "UI_element.h"
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame) :
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     background(NULL), cur_frame(-1),
-    focus(false),
+    focus(false), parent_scene(parent),
     name(name), displayed(false)
 {
     // Reaching out to global "loading" logger and "input" logger by names
@@ -14,7 +14,7 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame) :
     setOrigin(sf::Vector2f(UIFrame.width / 2., UIFrame.height / 2.));
 }
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Animation* spritesheet) : UI_element(name, UIFrame)
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* spritesheet) : UI_element(name, UIFrame, parent)
 {
     setAnimation(spritesheet);
 }

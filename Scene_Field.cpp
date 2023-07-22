@@ -1,5 +1,7 @@
 #include "Scene_Field.h"
 
+int Scene_Field::FIELD_Z_INDEX = 0;
+
 Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_tex_map(field_blocks)
 {
     loading_logger = spdlog::get("loading");
@@ -19,10 +21,9 @@ void Scene_Field::add_field(Field* field_to_add, int num)
     loading_logger->trace("Add field #{} to scene", num);
 
     field[num] = field_to_add;
+
     if (current_field == -1)
-    {
-        current_field = num;
-    }
+        change_current_field(num);
 }
 
 /// TEMP
@@ -34,16 +35,18 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 
     Field* field_0 = new_field(bg, length, width, (*field_blocks)["null"], player_texture, screen_dimensions);
     field[num] = field_0;
+
     if (current_field == -1)
-    {
-        current_field = num;
-    }
+        change_current_field(num);
 }
 
 // swap to field by index
 void Scene_Field::change_current_field(int num)
 {
-    map_events_logger->trace("Changed current field to {}", num);
+    map_events_logger->trace("Changing current field to {}", num);
+
+    // unload current field from drawables index
+    sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, field[current_field]));
 
     current_field = num;
 
@@ -52,11 +55,11 @@ void Scene_Field::change_current_field(int num)
         throw;
     }
 
+    // load new current field to drawables index
+    sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, field[current_field]));
+
     field[num]->load_field(*field_tex_map, num);
-
     field[num]->teleport_to();
-
-    map_events_logger->info("Changed field to #{}", num);
 }
 
 /// TEMP
@@ -139,26 +142,12 @@ void Scene_Field::update(Event& event, std::string& command_main)
 
 void Scene_Field::update(Time deltaTime)
 {
+    Scene::update(deltaTime);
+
     if (current_field != -1)
     {
         field[current_field]->update(deltaTime);
     }
-}
-
-void Scene_Field::draw(RenderTarget& target, RenderStates states) const
-{
-    /// WHY?
-    /*if (background)
-    {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
-    }*/
-    if (current_field != -1)
-    {
-        field[current_field]->draw(target, states);
-    }
-    draw_scene_Interface(target, states);
 }
 
 Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,

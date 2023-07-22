@@ -13,14 +13,13 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_sinks.h"
 
-#include "extra_algorithms.h"
-
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
 #include "SceneController.h"
+#include "extra_algorithms.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -62,7 +61,7 @@ int main()
         map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
         graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
-        loading_logger->set_level(spdlog::level::trace);
+        loading_logger->set_level(spdlog::level::info);
         input_logger->set_level(spdlog::level::info);
         map_events_logger->set_level(spdlog::level::info);
         graphics_logger->set_level(spdlog::level::info);
@@ -394,7 +393,9 @@ int main()
     field_4->player_0 = player_0;
     editor_scene->add_field(field_4, 1);
 
-    editor_scene->addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
+    editor_scene->addButton("to_main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
+    editor_scene->addButton("bloodscreen", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1620, 0, 200, 100), create_bloodscreen(editor_scene, Color(0, 0, 0, 255)), "top left");
+    editor_scene->addButton("clear blood", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1420, 0, 200, 100), clear_bloodscreen(editor_scene), "top left");
     editor_scene->addUI_element(main_ui_elements);
 
     loading_logger->info("Loaded fields");

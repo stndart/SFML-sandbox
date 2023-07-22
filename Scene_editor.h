@@ -28,6 +28,7 @@ class Scene_editor : public Scene_Field
         // overriding Drawable methods
         virtual void update(Event& event, std::string& command_main);
         virtual void update(Time deltaTime);
+        // we don't want to override it... but Tima's loading fonts there
         virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 

@@ -5,7 +5,7 @@ AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bo
     m_frameTime(frameTime), m_currentFrame(0), frame_stop_after(0),
     m_isLooped(looped), m_isReversed(false), m_isReversible(reversible),
     m_currentTime(seconds(0)), m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)),
-    name(name)
+    name(name), z_index(0), enable_no_texture(false)
 {
     graphics_logger = spdlog::get("graphics");
 }
@@ -14,15 +14,37 @@ AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect frame
     m_frameTime(seconds(0.2f)), m_currentFrame(0), frame_stop_after(0),
     m_isLooped(true), m_isReversed(false), m_isReversible(false),
     m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
-    name(name)
+    name(name), z_index(0), enable_no_texture(false)
 {
     // Reaching out to global "graphics" logger by names
     graphics_logger = spdlog::get("graphics");
 
+    /// MEMORY LEAK
     m_animation = new Animation();
     m_animation->addFrame(frame0);
     m_animation->setSpriteSheet(texture);
     setFrame(m_currentFrame);
+
+    graphics_logger->warn("Creating Animation for AnimatedSprite with new. Potential memory leak.");
+}
+
+// drawing colored rectangles
+AnimatedSprite::AnimatedSprite(std::string name, IntRect rect) :
+    m_texture(NULL), m_animation(NULL),
+    m_frameTime(seconds(0.2f)), m_currentFrame(0), frame_stop_after(0),
+    m_isLooped(false), m_isReversed(false), m_isReversible(false),
+    m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
+    name(name), z_index(0), enable_no_texture(true)
+{
+    // Reaching out to global "graphics" logger by names
+    graphics_logger = spdlog::get("graphics");
+
+    m_vertices[0].position = Vector2f(0.f, 0.f);
+    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
+    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
+    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
+
+    graphics_logger->info("Creating AnimatedSprite {} in experimental [no-texture] mode.");
 }
 
 // Load animation, spritesheet and set current frame to 0
@@ -166,7 +188,10 @@ void AnimatedSprite::scale(const Vector2f &factor)
 
 FloatRect AnimatedSprite::getLocalBounds() const
 {
-    return FloatRect(m_animation->getFrame(m_currentFrame));
+    if (m_animation)
+        return FloatRect(m_animation->getFrame(m_currentFrame));
+    else /// ?????
+        return FloatRect(0, 0, 1920, 1080);
 }
 
 FloatRect AnimatedSprite::getGlobalBounds() const
@@ -427,6 +452,12 @@ void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
     {
         states.transform *= getTransform();
         states.texture = m_texture;
+        target.draw(m_vertices, 4, Quads, states);
+    }
+    /// TODO: add geometrical primitive class (compatible with VisualEffect)
+    if (enable_no_texture)
+    {
+        states.transform *= getTransform();
         target.draw(m_vertices, 4, Quads, states);
     }
 }

@@ -1,6 +1,6 @@
 #include "UI_window.h"
 
-UI_window::UI_window(std::string name, sf::IntRect UIFrame, bool is_framed) : UI_element(name, UIFrame),
+UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, bool is_framed) : UI_element(name, UIFrame, parent),
 isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
     displayed = true;

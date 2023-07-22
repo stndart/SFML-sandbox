@@ -50,9 +50,16 @@ protected:
 
 public:
     std::string name;
+    // needed for external purposes (sorting sprites by z-index)
+    int z_index;
+    /// TODO: add geometrical primitive class (compatible with VisualEffect)
+    // enable this flag to draw colored rectangles with no texture
+    bool enable_no_texture;
 
     explicit AnimatedSprite(std::string name, Time frameTime = seconds(0.2f), bool paused = false, bool looped = true, bool reversible = false);
     AnimatedSprite(std::string name, Texture* texture, IntRect frame0);
+    // drawing colored rectangles
+    AnimatedSprite(std::string name, IntRect rect);
 
     void setAnimation(Animation* animation);
     // set time for which each frame lasts
