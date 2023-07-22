@@ -27,7 +27,7 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, std::string ntext, A
 }
 
 // button with callback
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, void (*ncallback)()) :
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, std::function<void()> ncallback) :
     UI_element(name, UIFrame, button_spritesheet), clickable(true), pressed(false), text("")
 {
     callback = ncallback;
@@ -49,7 +49,7 @@ bool UI_button::is_clickable() const
 }
 
 // callback setter
-void UI_button::set_callback(void (*new_callback)())
+void UI_button::set_callback(std::function<void()> new_callback)
 {
     callback = new_callback;
 }

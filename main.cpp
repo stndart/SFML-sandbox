@@ -22,6 +22,7 @@
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
+#include "SceneController.h"
 
 //#include "UI_element.h"
 //#include "UI_button.h"
@@ -328,13 +329,13 @@ int main()
 
     // Create main menu scene. Scene is drawable and calls all subsequent draws for children drawable elements
     // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader
-    Scene main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
+    shared_ptr<Scene> main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
     // Add button with text to desired position. Textures are passed with name->texture* map "UI_block"
-    // main_menu.addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
+     main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
 
     ///--------------------------------------------------------
     // Create field scene. At first it is inactive
-    Scene_Field field_scene = Scene_Field(std::string("field_scene"), &field_tex_map);
+    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), &field_tex_map);
 
     // current ready animations
     vector<string> player_animation_fnames =
@@ -353,7 +354,7 @@ int main()
 
     // place_characters sets position of all dynamic sprites on field and updates view position (player in center)
     field_0->place_characters();
-    field_scene.add_field(field_0, 0);
+    field_scene->add_field(field_0, 0);
 
     // Create field with map#2.
     Field* field_1 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
@@ -361,10 +362,10 @@ int main()
     //field_1->addPlayer(&player_texture, pos = player_default_pos);
     field_1->addPlayer(player_animation_fnames);
     field_1->place_characters();
-    field_scene.add_field(field_1, 1);
+    field_scene->add_field(field_1, 1);
 
     // Create editor scene. At first it is inactive. Scenes are currently changed via command_main switch in main loop
-    Scene_editor editor_scene = Scene_editor(std::string("editor_scene"), &field_tex_map);
+    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &field_tex_map);
 
     // Create field with map#1 in editor scene
     Field* field_3 = new Field(20, 20, "field_scene 0", &field_bg_texture, screenDimensions);
@@ -372,7 +373,7 @@ int main()
 //    field_3->addPlayer(&player_texture, pos = player_default_pos);
     field_3->addPlayer(player_animation_fnames);
     field_3->place_characters();
-    editor_scene.add_field(field_3, 0);
+    editor_scene->add_field(field_3, 0);
 
     // Create field with map#2 in editor scene
     Field* field_4 = new Field(20, 20, "field_scene 1", &field_bg_texture, screenDimensions);
@@ -380,10 +381,10 @@ int main()
 //    field_4->addPlayer(&player_texture, pos = player_default_pos);
     field_4->addPlayer(player_animation_fnames);
     field_4->place_characters();
-    editor_scene.add_field(field_4, 1);
+    editor_scene->add_field(field_4, 1);
 
-    //editor_scene.addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0);
-    editor_scene.addUI_element(main_ui_elements);
+    editor_scene->addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"));
+    editor_scene->addUI_element(main_ui_elements);
 
     loading_logger->info("Loaded fields");
 
@@ -392,13 +393,20 @@ int main()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Set default scene. It is displayed first
-    Scene* Current_Scene = &main_menu;
+    SceneController scene_controller;
+    scene_controller.add_scene("main_menu", main_menu);
+    scene_controller.add_scene("Scene_editor", editor_scene);
+    scene_controller.add_scene("Scene_field", field_scene);
+
+//    scene_controller.set_current_scene("main_menu");
 
     // main loop
     while (window.isOpen())
     {
         // Handle events loop
         Event event;
+        Scene* cur_scene = scene_controller.get_current_scene();
+
         while (window.pollEvent(event))
         {
             // Occures when x-mark in the corner of the window is pressed
@@ -414,44 +422,19 @@ int main()
             //  ESCAPE = window close
             //  field_scene / editor_scene / main_menu = change current scene to #
             std::string command_main = "";
-            Current_Scene->update(event, command_main);
-            if (command_main.size() > 0)
-            {
-                if (command_main == "editor_scene")
-                {
-                    Current_Scene = &editor_scene;
-
-                    map_events_logger->info("Switched scene to editor_scene");
-                }
-                else if (command_main == "ESCAPE")
-                {
-                    loading_logger->info("Closed window");
-
-                    window.close();
-                }
-                else if (command_main == "field_scene")
-                {
-                    Current_Scene = &field_scene;
-
-                    map_events_logger->info("Switched scene to field_scene");
-                }
-                else if (command_main == "main_menu")
-                {
-                    Current_Scene = &main_menu;
-
-                    map_events_logger->info("Switched scene to main_menu");
-                }
-            }
+            if (cur_scene)
+                cur_scene->update(event, command_main);
         }
 
         // get time spent per last frame and update all drawables with it
         Time frameTime = frameClock.restart();
-
-        Current_Scene->update(frameTime);
+        if (cur_scene)
+            cur_scene->update(frameTime);
 
         // clear previous frame and draw from scratch
         window.clear();
-        window.draw(*Current_Scene);
+        if (cur_scene)
+            window.draw(*cur_scene);
 
         window.display();
 

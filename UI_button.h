@@ -2,6 +2,7 @@
 #define UI_BUTTON_H
 
 #include <string>
+#include <functional>
 
 #include "UI_element.h"
 
@@ -10,20 +11,20 @@ class UI_button : public UI_element
     private:
         bool clickable;
         bool pressed;
-        void (*callback)();
+        std::function<void()> callback;
 
     public:
         std::string text;
 
         UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, bool is_clickable = false); // label with texture
         UI_button(std::string name, sf::IntRect UIFrame, std::string ntext, Animation* button_spritesheet = NULL); // label with text
-        UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, void (*ncallback)()); // button with callback
+        UI_button(std::string name, sf::IntRect UIFrame, Animation* button_spritesheet, std::function<void()> ncallback); // button with callback
 
         // clickable setter/getter
         void set_clickable(bool is_clickable);
         bool is_clickable() const;
         // callback setter
-        void set_callback(void (*new_callback)());
+        void set_callback(std::function<void()> new_callback);
 
         // pushes hovered element
         void push_click(sf::Vector2f cursor) override;

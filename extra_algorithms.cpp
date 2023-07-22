@@ -1,5 +1,8 @@
 #include "extra_algorithms.h"
 
+#include "Scene.h"
+#include "SceneController.h"
+
 // extract filename (without extension) from full path
 std::string re_name(std::string path)
 {
@@ -43,6 +46,15 @@ int direction_from_shift(sf::Vector2f shift)
     }
     return direction;
 }
+
+std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to)
+{
+    std::function<void()> callback = [scene, scene_to]{
+        scene->get_scene_controller().set_current_scene(scene_to);
+    };
+    return callback;
+}
+
 
 int direction_x[4] = {1, 0, -1, 0};
 int direction_y[4] = {0, 1, 0, -1};

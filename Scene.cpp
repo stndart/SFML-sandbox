@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "SceneController.h"
 
 Scene::Scene(std::string name) : background(NULL), name(name)
 {
@@ -6,6 +7,23 @@ Scene::Scene(std::string name) : background(NULL), name(name)
     input_logger = spdlog::get("input");
 
     Interface = new UI_window("Interface", IntRect(0, 0, 1920, 1080));
+}
+
+// sets scene controller to invoke callbacks of switching scenes
+void Scene::set_scene_controller(SceneController& sc)
+{
+    scene_controller = &sc;
+}
+
+SceneController& Scene::get_scene_controller() const
+{
+    if (!scene_controller)
+    {
+        loading_logger->error("getting empty scene_controller");
+        throw;
+    }
+
+    return *scene_controller;
 }
 
 // change texture and update background from it
@@ -37,7 +55,7 @@ void Scene::addSprite(AnimatedSprite* sprite)
 }
 
 // add and place button
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame)
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> ncallback)
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
@@ -55,18 +73,18 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 
     loading_logger->warn("Created new Animation for button: MEMORY LEAK");
 
-    UI_button* new_button = new UI_button(name, pos_frame, tAn, true);
+    UI_button* new_button = new UI_button(name, pos_frame, tAn, ncallback);
     Interface->addElement(new_button);
 }
 
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y)
+void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> ncallback)
 {
     IntRect pos_frame(pos_x, pos_y, 0, 0);
     Vector2u tex_size = texture_default->getSize();
     pos_frame.width = tex_size.x;
     pos_frame.height = tex_size.y;
 
-    addButton(name, texture_default, texture_released, pos_frame);
+    addButton(name, texture_default, texture_released, pos_frame, ncallback);
 }
 
 void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
@@ -194,11 +212,11 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
 
 /// TEMP
 // MyFirstScene constructor
-Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
+std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
 {
-    Scene main_menu("Main menu");
-    main_menu.addTexture(bg, IntRect(0, 0, 1920, 1080));
-    main_menu.setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
+    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu");
+    main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));
+    main_menu->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
     if (new_button == new_button_pressed)
     {
@@ -206,8 +224,15 @@ Scene new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_press
         throw;
     }
 
+    spdlog::get("loading")->debug("Making NEWGAME button with callback");
+
     IntRect button_frame = IntRect(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3, 500, 250);
-    main_menu.addButton("button", new_button, new_button_pressed, button_frame);
+
+    std::function<void()> ncallback = create_change_scene_callback(main_menu, "Scene_editor");
+    spdlog::get("loading")->debug("Constructed callback");
+
+    main_menu->addButton("button", new_button, new_button_pressed, button_frame, ncallback);
+    spdlog::get("loading")->debug("Constructed button");
 
     return main_menu;
 }
