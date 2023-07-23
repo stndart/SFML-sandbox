@@ -1,25 +1,26 @@
 #include "Player.h"
 
-Player::Player(std::string name) : sprite(NULL), name(name),
-x_cell_coord(0), y_cell_coord(0),
-x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
+Player::Player(std::string name) :
+    sprite(std::unique_ptr<Character>{nullptr}), current_field(NULL),
+    name(name),
+    x_cell_coord(0), y_cell_coord(0),
+    x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
 {
     // Reaching out to global "map_events" logger by names
     map_events_logger = spdlog::get("map_events");
 
-    map_events_logger->debug("Constructing player, \"{}\" with no sprite", name);
+    map_events_logger->debug("Constructed player, \"{}\" with no sprite", name);
 }
 
-Player::Player(std::string name, Texture* texture, IntRect frame0) : sprite(NULL), name(name),
-x_cell_coord(0), y_cell_coord(0),
-x_cell_movement_coord(0), y_cell_movement_coord(0), movement_animation(true)
+Player::Player(std::string name, Texture* texture, FloatRect posrect) : Player::Player(name)
 {
-    map_events_logger = spdlog::get("map_events");
+    map_events_logger->trace("Player::Player with tex? {}", (bool)texture);
 
-    sprite = new Character(name, texture, frame0);
+    IntRect texrect(0, 0, texture->getSize().x, texture->getSize().y);
+    sprite = std::make_unique<Character>(name, texture, texrect, posrect);
     sprite->set_moving_enabled(movement_animation);
 
-    map_events_logger->debug("Constructing player, \"{}\", with sprite \"{}\"", name, name);
+    map_events_logger->debug("Constructed player, \"{}\", with sprite \"{}\"", name, name);
 }
 
 // current_field pointer setter/getter
@@ -167,7 +168,7 @@ void Player::draw(RenderTarget& target, RenderStates states) const
     sprite->draw(target, states);
 }
 
-void Player::add_animation(string animation_name, Animation* p_animation)
+void Player::add_animation(string animation_name, std::shared_ptr<Animation> p_animation)
 {
     sprite->add_animation(animation_name, p_animation);
 }

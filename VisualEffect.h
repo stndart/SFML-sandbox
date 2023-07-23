@@ -58,16 +58,21 @@ public:
     VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos);
 
     // overriding AnimatedSprite methods
-    Animation* getAnimation() override;
-    void setAnimation(Animation* animation);
+    std::shared_ptr<Animation> getAnimation() override;
+    void setAnimation(std::shared_ptr<Animation> animation) override;
     void play() override;
-    void play(Animation *animation, Time shift=seconds(0)) override;
+    void play(std::shared_ptr<Animation> animation, Time shift=seconds(0)) override;
     void pause() override;
     void stop() override;
     void setLooped(bool looped) override;
     void setColor(const Color& color) override;
-    Vector2f getPosition() const override;
+
     void setPosition(const Vector2f &position) override;
+    void setPosition(float x, float y) override;
+    void setScale(const Vector2f &factors) override;
+    void setScale(float x, float y) override;
+    void setOrigin(const Vector2f &origin) override;
+    void setOrigin(float x, float y) override;
 
     virtual bool isPlaying() const;
     virtual Time animation_remaining_time() const override;
@@ -81,7 +86,6 @@ public:
 
     // overriding Drawable methods
     virtual void update(Time deltaTime) override;
-    virtual void redraw(RenderTarget& target, RenderStates states) const override;
     virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 

@@ -45,7 +45,8 @@ State curstate(State start, State finish, Time duration, Time now)
     return mid;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : AnimatedSprite("default VEffect"),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) :
+    AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), Vector2f(0, 0)),
     sprite(sprite)
 {
 
@@ -85,7 +86,8 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) : Anim
     now = start;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish) : AnimatedSprite("default VEffect"),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish) :
+    AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), Vector2f(0, 0)),
     start(start), finish(finish), sprite(sprite)
 {
     duration = m_duration;
@@ -95,7 +97,8 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration,
     graphics_logger->debug("{} VE is now owned by {} ASprite", name, sprite->name);
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos) : AnimatedSprite("default motion effect"),
+VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos) :
+    AnimatedSprite("default motion effect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), Vector2f(0, 0)),
     sprite(sprite)
 {
     duration = m_duration;
@@ -109,14 +112,16 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration,
     m_currentTime = offset;
 }
 
-Animation* VisualEffect::getAnimation()
+
+// for external uses after VisualEffect inheritance
+std::shared_ptr<Animation> VisualEffect::getAnimation()
 {
     if (sprite)
         return sprite->getAnimation();
     return NULL;
 }
 
-void VisualEffect::setAnimation(Animation* animation)
+void VisualEffect::setAnimation(std::shared_ptr<Animation> animation)
 {
     sprite->setAnimation(animation);
 }
@@ -131,7 +136,7 @@ void VisualEffect::play()
         sprite->play();
 }
 
-void VisualEffect::play(Animation* animation, Time shift)
+void VisualEffect::play(std::shared_ptr<Animation> animation, Time shift)
 {
     graphics_logger->trace("VE play");
 
@@ -171,15 +176,46 @@ void VisualEffect::setColor(const Color& color)
         sprite->setColor(color);
 }
 
-Vector2f VisualEffect::getPosition() const
-{
-    return sprite->getPosition();
-}
-
 void VisualEffect::setPosition(const Vector2f &position)
 {
     AnimatedSprite::setPosition(position);
-    sprite->setPosition(position);
+    if (sprite)
+        sprite->setPosition(position);
+}
+
+void VisualEffect::setPosition(float x, float y)
+{
+    AnimatedSprite::setPosition(x, y);
+    if (sprite)
+        sprite->setPosition(x, y);
+}
+
+void VisualEffect::setScale(const Vector2f &factors)
+{
+    AnimatedSprite::setScale(factors);
+    if (sprite)
+        sprite->setScale(factors);
+}
+
+void VisualEffect::setScale(float x, float y)
+{
+    AnimatedSprite::setScale(x, y);
+    if (sprite)
+        sprite->setScale(x, y);
+}
+
+void VisualEffect::setOrigin(const Vector2f &origin)
+{
+    AnimatedSprite::setOrigin(origin);
+    if (sprite)
+        sprite->setOrigin(origin);
+}
+
+void VisualEffect::setOrigin(float x, float y)
+{
+    AnimatedSprite::setOrigin(x, y);
+    if (sprite)
+        sprite->setOrigin(x, y);
 }
 
 bool VisualEffect::isPlaying() const
@@ -285,12 +321,6 @@ void VisualEffect::update(Time deltaTime)
             passed_after_stop = m_currentTime - duration;
         }
     }
-}
-
-void VisualEffect::redraw(RenderTarget& target, RenderStates states) const
-{
-    if (sprite)
-        sprite->redraw(target, states);
 }
 
 void VisualEffect::draw(RenderTarget& target, RenderStates states) const

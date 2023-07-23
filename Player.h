@@ -27,7 +27,7 @@ struct Movement
 class Player : public Drawable, public Transformable
 {
 private:
-    Character* sprite;
+    std::unique_ptr<Character> sprite;
     // removes "blocking checked" from movements queue
     void reset_blocking_check();
 
@@ -48,8 +48,9 @@ public:
     // smooth movement flag
     bool movement_animation; /// NOT IMPLEMENTED (look Character::moving_enabled)
 
+public:
     Player(std::string name);
-    Player(std::string name, Texture* texture, IntRect frame0);
+    Player(std::string name, Texture* texture, FloatRect posrect);
 
     // current_field pointer setter/getter
     void set_current_field(Field* nfield);
@@ -78,7 +79,7 @@ public:
 
     /// TEMP
     // interface to sprite methods
-    void add_animation(string animation_name, Animation* p_animation);
+    void add_animation(string animation_name, std::shared_ptr<Animation> p_animation);
     void set_animation(string animation_name);
 };
 

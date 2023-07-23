@@ -74,7 +74,7 @@ std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWi
 std::function<void()> create_bloodscreen(std::shared_ptr<Scene> scene, const sf::Color& color)
 {
     std::function<void()> callback = [scene, color] {
-        AnimatedSprite* as = new AnimatedSprite("bloodscreen", sf::IntRect(0, 0, 1920, 1080));
+        AnimatedSprite* as = new AnimatedSprite("bloodscreen", std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0));
         State start = {0, Color(0, 0, 0, 0),
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
         State finish = {0, color,
