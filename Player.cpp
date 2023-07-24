@@ -116,8 +116,6 @@ void Player::update(Time deltaTime)
     // find next available direction
     if (queued_movement_direction.size() > 0)
     {
-        map_events_logger->trace("trying to schedule smth");
-
         // find next valid direction (not blocked movement)
         for (auto r_iter = queued_movement_direction.begin();
              r_iter != queued_movement_direction.end(); r_iter++)

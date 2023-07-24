@@ -13,8 +13,8 @@ name(name), z_index(z_ind)
     loading_logger = spdlog::get("loading");
     graphics_logger = spdlog::get("graphics");
 
-    parent_shape->setPosition(m_position);
-    parent_shape->setOrigin(origin);
+    setPosition(m_position);
+    setOrigin(origin);
 
     m_animation = std::shared_ptr<Animation>{nullptr};
 }
@@ -282,10 +282,10 @@ Time AnimatedSprite::time_after_stop() const
     return passed_after_stop;
 }
 
-void AnimatedSprite::move(const Vector2f &offset)
+void AnimatedSprite::move(const Vector2f &shift)
 {
-    Transformable::move(offset);
-    parent_shape->move(offset);
+    Transformable::move(shift);
+    parent_shape->move(shift);
 }
 
 void AnimatedSprite::rotate(float angle)

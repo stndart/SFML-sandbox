@@ -125,7 +125,7 @@ public:
     Time time_after_stop() const;
 
     // overriding Transformable methods
-    virtual void move(const Vector2f &offset);
+    virtual void move(const Vector2f &shift);
     virtual void rotate(float angle);
     virtual void scale(const Vector2f &factor);
     FloatRect getLocalBounds() const;

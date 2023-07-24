@@ -67,6 +67,10 @@ public:
     void setLooped(bool looped) override;
     void setColor(const Color& color) override;
 
+    // overriding AnimatedSprite movement-related methods
+    virtual void move(const Vector2f &offset) override;
+    virtual void rotate(float angle) override;
+    virtual void scale(const Vector2f &factor) override;
     void setPosition(const Vector2f &position) override;
     void setPosition(float x, float y) override;
     void setScale(const Vector2f &factors) override;
@@ -78,11 +82,6 @@ public:
     virtual Time animation_remaining_time() const override;
     // overriding same method from AnimatedSprite. Now makes sense
     virtual Time movement_remaining_time() const override;
-
-    // overriding Transformable methods
-    void move(const Vector2f &shift) override;
-    void rotate(float angle) override;
-    void scale(const Vector2f &factor) override;
 
     // overriding Drawable methods
     virtual void update(Time deltaTime) override;

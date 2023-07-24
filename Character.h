@@ -148,10 +148,22 @@ public:
     // flush animation queue by force
     void stop_animation_by_force();
 
+
     // overriding Transformable methods
+    void move(const Vector2f &offset);
+    void rotate(float angle);
+    void scale(const Vector2f &factor);
+    FloatRect getLocalBounds() const;
+    FloatRect getGlobalBounds() const;
+    virtual const Vector2f& getPosition() const;
+    virtual float getRotation() const;
+    virtual const Vector2f& getScale() const;
     virtual void setPosition(const Vector2f &position);
-    virtual Vector2f getPosition() const;
+    virtual void setPosition(float x, float y);
     virtual void setScale(const Vector2f &factors);
+    virtual void setScale(float x, float y);
+    virtual void setOrigin(const Vector2f &origin);
+    virtual void setOrigin(float x, float y);
 
     // overriding Drawable methods
     virtual void update(Time deltaTime = seconds(0));

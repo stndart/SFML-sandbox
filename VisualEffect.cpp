@@ -46,7 +46,7 @@ State curstate(State start, State finish, Time duration, Time now)
 }
 
 VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) :
-    AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), Vector2f(0, 0)),
+    AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), sprite->getPosition()),
     sprite(sprite)
 {
 
@@ -87,7 +87,7 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset) :
 }
 
 VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish) :
-    AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), Vector2f(0, 0)),
+    AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), sprite->getPosition()),
     start(start), finish(finish), sprite(sprite)
 {
     duration = m_duration;
@@ -98,7 +98,7 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration,
 }
 
 VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos) :
-    AnimatedSprite("default motion effect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), Vector2f(0, 0)),
+    AnimatedSprite("default motion effect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), sprite->getPosition()),
     sprite(sprite)
 {
     duration = m_duration;
@@ -176,6 +176,27 @@ void VisualEffect::setColor(const Color& color)
         sprite->setColor(color);
 }
 
+void VisualEffect::move(const Vector2f &shift)
+{
+    Transformable::move(shift);
+    if (sprite)
+        sprite->move(shift);
+}
+
+void VisualEffect::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    if (sprite)
+        sprite->rotate(angle);
+}
+
+void VisualEffect::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    if (sprite)
+        sprite->scale(factor);
+}
+
 void VisualEffect::setPosition(const Vector2f &position)
 {
     AnimatedSprite::setPosition(position);
@@ -234,24 +255,6 @@ Time VisualEffect::movement_remaining_time() const
 
     Time remain = std::max(seconds(0), duration - m_currentTime);
     return std::max(remain, sprite->movement_remaining_time());
-}
-
-void VisualEffect::move(const Vector2f &shift)
-{
-    if (sprite)
-        sprite->move(shift);
-}
-
-void VisualEffect::rotate(float angle)
-{
-    if (sprite)
-        sprite->rotate(angle);
-}
-
-void VisualEffect::scale(const Vector2f &factor)
-{
-    if (sprite)
-        sprite->scale(factor);
 }
 
 void VisualEffect::update(Time deltaTime)

@@ -98,8 +98,6 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
     if (pos == Vector2i(-1, -1))
         pos = default_player_pos;
 
-    map_events_logger->info("Adding player to field with pos {}x{} #1", pos.x, pos.y);
-
     player_0 = std::make_shared<Player>("default_player", player_texture, FloatRect(0, 0, 120, 120));
     player_0->set_current_field(this);
 
@@ -128,8 +126,6 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
 {
     if (pos == Vector2i(-1, -1))
         pos = default_player_pos;
-
-    map_events_logger->info("Adding player to field with pos {}x{} #2", pos.x, pos.y);
 
     Texture* p_tex = new Texture;
     if (!p_tex->loadFromFile("Images/Flametail/default.png"))
@@ -390,6 +386,7 @@ void Field::update_view_center()
     {
         view_center = player_0->getPosition();
     }
+
     view_center = check_view_bounds(view_center);
 
     current_view.setCenter(view_center);

@@ -560,10 +560,60 @@ void Character::stop_animation_by_force()
     // the rest is up to update
 }
 
+
+void Character::move(const Vector2f &offset)
+{
+    Transformable::move(offset);
+    moving_sprite->move(offset);
+}
+
+void Character::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    moving_sprite->rotate(angle);
+}
+
+void Character::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    moving_sprite->scale(factor);
+}
+
+FloatRect Character::getLocalBounds() const
+{
+    return moving_sprite->getLocalBounds();
+}
+
+FloatRect Character::getGlobalBounds() const
+{
+    return moving_sprite->getGlobalBounds();
+}
+
+const Vector2f& Character::getPosition() const
+{
+    return moving_sprite->getPosition();
+}
+
+float Character::getRotation() const
+{
+    return moving_sprite->getRotation();
+}
+
+const Vector2f& Character::getScale() const
+{
+    return moving_sprite->getScale();
+}
+
 void Character::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
     moving_sprite->setPosition(position);
+}
+
+void Character::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    moving_sprite->setPosition(x, y);
 }
 
 void Character::setScale(const Vector2f &factors)
@@ -572,9 +622,22 @@ void Character::setScale(const Vector2f &factors)
     moving_sprite->setScale(factors);
 }
 
-Vector2f Character::getPosition() const
+void Character::setScale(float factorX, float factorY)
 {
-    return moving_sprite->getPosition();
+    Transformable::setScale(factorX, factorY);
+    moving_sprite->setScale(factorX, factorY);
+}
+
+void Character::setOrigin(const Vector2f &origin)
+{
+    Transformable::setOrigin(origin);
+    moving_sprite->setOrigin(origin);
+}
+
+void Character::setOrigin(float x, float y)
+{
+    Transformable::setOrigin(x, y);
+    moving_sprite->setOrigin(x, y);
 }
 
 void Character::update(Time deltaTime)
