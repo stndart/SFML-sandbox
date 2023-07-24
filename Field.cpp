@@ -402,6 +402,12 @@ FloatRect Field::getViewport() const
     return FloatRect(topleft.x, topleft.y, getsize.x, getsize.y);
 }
 
+// get Cell size
+Vector2f Field::getCellSize() const
+{
+    return Vector2f(cell_length_x, cell_length_y);
+}
+
 // load field and cells from json file <Locations/loc_%loc_id%>
 // field_block provides textures for cells by names (instead of resources manager)
 void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id)

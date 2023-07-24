@@ -89,7 +89,7 @@ std::function<void()> create_rect(std::shared_ptr<Scene> scene, sf::FloatRect po
 std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vector2f pos, float radius, const sf::Color& color)
 {
     std::function<void()> callback = [scene, pos, radius, color] {
-        std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius);
+        std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius, 100);
         circle->setFillColor(color);
         AnimatedSprite* as = new AnimatedSprite("light circle",
                                                 move(circle), pos, Vector2f(0, 0), 0, sf::BlendNone);
@@ -104,7 +104,7 @@ std::function<void()> create_light_circle_centered(std::shared_ptr<Scene_Field> 
                                                    float radius_1, float radius_2, const sf::Color& color, sf::Time duration)
 {
     std::function<void()> callback = [scene, radius_1, radius_2, color, duration] {
-        std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius_1);
+        std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius_1, 100);
         circle->setFillColor(color);
         sf::FloatRect player_bounds = scene->getPlayerGlobalBounds();
         sf::Vector2f player_pos = player_bounds.getPosition() + player_bounds.getSize() / 2.0f;
@@ -147,7 +147,7 @@ std::vector<std::pair<std::function<void()>, sf::Time> > tom_and_jerry_fade_effe
     sequence.push_back(std::make_pair(create_block_controls_callback(scene, true), sf::seconds(0)));
 
     sequence.push_back(std::make_pair(create_rect(scene, sf::FloatRect(0, 0, 1920, 1080), sf::Color(0, 0, 0, 255)), sf::seconds(0)));
-    sequence.push_back(std::make_pair(create_light_circle_centered(scene, 1500, 70, sf::Color(255, 255, 255, 0), circle_duration), sf::seconds(0)));
+    sequence.push_back(std::make_pair(create_light_circle_centered(scene, 1500, 70, sf::Color(0, 0, 0, 0), circle_duration), sf::seconds(0)));
     sequence.push_back(std::make_pair(create_fade_effect(scene, sf::Color(0, 0, 0, 255), fade_duration, 2, sf::BlendAlpha), circle_duration));
 
     sequence.push_back(std::make_pair(clear_scene_sprites(scene), circle_duration + fade_duration));
@@ -164,11 +164,12 @@ std::vector<std::pair<std::function<void()>, sf::Time> > tom_and_jerry_rfade_eff
     sequence.push_back(std::make_pair(create_block_controls_callback(scene, true), offset));
 
     sequence.push_back(std::make_pair(create_rect(scene, sf::FloatRect(0, 0, 1920, 1080), sf::Color(0, 0, 0, 255)), offset));
-    sequence.push_back(std::make_pair(create_light_circle_centered(scene, 70, 70, sf::Color(255, 255, 255, 0), fade_duration), offset));
-    sequence.push_back(std::make_pair(create_light_circle_centered(scene, 70, 1500, sf::Color(255, 255, 255, 0), circle_duration), offset + fade_duration));
+    sequence.push_back(std::make_pair(create_light_circle_centered(scene, 70, 70, sf::Color(0, 0, 0, 0), fade_duration), offset));
+    sequence.push_back(std::make_pair(create_light_circle_centered(scene, 70, 1500, sf::Color(0, 0, 0, 0), circle_duration), offset + fade_duration));
     sequence.push_back(std::make_pair(create_rfade_effect(scene, sf::Color(0, 0, 0, 255), fade_duration, 2, sf::BlendAlpha), offset));
 
     sequence.push_back(std::make_pair(clear_scene_sprites(scene), offset + fade_duration + circle_duration));
+    sequence.push_back(std::make_pair(create_block_controls_callback(scene, false), offset + fade_duration + circle_duration));
     return sequence;
 }
 

@@ -12,12 +12,13 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Anima
 
     clickable = is_clickable;
     pressed = false;
+    ignore_controls_blocking = false;
     text = "";
 }
 
 // label with text
 UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, Animation* button_spritesheet) :
-    UI_element(name, UIFrame, parent, button_spritesheet), clickable(false), pressed(false), text(ntext)
+    UI_element(name, UIFrame, parent, button_spritesheet), clickable(false), pressed(false), ignore_controls_blocking(false), text(ntext)
 {
     displayed = true;
 
@@ -27,7 +28,7 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::
 
 // button with callback
 UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* button_spritesheet, std::function<void()> ncallback) :
-    UI_element(name, UIFrame, parent, button_spritesheet), clickable(true), pressed(false), text("")
+    UI_element(name, UIFrame, parent, button_spritesheet), clickable(true), pressed(false), ignore_controls_blocking(false), text("")
 {
     displayed = true;
 
@@ -49,6 +50,17 @@ bool UI_button::is_clickable() const
     return clickable;
 }
 
+// block immune setter/getter
+void UI_button::set_immune_to_controls_block(bool immune)
+{
+    ignore_controls_blocking = immune;
+}
+
+bool UI_button::get_immune_to_controls_block() const
+{
+    return ignore_controls_blocking;
+}
+
 // adding callbacks
 void UI_button::set_callbacks(std::vector<std::pair<std::function<void()>, sf::Time> > new_callbacks)
 {
@@ -67,7 +79,7 @@ void UI_button::add_callback(std::function<void()> callback, sf::Time delay)
 }
 
 // pushes hovered element
-void UI_button::push_click(sf::Vector2f cursor)
+void UI_button::push_click(sf::Vector2f cursor, bool controls_blocked)
 {
     input_logger->trace("Button {} clicked at {}x{}", name, cursor.x, cursor.y);
 
@@ -89,7 +101,7 @@ void UI_button::push_click(sf::Vector2f cursor)
 }
 
 // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
-void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
+void UI_button::release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action)
 {
     input_logger->trace("Button {} released from {}x{}", name, cursor.x, cursor.y);
 
@@ -102,6 +114,10 @@ void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
         // by default: 1 - pressed button, 0 - unpressed
         if (background)
             set_current_frame(0);
+
+        // if controls are blocked and this button is not immune
+        if (controls_blocked && !ignore_controls_blocking)
+            return;
 
         // if released due to focus change, then don't invoke callback
         if (contains(cursor) && !skip_action && callbacks.size() > 0)

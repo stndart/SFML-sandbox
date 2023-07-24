@@ -14,6 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
 
 class SceneController;
 
@@ -53,6 +54,11 @@ protected:
 
     SceneController* scene_controller;
 
+    // flag if WASD blocked
+    bool controls_blocked;
+
+    std::map<sf::Keyboard::Key, std::vector<std::pair<std::function<void()>, sf::Time> > > bound_callbacks;
+
     std::shared_ptr<spdlog::logger> loading_logger, input_logger;
 
 public:
@@ -88,6 +94,15 @@ public:
     void cancel_callbacks();
     // checks if there are callbacks scheduled. For external purposes
     bool has_callbacks() const;
+
+    // bind callback to keys on the keyboard
+    void bind_callback(sf::Keyboard::Key keycode, std::function<void()> callback, Time t = seconds(0.5));
+    // set callbacs array for the key
+    void set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks);
+    // deletes all callbacks bound to key
+    void reset_bind(sf::Keyboard::Key keycode);
+    // evaluate all callbacks bount to key
+    void evaluate_bound_callbacks(sf::Keyboard::Key keycode);
 
     // draw all framebuffers (because <draw> is const)
     virtual void draw_buffers();

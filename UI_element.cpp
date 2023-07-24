@@ -106,13 +106,13 @@ bool UI_element::contains(sf::Vector2f cursor) const
 }
 
 // pushes hovered element
-void UI_element::push_click(sf::Vector2f cursor)
+void UI_element::push_click(sf::Vector2f cursor, bool controls_blocked)
 {
     // pure virtual
     input_logger->debug("Element {} clicked at {}x{}", name, cursor.x, cursor.y);
 }
 // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
-void UI_element::release_click(sf::Vector2f cursor, bool skip_action)
+void UI_element::release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action)
 {
     // pure virtual;
     input_logger->debug("Element {} popped at {}x{}", name, cursor.x, cursor.y);

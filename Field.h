@@ -101,6 +101,8 @@ public:
     void update_view_center();
     // get view rectangle
     FloatRect getViewport() const;
+    // get Cell size
+    Vector2f getCellSize() const;
 
     // load field and cells from json file <Locations/loc_%loc_id%>
     // field_block provides textures for cells by names (instead of resources manager)

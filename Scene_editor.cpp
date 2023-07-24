@@ -181,11 +181,10 @@ void Scene_editor::update(Event& event, std::string& command_main)
                 if (!controls_blocked)
                     field[current_field]->action((*field_tex_map)["stump"]);
                 break;
-            case sf::Keyboard::Tab:
-                if (!controls_blocked)
-                    change_current_field((current_field+1)%2);
-                break;
             default:
+                // if key is not set in contols, check dynamic bindings
+                if (!controls_blocked)
+                    evaluate_bound_callbacks(event.key.code);
                 break;
             }
         }
@@ -247,7 +246,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             /// WHY?
             if (UI_update_mouse(curPos, event, command_main))
                 return;
-            Interface->push_click(curPos);
+            Interface->push_click(curPos, controls_blocked);
             break;
 
         default:
@@ -264,7 +263,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             /// WHY?
             if (UI_update_mouse(curPos, event, command_main))
                 return;
-            Interface->release_click(curPos);
+            Interface->release_click(curPos, controls_blocked);
             break;
 
         default:

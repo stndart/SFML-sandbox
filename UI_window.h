@@ -35,9 +35,9 @@ class UI_window : public UI_element
 
         bool is_clicked() const;
         // pushes hovered element
-        void push_click(sf::Vector2f cursor) override;
+        void push_click(sf::Vector2f cursor, bool controls_blocked) override;
         // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
-        void release_click(sf::Vector2f cursor, bool skip_action=false) override;
+        void release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action=false) override;
 
         // return number of elements
         std::size_t get_elements_size() const;

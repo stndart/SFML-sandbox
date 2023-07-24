@@ -23,9 +23,6 @@ protected:
     // map background textures by name
     std::map <std::string, Texture*> *field_tex_map;
 
-    // flag if WASD blocked
-    bool controls_blocked;
-
     std::shared_ptr<spdlog::logger> map_events_logger;
 
 public:

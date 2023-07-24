@@ -3,7 +3,7 @@
 int Scene_Field::FIELD_Z_INDEX = 0;
 
 Scene_Field::Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize),
-field_tex_map(field_blocks), controls_blocked(false)
+field_tex_map(field_blocks)
 {
     loading_logger = spdlog::get("loading");
     map_events_logger = spdlog::get("map_events");
@@ -91,6 +91,12 @@ FloatRect Scene_Field::getPlayerGlobalBounds() const
     if (current_field != -1)
     {
         bounds = field[current_field]->player_0->getGlobalBounds();
+        // doesn't work, when view is boundary-blocked
+        // if (field[current_field]->player_0->is_moving())
+        // {
+        //     bounds.left = (float)field[current_field]->player_0->x_cell_coord * field[current_field]->getCellSize().x;
+        //     bounds.top = (float)field[current_field]->player_0->y_cell_coord * field[current_field]->getCellSize().y;
+        // }
         bounds.left -= field[current_field]->getViewport().left;
         bounds.top -= field[current_field]->getViewport().top;
     }
@@ -99,7 +105,7 @@ FloatRect Scene_Field::getPlayerGlobalBounds() const
 
 void Scene_Field::block_controls(bool blocked)
 {
-    map_events_logger->info("Blocked controls {}", blocked);
+    map_events_logger->debug("Blocked controls {}", blocked);
 
     controls_blocked = blocked;
     if (blocked)
@@ -154,10 +160,10 @@ void Scene_Field::update(Event& event, std::string& command_main)
             case sf::Keyboard::Space:
                 field[current_field]->action((*field_tex_map)["stump"]);
                 break;
-            case sf::Keyboard::Tab:
-                change_current_field((current_field+1)%2);
-                break;
             default:
+                // if key is not set in contols, check dynamic bindings
+                if (!controls_blocked)
+                    evaluate_bound_callbacks(event.key.code);
                 break;
             }
         }

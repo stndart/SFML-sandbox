@@ -57,9 +57,9 @@ class UI_element : public sf::Drawable, public sf::Transformable
         bool contains(sf::Vector2f cursor) const;
 
         // pushes hovered element
-        virtual void push_click(sf::Vector2f cursor);
+        virtual void push_click(sf::Vector2f cursor, bool controls_blocked=false);
         // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
-        virtual void release_click(sf::Vector2f cursor, bool skip_action=false);
+        virtual void release_click(sf::Vector2f cursor, bool controls_bloacked=false, bool skip_action=false);
 
         // overriding Transformable methods
         virtual void move(const Vector2f &offset);

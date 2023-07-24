@@ -3,7 +3,7 @@
 
 int Scene::UI_Z_INDEX = 10;
 
-Scene::Scene(std::string name, Vector2i screensize) : timer(seconds(0)), background(NULL), name(name)
+Scene::Scene(std::string name, Vector2i screensize) : timer(seconds(0)), background(NULL), controls_blocked(false), name(name)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
@@ -50,7 +50,7 @@ void Scene::addTexture(Texture* texture, IntRect rect)
 
 void Scene::addSprite(AnimatedSprite* sprite, int z_index, bool to_frame_buffer)
 {
-    loading_logger->debug("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, (int)to_frame_buffer);
+    loading_logger->trace("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, (int)to_frame_buffer);
 
     if (!to_frame_buffer)
     {
@@ -157,7 +157,7 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
     {
         if (Interface->contains(curPos))
         {
-            Interface->push_click(curPos);
+            Interface->push_click(curPos, controls_blocked);
             return true;
         }
     }
@@ -165,7 +165,7 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
     {
         if (Interface->is_clicked())
         {
-            Interface->release_click(curPos);
+            Interface->release_click(curPos, controls_blocked);
             return Interface->contains(curPos);
         }
     }
@@ -194,6 +194,42 @@ void Scene::cancel_callbacks()
 bool Scene::has_callbacks() const
 {
     return !callbacks_to_call.empty();
+}
+
+// bind callback to keys on the keyboard
+void Scene::bind_callback(sf::Keyboard::Key keycode, std::function<void()> callback, Time t)
+{
+    bound_callbacks[keycode].push_back(std::make_pair(callback, t));
+}
+
+// set callbacs array for the key
+void Scene::set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks)
+{
+    reset_bind(keycode);
+    bound_callbacks[keycode] = callbacks;
+}
+
+// deletes all callbacks bound to key
+void Scene::reset_bind(sf::Keyboard::Key keycode)
+{
+    bound_callbacks[keycode].clear();
+    bound_callbacks.erase(keycode);
+}
+
+// evaluate all callbacks bount to key
+void Scene::evaluate_bound_callbacks(sf::Keyboard::Key keycode)
+{
+    input_logger->debug("Key {} calling callback", (int)keycode);
+    if (bound_callbacks.count(keycode) == 0)
+    {
+        input_logger->debug("No callbacks bound to key {}", (int)keycode);
+        return;
+    }
+
+    for (std::pair<std::function<void()>, sf::Time> callpair : bound_callbacks[keycode])
+    {
+        add_callback(callpair.first, callpair.second);
+    }
 }
 
 void Scene::update(Event& event, std::string& command_main)
