@@ -10,7 +10,6 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Anima
 
     setAnimation(button_spritesheet);
 
-    callback = NULL;
     clickable = is_clickable;
     pressed = false;
     text = "";
@@ -20,7 +19,6 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Anima
 UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, Animation* button_spritesheet) :
     UI_element(name, UIFrame, parent, button_spritesheet), clickable(false), pressed(false), text(ntext)
 {
-    callback = NULL;
     displayed = true;
 
     loading_logger->trace("UI_button:UI_button {} #2, UIFRame +{}+{}, {}x{}", name,
@@ -31,8 +29,10 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::
 UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* button_spritesheet, std::function<void()> ncallback) :
     UI_element(name, UIFrame, parent, button_spritesheet), clickable(true), pressed(false), text("")
 {
-    callback = ncallback;
     displayed = true;
+
+    if (ncallback)
+        add_callback(ncallback);
 
     loading_logger->trace("UI_button:UI_button {} #3, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
@@ -49,10 +49,21 @@ bool UI_button::is_clickable() const
     return clickable;
 }
 
-// callback setter
-void UI_button::set_callback(std::function<void()> new_callback)
+// adding callbacks
+void UI_button::set_callbacks(std::vector<std::pair<std::function<void()>, sf::Time> > new_callbacks)
 {
-    callback = new_callback;
+    callbacks.clear();
+    callbacks = new_callbacks;
+}
+
+void UI_button::add_callback(std::function<void()> callback, sf::Time delay)
+{
+    if (!callback)
+    {
+        loading_logger->error("Adding empty callback");
+        throw;
+    }
+    callbacks.push_back(std::make_pair(callback, delay));
 }
 
 // pushes hovered element
@@ -93,10 +104,13 @@ void UI_button::release_click(sf::Vector2f cursor, bool skip_action)
             set_current_frame(0);
 
         // if released due to focus change, then don't invoke callback
-        if (contains(cursor) && !skip_action && callback)
+        if (contains(cursor) && !skip_action && callbacks.size() > 0)
         {
             input_logger->debug("Button {} calling callback", name);
-            parent_scene->add_callback(callback);
+            for (std::pair<std::function<void()>, sf::Time> callpair : callbacks)
+            {
+                parent_scene->add_callback(callpair.first, callpair.second);
+            }
         }
     }
 }

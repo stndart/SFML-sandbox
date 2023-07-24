@@ -40,9 +40,12 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
         change_current_field(num);
 }
 
-// swap to field by index
+// swap to field by index. If index is -1, then switch cyclically
 void Scene_Field::change_current_field(int num)
 {
+    if (num == -1)
+        num = (current_field + 1) % field_N;
+
     map_events_logger->trace("Changing current field to {}", num);
 
     // unload current field from drawables index

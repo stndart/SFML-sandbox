@@ -60,7 +60,8 @@ void Scene::delete_sprites()
 }
 
 // add and place button
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> ncallback, std::string origin)
+std::shared_ptr<UI_button> Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame,
+                                            std::string origin, std::function<void()> ncallback)
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
@@ -77,7 +78,7 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 
     loading_logger->warn("Created new Animation for button: MEMORY LEAK");
 
-    UI_button* new_button = new UI_button(name, pos_frame, this, tAn, ncallback);
+    std::shared_ptr<UI_button> new_button = std::make_shared<UI_button>(UI_button(name, pos_frame, this, tAn, ncallback));
     // default origin is "center"
     if (origin == "center")
     {
@@ -96,18 +97,21 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 
     // register new button to Interface
     Interface->addElement(new_button);
+
+    return new_button;
 }
 
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> ncallback, std::string origin)
+std::shared_ptr<UI_button> Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y,
+                                            std::string origin, std::function<void()> ncallback)
 {
     // creating animation frame from args
     Vector2u tex_size = texture_default->getSize();
     IntRect pos_frame(pos_x, pos_y, tex_size.x, tex_size.y);
 
-    addButton(name, texture_default, texture_released, pos_frame, ncallback, origin);
+    return addButton(name, texture_default, texture_released, pos_frame, origin, ncallback);
 }
 
-void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
+void Scene::addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements)
 {
     loading_logger->debug("Added ui elements[{}] to scene", new_ui_elements.size());
 
@@ -143,8 +147,6 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
 // schedule callback to call after <t> seconds
 void Scene::add_callback(std::function<void()> callback, Time t)
 {
-    input_logger->debug("Adding callback {} with delay {} seconds", (bool)callback, t.asSeconds());
-
     if (!callback)
     {
         input_logger->error("Adding empty callback");
@@ -159,6 +161,11 @@ void Scene::cancel_callbacks()
 {
     scheduled_callbacks.clear();
     callbacks_to_call.clear();
+}
+
+bool Scene::has_callbacks() const
+{
+    return !callbacks_to_call.empty();
 }
 
 void Scene::update(Event& event, std::string& command_main)
@@ -257,6 +264,7 @@ std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture*
     main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));
     main_menu->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
+    /// is it really an error?
     if (new_button == new_button_pressed)
     {
         spdlog::get("loading")->error("Same textures for pressed/released button");
@@ -270,7 +278,7 @@ std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture*
     std::function<void()> ncallback = create_change_scene_callback(main_menu, "Scene_editor");
     spdlog::get("loading")->debug("Constructed callback");
 
-    main_menu->addButton("button", new_button, new_button_pressed, button_frame, ncallback);
+    main_menu->addButton("button", new_button, new_button_pressed, button_frame, "center", ncallback);
     spdlog::get("loading")->debug("Constructed button");
 
     return main_menu;

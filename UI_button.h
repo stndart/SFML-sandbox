@@ -6,6 +6,8 @@
 
 #include "UI_element.h"
 
+#include <SFML/System/Time.hpp>
+
 class UI_button : public UI_element
 {
     private:
@@ -13,8 +15,8 @@ class UI_button : public UI_element
         bool clickable;
         // flag if is currently press (to invoke callback, when unpressed)
         bool pressed;
-        // callback. Call it and see, what happens
-        std::function<void()> callback;
+        // array of pairs: callback - delay. Call them and see, what happens
+        std::vector<std::pair<std::function<void()>, sf::Time> > callbacks;
 
     public:
         std::string text;
@@ -26,8 +28,10 @@ class UI_button : public UI_element
         // clickable setter/getter
         void set_clickable(bool is_clickable);
         bool is_clickable() const;
-        // callback setter
-        void set_callback(std::function<void()> new_callback);
+
+        // adding callbacks
+        void set_callbacks(std::vector<std::pair<std::function<void()>, sf::Time> > new_callback);
+        void add_callback(std::function<void()> callback, sf::Time delay = seconds(0));
 
         // pushes hovered element
         void push_click(sf::Vector2f cursor) override;

@@ -34,6 +34,8 @@ class UI_element : public sf::Drawable, public sf::Transformable
         std::string name;
         // is displayed or hidden;
         bool displayed;
+        // z-index, at which it is displayed in <parent_scene>
+        int z_index;
 
         UI_element(std::string name, sf::IntRect UIFrame, Scene* parent);
         UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* spritesheet);

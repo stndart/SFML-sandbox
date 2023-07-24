@@ -7,11 +7,17 @@ isFramed(is_framed), pressed(false), clicked_child(NULL)
 }
 
 // adds UI_element into set with z_index
-void UI_window::addElement(UI_element* new_element, int z_index)
+void UI_window::addElement(std::shared_ptr<UI_element> new_element, int z_index)
 {
     displayed = true;
 
+    new_element->z_index = z_index;
     elements.insert(std::make_pair(z_index, new_element));
+}
+
+void UI_window::deleteElement(std::shared_ptr<UI_element> element)
+{
+    elements.erase(std::make_pair(element->z_index, element));
 }
 
 // mouse hover check
@@ -55,7 +61,7 @@ void UI_window::push_click(sf::Vector2f cursor)
         // find the clicked child and remember
         for (auto pi : elements)
         {
-            UI_element* uie = pi.second;
+            std::shared_ptr<UI_element> uie = pi.second;
             if (uie->contains(cursor))
             {
                 uie->push_click(cursor);

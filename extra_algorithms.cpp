@@ -2,6 +2,7 @@
 
 #include "Scene.h"
 #include "SceneController.h"
+#include "Scene_Field.h"
 
 // extract filename (without extension) from full path
 std::string re_name(std::string path)
@@ -47,6 +48,7 @@ int direction_from_shift(sf::Vector2f shift)
     return direction;
 }
 
+// creates callback to change scene in SceneController
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to)
 {
     std::function<void()> callback = [scene, scene_to]{
@@ -55,6 +57,7 @@ std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene,
     return callback;
 }
 
+// creates callback that closes window
 std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWindow> window)
 {
     std::function<void()> callback = [window] {
@@ -63,23 +66,53 @@ std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWi
     return callback;
 }
 
-/// MEMORY LEAK
-// creates semi-transparent colored sprite, that covers field
-std::function<void()> create_bloodscreen(std::shared_ptr<Scene> scene, const sf::Color& color)
+// creates callback that changes fields in scene
+std::function<void()> create_change_field_callback(std::shared_ptr<Scene_Field> scene, int field_to)
 {
-    std::function<void()> callback = [scene, color] {
-        AnimatedSprite* as = new AnimatedSprite("bloodscreen", std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0));
-        State start = {0, Color(0, 0, 0, 0),
+    std::function<void()> callback = [scene, field_to]{
+        scene->change_current_field(field_to);
+    };
+    return callback;
+}
+
+/// MEMORY LEAK
+// creates fogging, that thickens through 2 seconds (color is by default black)
+std::function<void()> create_fade_effect(std::shared_ptr<Scene> scene, const sf::Color& color, sf::Time duration)
+{
+    sf::Color color_transparent = sf::Color(color.r, color.g, color.b, 0);
+    std::function<void()> callback = [scene, duration, color, color_transparent] {
+        AnimatedSprite* as = new AnimatedSprite("fade effect", std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0));
+        State start = {0, color_transparent,
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
         State finish = {0, color,
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        VisualEffect* ve = new VisualEffect(as, seconds(1), seconds(3), start, finish);
+        VisualEffect* ve = new VisualEffect(as, seconds(0), duration, start, finish);
         ve->play();
         scene->addSprite(ve);
     };
     return callback;
 }
 
+/// MEMORY LEAK
+// creates fogging, that fades through 2 seconds (color is by default black)
+std::function<void()> create_rfade_effect(std::shared_ptr<Scene> scene, const sf::Color& color, sf::Time duration)
+{
+    sf::Color color_transparent = sf::Color(color.r, color.g, color.b, 0);
+    std::function<void()> callback = [scene, duration, color, color_transparent] {
+        AnimatedSprite* as = new AnimatedSprite("reverse fade effect", std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0));
+        State start = {0, color,
+            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+        State finish = {0, color_transparent,
+            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
+        VisualEffect* ve = new VisualEffect(as, seconds(0), duration, start, finish);
+        ve->play();
+        scene->addSprite(ve);
+    };
+    return callback;
+}
+
+/// MEMORY LEAK
+// creates semi-transparent circle, that covers field
 std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vector2f pos, float radius, const sf::Color& color)
 {
     std::function<void()> callback = [scene, pos, radius, color] {
@@ -88,7 +121,7 @@ std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vect
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
         State finish = {0, color,
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        VisualEffect* ve = new VisualEffect(as, seconds(1), seconds(3), start, finish);
+        VisualEffect* ve = new VisualEffect(as, seconds(0), seconds(2), start, finish);
         ve->play();
         scene->addSprite(ve);
     };
@@ -96,7 +129,7 @@ std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vect
 }
 
 // cleares scene->sprites
-std::function<void()> clear_bloodscreen(std::shared_ptr<Scene> scene)
+std::function<void()> clear_scene_sprites(std::shared_ptr<Scene> scene)
 {
     std::function<void()> callback = [scene] {
         scene->delete_sprites();

@@ -62,9 +62,13 @@ public:
     /// TEMP
     void delete_sprites();
 
-    void addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> callback = std::function<void()>{nullptr}, std::string origin = "center");
-    void addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> callback = std::function<void()>{nullptr}, std::string origin = "center");
-    void addUI_element(std::vector<UI_element*> &new_ui_elements);
+    // add button with callback and return its pointer
+    std::shared_ptr<UI_button> addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame,
+                                         std::string origin = "center", std::function<void()> callback = std::function<void()>{nullptr});
+    std::shared_ptr<UI_button> addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y,
+                                         std::string origin = "center", std::function<void()> callback = std::function<void()>{nullptr});
+
+    void addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements);
     // transfer mouse event to hovered interface part
     // if mouse doesn't hover over UI - return false
     bool UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main);
@@ -73,6 +77,8 @@ public:
     void add_callback(std::function<void()> callback, Time t = seconds(0.5));
     // cancels callback
     void cancel_callbacks();
+    // checks if there are callbacks scheduled. For external purposes
+    bool has_callbacks() const;
 
     // overriding Drawable methods
     virtual void update(Event& event, std::string& command_main);

@@ -3,7 +3,7 @@
 UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     background(NULL), cur_frame(-1),
     focus(false), parent_scene(parent),
-    name(name), displayed(false)
+    name(name), displayed(false), z_index(0)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");

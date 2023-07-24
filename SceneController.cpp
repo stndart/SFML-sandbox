@@ -28,6 +28,11 @@ void SceneController::set_current_scene(std::string name)
 {
     loading_logger->info("Changing scene to {}", name);
 
+    if (scene_map[cur_scene_name]->has_callbacks())
+    {
+        loading_logger->warn("Discarding callbacks due to scene change");
+    }
+
     scene_map[cur_scene_name]->cancel_callbacks();
     cur_scene_name = name;
 }
