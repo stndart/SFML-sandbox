@@ -53,9 +53,9 @@ public:
     // child sprite to take visual effect on
     AnimatedSprite *sprite;
 
-    VisualEffect(AnimatedSprite* sprite, Preset p = RFADE, Time offset = seconds(0));
-    VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, State start, State finish);
-    VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos);
+    VisualEffect(AnimatedSprite* sprite, Preset p = RFADE, Time offset = seconds(0), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
+    VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, State start, State finish, int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
+    VisualEffect(AnimatedSprite* sprite, Time offset, Time duration, Vector2f start_pos, Vector2f finish_pos, int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
 
     // overriding AnimatedSprite methods
     std::shared_ptr<Animation> getAnimation() override;

@@ -41,6 +41,8 @@ private:
 
     // shape over which texture may (or may not) be put
     std::unique_ptr<Shape> parent_shape;
+    // blend mode
+    sf::BlendMode sprite_blend_mode;
 
     bool is_frame_valid(int newframe);
 
@@ -64,12 +66,12 @@ public:
     // creates ASrite with given shape and position. Shape can have texture with texcoords set
     // shape is unchangeable after initialization
     // accepts origin as well. Default it top-left
-    AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin = Vector2f(0, 0), int z_ind = 0);
+    AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin = Vector2f(0, 0), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
     // creates ASprite with rectangular shape of <posrect> size and position and <texrect> texture coordinates
-    AnimatedSprite(std::string name, Texture* texture, IntRect texrect, FloatRect posrect, Vector2f origin = Vector2f(0, 0), int z_ind = 0);
+    AnimatedSprite(std::string name, Texture* texture, IntRect texrect, FloatRect posrect, Vector2f origin = Vector2f(0, 0), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
     // creates ASprite with given animation and parameters (frametime, paused, looped, reversible)
     AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, FloatRect posrect, Vector2f origin = Vector2f(0, 0),
-                   Time frameTime = seconds(0.2f), bool looped = true, bool reversible = false, int z_ind = 0);
+                   Time frameTime = seconds(0.2f), bool looped = true, bool reversible = false, int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
 
     /// Animation parameters setters/getters
     // for external uses after VisualEffect inheritance

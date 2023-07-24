@@ -88,7 +88,7 @@ std::function<void()> create_fade_effect(std::shared_ptr<Scene> scene, const sf:
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
         VisualEffect* ve = new VisualEffect(as, seconds(0), duration, start, finish);
         ve->play();
-        scene->addSprite(ve);
+        scene->addSprite(ve, 0, true);
     };
     return callback;
 }
@@ -99,14 +99,15 @@ std::function<void()> create_rfade_effect(std::shared_ptr<Scene> scene, const sf
 {
     sf::Color color_transparent = sf::Color(color.r, color.g, color.b, 0);
     std::function<void()> callback = [scene, duration, color, color_transparent] {
-        AnimatedSprite* as = new AnimatedSprite("reverse fade effect", std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0));
+        AnimatedSprite* as = new AnimatedSprite("reverse fade effect",
+                                                std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0), Vector2f(0, 0), 0, sf::BlendNone);
         State start = {0, color,
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
         State finish = {0, color_transparent,
             Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
         VisualEffect* ve = new VisualEffect(as, seconds(0), duration, start, finish);
         ve->play();
-        scene->addSprite(ve);
+        scene->addSprite(ve, 0, true);
     };
     return callback;
 }
@@ -116,14 +117,11 @@ std::function<void()> create_rfade_effect(std::shared_ptr<Scene> scene, const sf
 std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vector2f pos, float radius, const sf::Color& color)
 {
     std::function<void()> callback = [scene, pos, radius, color] {
-        AnimatedSprite* as = new AnimatedSprite("light circle", std::make_unique<CircleShape>(radius), pos);
-        State start = {0, Color(0, 0, 0, 0),
-            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        State finish = {0, color,
-            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        VisualEffect* ve = new VisualEffect(as, seconds(0), seconds(2), start, finish);
-        ve->play();
-        scene->addSprite(ve);
+        std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius);
+        circle->setFillColor(color);
+        AnimatedSprite* as = new AnimatedSprite("light circle",
+                                                move(circle), pos, Vector2f(0, 0), 0, sf::BlendNone);
+        scene->addSprite(as, 1, true);
     };
     return callback;
 }
@@ -132,7 +130,7 @@ std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vect
 std::function<void()> clear_scene_sprites(std::shared_ptr<Scene> scene)
 {
     std::function<void()> callback = [scene] {
-        scene->delete_sprites();
+        scene->delete_sprites(true);
     };
     return callback;
 }

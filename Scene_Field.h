@@ -29,7 +29,7 @@ protected:
 
 public:
     std::string name;
-    Scene_Field(std::string name, std::map <std::string, Texture*> *field_tex_map);
+    Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_tex_map);
 
     // change field by index
     void add_field(Field* field_to_add, int num);
@@ -61,6 +61,4 @@ public:
     }
 };
 
-Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num);
 #endif // SCENE_FIELD_H_INCLUDED

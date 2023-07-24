@@ -346,10 +346,10 @@ int main()
     main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, "top left", create_window_closed_callback(window));
 
     // Create field scene. At first it is inactive. Name and textures are passed
-    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), &field_tex_map);
+    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), screenDimensions, &field_tex_map);
 
     // Create editor scene. At first it is inactive. Scenes are swapped with callbacks to SceneController
-    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &field_tex_map);
+    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), screenDimensions, &field_tex_map);
 
     // Set default scene. It is displayed first
     SceneController scene_controller;
@@ -407,12 +407,18 @@ int main()
     std::shared_ptr<UI_button> animated_switch = editor_scene->addButton("animated switch", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1620, 0, 200, 100), "top left");
     Time transition_time = seconds(0.5);
     animated_switch->add_callback(create_fade_effect(editor_scene, Color(0, 0, 0, 255), transition_time), seconds(0));
+    animated_switch->add_callback(create_light_circle(editor_scene, Vector2f(1920/2-300, 1080/2-300), 300, Color(0, 0, 0, 0)), seconds(0));
     animated_switch->add_callback(create_change_field_callback(editor_scene), transition_time);
     animated_switch->add_callback(clear_scene_sprites(editor_scene), transition_time);
     animated_switch->add_callback(create_rfade_effect(editor_scene, Color(0, 0, 0, 255), transition_time), transition_time);
+    animated_switch->add_callback(create_light_circle(editor_scene, Vector2f(1920/2-300, 1080/2-300), 300, Color(0, 0, 0, 0)), transition_time);
     animated_switch->add_callback(clear_scene_sprites(editor_scene), transition_time + transition_time);
 
-    editor_scene->addButton("clear sprites", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1420, 0, 200, 100), "top left", clear_scene_sprites(editor_scene));
+    std::shared_ptr<UI_button> no_blend = editor_scene->addButton("clear sprites", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1420, 0, 200, 100), "top left");
+    no_blend->add_callback(create_light_circle(editor_scene, Vector2f(1920/2-200, 1080/2-200), 200, Color(0, 0, 255, 200)), seconds(0));
+    no_blend->add_callback(create_light_circle(editor_scene, Vector2f(1920/2-100, 1080/2-100), 100, Color(0, 255, 255, 100)), seconds(0));
+    no_blend->add_callback(clear_scene_sprites(editor_scene), seconds(2));
+
     editor_scene->addUI_element(main_ui_elements);
 
     loading_logger->info("Loaded fields");
@@ -461,7 +467,10 @@ int main()
         // clear previous frame and draw from scratch
         window->clear();
         if (cur_scene)
+        {
+            cur_scene->draw_buffers();
             window->draw(*cur_scene);
+        }
 
         window->display();
 

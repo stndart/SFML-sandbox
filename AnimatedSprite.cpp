@@ -3,9 +3,9 @@
 // creates ASrite with given shape and position. Shape can have texture with texcoords set
 // shape is unchangeable after initialization
 // accepts origin as well. Default it top-left
-AnimatedSprite::AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin, int z_ind) : m_position(pos),
+AnimatedSprite::AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin, int z_ind, sf::BlendMode blend_mode) : m_position(pos),
 m_frameTime(seconds(0)), m_currentFrame(0), frame_stop_after(-1), m_isLooped(false), m_isReversed(false), m_isReversible(false),
-parent_shape(std::move(shape)),
+parent_shape(std::move(shape)), sprite_blend_mode(blend_mode),
 m_currentTime(seconds(0)), m_isPaused(true), passed_after_stop(seconds(0)),
 name(name), z_index(z_ind)
 {
@@ -20,8 +20,8 @@ name(name), z_index(z_ind)
 }
 
 // creates ASprite with rectangular shape of <posrect> size and position and <texrect> texture coordinates
-AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect texrect, FloatRect posrect, Vector2f origin, int z_ind) :
-    AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind)
+AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect texrect, FloatRect posrect, Vector2f origin, int z_ind, sf::BlendMode blend_mode) :
+    AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind, blend_mode)
 {
     // set to 0th frame and reset time
     setFrame(0, true);
@@ -29,8 +29,8 @@ AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect texre
 
 // creates ASprite with given animation and parameters (frametime, paused, looped, reversible)
 AnimatedSprite::AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, FloatRect posrect, Vector2f origin,
-               Time frameTime, bool looped, bool reversible, int z_ind) :
-    AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind)
+               Time frameTime, bool looped, bool reversible, int z_ind, sf::BlendMode blend_mode) :
+    AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind, blend_mode)
 {
     if (animation->getSize() == 0)
     {
@@ -483,5 +483,10 @@ void AnimatedSprite::update(Time deltaTime)
 // standard draw method. Draws only if animation is valid
 void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 {
-    target.draw(*parent_shape);
+//    graphics_logger->trace("drawing AS {} with color {}.{}.{} and blend mode alpha? {}", name,
+//                          parent_shape->getFillColor().r, parent_shape->getFillColor().g, parent_shape->getFillColor().b,
+//                          (int)(sprite_blend_mode == sf::BlendAlpha));
+
+    states.blendMode = sprite_blend_mode;
+    target.draw(*parent_shape, states);
 }

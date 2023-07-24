@@ -1,6 +1,6 @@
 #include "Scene_editor.h"
 
-Scene_editor::Scene_editor(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, field_blocks),
+Scene_editor::Scene_editor(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, screensize, field_blocks),
 s_input(""), input_focus(false)
 {
     // None
@@ -297,14 +297,3 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         target.draw(text);
     }
 }
-
-/// TEMP
-// MyFirstSceneEditor constructor
-Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
-{
-    Scene_editor editor_scene(std::string("editor_scene"), field_blocks); // FIX (pointer)
-    editor_scene.add_Field(bg, length, width, field_blocks, player_texture, screen_dimensions, num);
-    return editor_scene;
-}
-

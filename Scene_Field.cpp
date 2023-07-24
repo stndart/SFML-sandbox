@@ -2,7 +2,7 @@
 
 int Scene_Field::FIELD_Z_INDEX = 0;
 
-Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_tex_map(field_blocks)
+Scene_Field::Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize), field_tex_map(field_blocks)
 {
     loading_logger = spdlog::get("loading");
     map_events_logger = spdlog::get("map_events");
@@ -151,12 +151,4 @@ void Scene_Field::update(Time deltaTime)
     {
         field[current_field]->update(deltaTime);
     }
-}
-
-Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
-{
-    Scene_Field field_scene(std::string("field_scene"), field_blocks); // FIX (pointer)
-    field_scene.add_Field(bg, length, width, field_blocks, player_texture, screen_dimensions, num);
-    return field_scene;
 }

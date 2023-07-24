@@ -3,17 +3,24 @@
 
 int Scene::UI_Z_INDEX = 10;
 
-Scene::Scene(std::string name) : timer(seconds(0)), background(NULL), name(name)
+Scene::Scene(std::string name, Vector2i screensize) : timer(seconds(0)), background(NULL), name(name)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
     // Create new user interface
-    Interface = new UI_window("Interface", IntRect(0, 0, 1920, 1080), this);
+    IntRect UIFrame(0, 0, screensize.x, screensize.y);
+    Interface = new UI_window("Interface", UIFrame, this);
 
     // add to drawables index
     sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface));
+
+    if (!framebuffer.create(screensize.x, screensize.y))
+    {
+        loading_logger->critical("Couldn't construct framebuffer");
+        throw;
+    }
 }
 
 // sets scene controller to invoke callbacks of switching scenes
@@ -41,22 +48,43 @@ void Scene::addTexture(Texture* texture, IntRect rect)
     cutout_texture_to_frame(m_vertices, rect);
 }
 
-void Scene::addSprite(AnimatedSprite* sprite, int z_index)
+void Scene::addSprite(AnimatedSprite* sprite, int z_index, bool to_frame_buffer)
 {
-    loading_logger->debug("Added sprite \"{}\" with z-index {} to scene", sprite->name, z_index);
+    loading_logger->debug("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, (int)to_frame_buffer);
 
-    sprites.push_back(sprite);
-    sprite->z_index = z_index;
-    sorted_drawables.insert(make_pair(z_index, sprite));
+    if (!to_frame_buffer)
+    {
+        sprites.push_back(sprite);
+        sprite->z_index = z_index;
+        sorted_drawables.insert(make_pair(z_index, sprite));
+    }
+    else
+    {
+        sprites_to_framebuffer.push_back(sprite);
+        sprite->z_index = z_index;
+        sorted_drawables_to_framebuffer.insert(make_pair(z_index, sprite));
+    }
 }
 
-void Scene::delete_sprites()
+// deletes all sprites either from framebuffer or not
+void Scene::delete_sprites(bool from_frame_buffer)
 {
-    for (auto s : sprites)
+    if (!from_frame_buffer)
     {
-        sorted_drawables.erase(make_pair(s->z_index, s));
+        for (auto s : sprites)
+        {
+            sorted_drawables.erase(make_pair(s->z_index, s));
+        }
+        sprites.clear();
     }
-    sprites.clear();
+    else
+    {
+        for (auto s : sprites_to_framebuffer)
+        {
+            sorted_drawables_to_framebuffer.erase(make_pair(s->z_index, s));
+        }
+        sprites_to_framebuffer.clear();
+    }
 }
 
 // add and place button
@@ -232,6 +260,30 @@ void Scene::update(Time deltaTime)
     {
         s->update(deltaTime);
     }
+    for (auto s : sprites_to_framebuffer)
+    {
+        s->update(deltaTime);
+    }
+}
+
+// draw all framebuffers (because <draw> is const)
+void Scene::draw_buffers()
+{
+    RenderStates states;
+    framebuffer.clear(sf::Color::Transparent);
+
+    auto p = sorted_drawables_to_framebuffer.begin();
+    for (; p != sorted_drawables_to_framebuffer.end(); ++p)
+    {
+        if (p->first > UI_Z_INDEX)
+            break;
+
+        // if valid drawable, then draw it
+        if (p->second)
+            framebuffer.draw(*p->second);
+    }
+
+    framebuffer.display();
 }
 
 void Scene::draw(RenderTarget& target, RenderStates states) const
@@ -247,6 +299,7 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
     auto p = sorted_drawables.begin();
     for (; p != sorted_drawables.end(); ++p)
     {
+        //break; /// dont draw field
         if (p->first > UI_Z_INDEX)
             break;
 
@@ -254,13 +307,16 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
         if (p->second)
             target.draw(*p->second);
     }
+
+    sf::Sprite framebuffer_sprite(framebuffer.getTexture());
+    target.draw(framebuffer_sprite, states);
 }
 
 /// TEMP
 // MyFirstScene constructor
 std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
 {
-    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu");
+    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu", screen_dimensions);
     main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));
     main_menu->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 

@@ -32,11 +32,18 @@ private:
     Time timer;
 
 protected:
+    // list of sprites
+    std::vector<AnimatedSprite*> sprites;
+    // list of sprites that belong to framebuffer
+    std::vector<AnimatedSprite*> sprites_to_framebuffer;
+    // framebuffer, to which all <sprites> are rendered (for example, with no-blend mode)
+    sf::RenderTexture framebuffer;
+
     // set of all animated objects sorted by z-index.
     // Z-index of Field is typically 0, z-index of UI is typically 10
     std::set <std::pair<int, Drawable*> > sorted_drawables;
-    // list of all sprites
-    std::vector <AnimatedSprite*> sprites;
+    // set of all drawables sorted by z-index to draw in framebuffer
+    std::set <std::pair<int, Drawable*> > sorted_drawables_to_framebuffer;
 
     Texture* background;
     Vertex m_vertices[4];
@@ -50,7 +57,7 @@ protected:
 public:
     std::string name;
 
-    Scene(std::string name);
+    Scene(std::string name, Vector2i screensize);
 
     // sets scene controller to invoke callbacks of switching scenes
     void set_scene_controller(SceneController& sc);
@@ -58,9 +65,10 @@ public:
 
     // adding elements to certain lists
     void addTexture(Texture* texture, IntRect rect);
-    void addSprite(AnimatedSprite* sprite, int z_index=1);
+    void addSprite(AnimatedSprite* sprite, int z_index=1, bool to_frame_buffer=false);
     /// TEMP
-    void delete_sprites();
+    // deletes all sprites either from framebuffer or not
+    void delete_sprites(bool from_frame_buffer=false);
 
     // add button with callback and return its pointer
     std::shared_ptr<UI_button> addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame,
@@ -80,6 +88,8 @@ public:
     // checks if there are callbacks scheduled. For external purposes
     bool has_callbacks() const;
 
+    // draw all framebuffers (because <draw> is const)
+    virtual void draw_buffers();
     // overriding Drawable methods
     virtual void update(Event& event, std::string& command_main);
     virtual void update(Time deltaTime);
