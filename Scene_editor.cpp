@@ -158,26 +158,32 @@ void Scene_editor::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->set_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(3);
                 //field[current_field]->move_player(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->set_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(0);
                 //field[current_field]->move_player(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->set_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(1);
                 //field[current_field]->move_player(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->set_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(2);
                 //field[current_field]->move_player(2);
                 break;
             case sf::Keyboard::Space:
-                field[current_field]->action((*field_tex_map)["stump"]);
+                if (!controls_blocked)
+                    field[current_field]->action((*field_tex_map)["stump"]);
                 break;
             case sf::Keyboard::Tab:
-                change_current_field((current_field+1)%2);
+                if (!controls_blocked)
+                    change_current_field((current_field+1)%2);
                 break;
             default:
                 break;
@@ -191,16 +197,20 @@ void Scene_editor::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->release_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->release_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->release_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->release_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(2);
                 break;
             default:
                 break;

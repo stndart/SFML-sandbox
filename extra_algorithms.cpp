@@ -1,8 +1,5 @@
 #include "extra_algorithms.h"
 
-#include "Scene.h"
-#include "SceneController.h"
-#include "Scene_Field.h"
 
 // extract filename (without extension) from full path
 std::string re_name(std::string path)
@@ -48,101 +45,14 @@ int direction_from_shift(sf::Vector2f shift)
     return direction;
 }
 
-// creates callback to change scene in SceneController
-std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to)
-{
-    std::function<void()> callback = [scene, scene_to]{
-        scene->get_scene_controller().set_current_scene(scene_to);
-    };
-    return callback;
-}
-
-// creates callback that closes window
-std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWindow> window)
-{
-    std::function<void()> callback = [window] {
-        window->close();
-    };
-    return callback;
-}
-
-// creates callback that changes fields in scene
-std::function<void()> create_change_field_callback(std::shared_ptr<Scene_Field> scene, int field_to)
-{
-    std::function<void()> callback = [scene, field_to]{
-        scene->change_current_field(field_to);
-    };
-    return callback;
-}
-
-/// MEMORY LEAK
-// creates fogging, that thickens through 2 seconds (color is by default black)
-std::function<void()> create_fade_effect(std::shared_ptr<Scene> scene, const sf::Color& color, sf::Time duration)
-{
-    sf::Color color_transparent = sf::Color(color.r, color.g, color.b, 0);
-    std::function<void()> callback = [scene, duration, color, color_transparent] {
-        AnimatedSprite* as = new AnimatedSprite("fade effect", std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0));
-        State start = {0, color_transparent,
-            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        State finish = {0, color,
-            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        VisualEffect* ve = new VisualEffect(as, seconds(0), duration, start, finish);
-        ve->play();
-        scene->addSprite(ve, 0, true);
-    };
-    return callback;
-}
-
-/// MEMORY LEAK
-// creates fogging, that fades through 2 seconds (color is by default black)
-std::function<void()> create_rfade_effect(std::shared_ptr<Scene> scene, const sf::Color& color, sf::Time duration)
-{
-    sf::Color color_transparent = sf::Color(color.r, color.g, color.b, 0);
-    std::function<void()> callback = [scene, duration, color, color_transparent] {
-        AnimatedSprite* as = new AnimatedSprite("reverse fade effect",
-                                                std::make_unique<RectangleShape>(Vector2f(1920, 1080)), Vector2f(0, 0), Vector2f(0, 0), 0, sf::BlendNone);
-        State start = {0, color,
-            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        State finish = {0, color_transparent,
-            Vector2f(0, 0), Vector2f(0, 0), Vector2f(1, 1)};
-        VisualEffect* ve = new VisualEffect(as, seconds(0), duration, start, finish);
-        ve->play();
-        scene->addSprite(ve, 0, true);
-    };
-    return callback;
-}
-
-/// MEMORY LEAK
-// creates semi-transparent circle, that covers field
-std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vector2f pos, float radius, const sf::Color& color)
-{
-    std::function<void()> callback = [scene, pos, radius, color] {
-        std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius);
-        circle->setFillColor(color);
-        AnimatedSprite* as = new AnimatedSprite("light circle",
-                                                move(circle), pos, Vector2f(0, 0), 0, sf::BlendNone);
-        scene->addSprite(as, 1, true);
-    };
-    return callback;
-}
-
-// cleares scene->sprites
-std::function<void()> clear_scene_sprites(std::shared_ptr<Scene> scene)
-{
-    std::function<void()> callback = [scene] {
-        scene->delete_sprites(true);
-    };
-    return callback;
-}
-
 // prepares texture to display: sets vertexes to screen and tex coords
 void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect, sf::IntRect texFrame)
 {
     // Where to draw texture (relative to sprite origin)
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
+    m_vertices[0].position = sf::Vector2f(0.f, 0.f);
+    m_vertices[1].position = sf::Vector2f(0.f, static_cast<float>(rect.height));
+    m_vertices[2].position = sf::Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
+    m_vertices[3].position = sf::Vector2f(static_cast<float>(rect.width), 0.f);
 
     float left = static_cast<float>(texFrame.left);/// + 0.0001f;
     float right = left + static_cast<float>(texFrame.width);
@@ -150,10 +60,10 @@ void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect, sf::Int
     float bottom = top + static_cast<float>(texFrame.height);
 
     // What to draw (coordinate on texture)
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+    m_vertices[0].texCoords = sf::Vector2f(left, top);
+    m_vertices[1].texCoords = sf::Vector2f(left, bottom);
+    m_vertices[2].texCoords = sf::Vector2f(right, bottom);
+    m_vertices[3].texCoords = sf::Vector2f(right, top);
 }
 
 void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect)

@@ -9,6 +9,7 @@
 #include "AnimatedSprite.h"
 #include "UI_window.h"
 #include "extra_algorithms.h"
+#include "Callbacks.h"
 
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/Sprite.hpp>

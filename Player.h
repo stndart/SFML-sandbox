@@ -72,6 +72,8 @@ public:
     void setPosition(const Vector2f &position);
     Vector2f getPosition() const;
     void setScale(const Vector2f &factors);
+    FloatRect getLocalBounds() const;
+    FloatRect getGlobalBounds() const;
 
     // overriding Drawable methods
     void update(Time deltaTime);

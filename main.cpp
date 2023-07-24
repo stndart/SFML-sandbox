@@ -21,6 +21,7 @@
 #include "SceneController.h"
 #include "UI_button.h"
 #include "extra_algorithms.h"
+#include "Callbacks.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -418,6 +419,16 @@ int main()
     no_blend->add_callback(create_light_circle(editor_scene, Vector2f(1920/2-200, 1080/2-200), 200, Color(0, 0, 255, 200)), seconds(0));
     no_blend->add_callback(create_light_circle(editor_scene, Vector2f(1920/2-100, 1080/2-100), 100, Color(0, 255, 255, 100)), seconds(0));
     no_blend->add_callback(clear_scene_sprites(editor_scene), seconds(2));
+
+    std::shared_ptr<UI_button> joker = editor_scene->addButton("tom and jerry", UI_block["TOM_AND_JERRY"], UI_block["TOM_AND_JERRY_PRESSED"], IntRect(1120, 0, 300, 200), "top left");
+
+    joker->set_callbacks(tom_and_jerry(editor_scene));
+
+//    joker->add_callback(create_light_circle_centered(editor_scene));
+//    joker->add_callback(create_block_controls_callback(editor_scene, true));
+//    joker->add_callback(create_block_controls_callback(editor_scene, false), seconds(2));
+
+//    joker->set_callbacks(tom_and_jerry_rfade_effect(editor_scene, 50, sf::seconds(0), sf::seconds(1), sf::seconds(1)));
 
     editor_scene->addUI_element(main_ui_elements);
 

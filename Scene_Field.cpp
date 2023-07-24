@@ -2,7 +2,8 @@
 
 int Scene_Field::FIELD_Z_INDEX = 0;
 
-Scene_Field::Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize), field_tex_map(field_blocks)
+Scene_Field::Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize),
+field_tex_map(field_blocks), controls_blocked(false)
 {
     loading_logger = spdlog::get("loading");
     map_events_logger = spdlog::get("map_events");
@@ -72,6 +73,42 @@ void Scene_Field::load_field(int num, std::string who_call)
     field[num]->load_field(*field_tex_map, num);
 }
 
+FloatRect Scene_Field::getPlayerLocalBounds() const
+{
+    FloatRect bounds = FloatRect(0, 0, 0, 0);
+    if (current_field != -1)
+    {
+        bounds = field[current_field]->player_0->getLocalBounds();
+        bounds.left -= field[current_field]->getViewport().left;
+        bounds.top -= field[current_field]->getViewport().top;
+    }
+    return bounds;
+}
+
+FloatRect Scene_Field::getPlayerGlobalBounds() const
+{
+    FloatRect bounds = FloatRect(0, 0, 0, 0);
+    if (current_field != -1)
+    {
+        bounds = field[current_field]->player_0->getGlobalBounds();
+        bounds.left -= field[current_field]->getViewport().left;
+        bounds.top -= field[current_field]->getViewport().top;
+    }
+    return bounds;
+}
+
+void Scene_Field::block_controls(bool blocked)
+{
+    map_events_logger->info("Blocked controls {}", blocked);
+
+    controls_blocked = blocked;
+    if (blocked)
+    {
+        for (int i = 0; i < 4; ++i)
+            release_player_movement_direction(i);
+    }
+}
+
 void Scene_Field::set_player_movement_direction(int direction)
 {
     if (current_field != -1)
@@ -99,16 +136,20 @@ void Scene_Field::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->set_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->set_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->set_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->set_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(2);
                 break;
             case sf::Keyboard::Space:
                 field[current_field]->action((*field_tex_map)["stump"]);
@@ -125,16 +166,20 @@ void Scene_Field::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->release_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->release_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->release_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->release_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(2);
                 break;
             default:
                 break;

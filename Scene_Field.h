@@ -23,12 +23,14 @@ protected:
     // map background textures by name
     std::map <std::string, Texture*> *field_tex_map;
 
-    std::shared_ptr<spdlog::logger> map_events_logger;
+    // flag if WASD blocked
+    bool controls_blocked;
 
-    /// UserInterface UI; // implement UserInterface to do
+    std::shared_ptr<spdlog::logger> map_events_logger;
 
 public:
     std::string name;
+
     Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_tex_map);
 
     // change field by index
@@ -44,6 +46,11 @@ public:
     void load_field(int num, std::string who_call);
     /// NOT IMPLEMENTED
     void save_map();
+
+    FloatRect getPlayerLocalBounds() const;
+    FloatRect getPlayerGlobalBounds() const;
+
+    void block_controls(bool blocked);
 
     // transfer to Field methods
     virtual void set_player_movement_direction(int direction);

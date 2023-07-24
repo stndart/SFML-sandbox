@@ -392,6 +392,16 @@ void Field::update_view_center()
     current_view.setCenter(view_center);
 }
 
+// get view rectangle
+FloatRect Field::getViewport() const
+{
+//    map_events_logger->info("VIEWPORT {}x{}", current_view.getViewport().left, current_view.getViewport().top);
+//    map_events_logger->info("VIEWPORT center {}x{}", current_view.getCenter().x, current_view.getCenter().y);
+    Vector2f topleft = current_view.getCenter() - Vector2f(current_view.getSize().x / 2.0f, current_view.getSize().y / 2.0f);
+    Vector2f getsize = current_view.getSize();
+    return FloatRect(topleft.x, topleft.y, getsize.x, getsize.y);
+}
+
 // load field and cells from json file <Locations/loc_%loc_id%>
 // field_block provides textures for cells by names (instead of resources manager)
 void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id)

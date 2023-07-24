@@ -109,6 +109,20 @@ void Player::setScale(const Vector2f &factors)
     sprite->setScale(factors);
 }
 
+FloatRect Player::getLocalBounds() const
+{
+    if (sprite)
+        return sprite->getLocalBounds();
+    return FloatRect(0, 0, 0, 0);
+}
+
+FloatRect Player::getGlobalBounds() const
+{
+    if (sprite)
+        return sprite->getGlobalBounds();
+    return FloatRect(0, 0, 0, 0);
+}
+
 void Player::update(Time deltaTime)
 {
     int mov_dir = -1;
