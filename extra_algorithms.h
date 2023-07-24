@@ -1,10 +1,13 @@
 #ifndef EXTRA_ALGORITHMS
 #define EXTRA_ALGORITHMS
 
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <memory>
 #include <functional>
+#include <filesystem>
 
 #include <SFML/Graphics.hpp>
 
@@ -16,9 +19,6 @@ std::string re_name(std::string path);
 // get direction from vector2f movement; Direction is enumerate 0, 1, 2, 3: east, south, west, north
 int direction_from_shift(sf::Vector2f shift);
 
-bool comparator_pair_time_func(std::pair<sf::Time, std::function<void()> > a,
-                               std::pair<sf::Time, std::function<void()> > b);
-
 // creates callback to change scene in SceneController
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to);
 // creates callback that closes window
@@ -26,6 +26,8 @@ std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWi
 /// MEMORY LEAK
 // creates semi-transparent colored sprite, that covers field
 std::function<void()> create_bloodscreen(std::shared_ptr<Scene> scene, const sf::Color& color = sf::Color(250, 0, 0, 50));
+// creates circle at coords with color, that covers field
+std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vector2f pos = sf::Vector2f(960, 540), float radius = 70, const sf::Color& color = sf::Color(100, 100, 0, 150));
 // cleares scene->sprites
 std::function<void()> clear_bloodscreen(std::shared_ptr<Scene> scene);
 

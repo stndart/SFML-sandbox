@@ -52,7 +52,8 @@ int main()
     {
         // load loggers and log sinks
         string logfile_path = "logs/log.txt"; /// TEMP (to config file)
-        auto logfile_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logfile_path);
+        // truncate = true - means delete log on startup
+        auto logfile_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logfile_path, true);
         auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_st>();
         spdlog::sinks_init_list sink_list = {logfile_sink, stdout_sink};
         // create synchronous loggers
@@ -399,7 +400,8 @@ int main()
     editor_scene->add_field(field_4, 1);
 
     editor_scene->addButton("to_main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
-    editor_scene->addButton("bloodscreen", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1620, 0, 200, 100), create_bloodscreen(editor_scene, Color(0, 0, 0, 255)), "top left");
+//    editor_scene->addButton("bloodscreen", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1620, 0, 200, 100), create_bloodscreen(editor_scene, Color(0, 0, 0, 100)), "top left");
+    editor_scene->addButton("bloodscreen", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1620, 0, 200, 100), create_light_circle(editor_scene), "top left");
     editor_scene->addButton("clear blood", UI_block["BLOOD"], UI_block["BLOOD"], IntRect(1420, 0, 200, 100), clear_bloodscreen(editor_scene), "top left");
     editor_scene->addUI_element(main_ui_elements);
 

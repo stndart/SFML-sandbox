@@ -260,7 +260,9 @@ Time VisualEffect::movement_remaining_time() const
 void VisualEffect::update(Time deltaTime)
 {
     if (sprite)
+    {
         sprite->update(deltaTime);
+    }
 
     if (m_isPaused)
         passed_after_stop += deltaTime;
