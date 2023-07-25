@@ -19,6 +19,18 @@
 using namespace std;
 using namespace sf;
 
+// Character is a structure, which contains player movement logic, as well as complicated animations sequencing mechanics
+// Character has AnimatedSprite as a backbone and stores different Animations, which are activated with certain actions.
+// As Animations support Joints (possible animation binding frames), Character searches for a shortest sequence of Animations to switch to desired Animation.
+// Found Animation sequences are storedin <next_animations> and activated one after another automatically
+// Method <plan_movement> provides logic for animation sequencing when Character needs to be moved by <shift>
+// Joints mechanic is optional and can be disabled. In this case, Character provides moving and displaying underlying AnimatedSprite.
+// Featured methods:
+// set_facing_direction: sets direction to which Character needs to be faced. It changes default idle animation, but won't have an impact immediately
+// add_animation: registers animation by name, otherwise it won't be scheduled when needed
+// plan_movement: saves next move (by shift in pixels) or animation as scheduled animation. If Joints enabled, transition is set and played automatically
+// order_completed: states if scheduled movement reached it's screen movement part. Resets flag after call
+
 struct AnimMovement
 {
     int direction;

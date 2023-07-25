@@ -11,6 +11,16 @@
 
 using namespace sf;
 
+// VisualEffect (referred as VE hereafter) is a superstructer over AnimatedSprite.
+// If AnimatedSprite provides drawing shapes and dynamical textures, VE provides smooth movement, rotation, scaling and changing color above all
+// VE contains AnimatedSprite inside and is stackable (VE contains VE, that contains VE, that contains AnimatedSprite)
+// Although VE doen't have any Animations, it fully supports setAnimation and getAnimation, but transferring calls to underlying AnimatedSprite
+// Some presets are available:
+// 1. EMPTY: VE does nothing, but lasts 1 seconds
+// 2. FADE: colors underlying AnimatedSprite in black over 2 seconds
+// 3. RFADE: inverse effect to FADE
+// 4. BARREL_ROLL: rotates AnimatedSprite by 360 degrees over 2 seconds
+
 enum Preset
 {
     EMPTY,

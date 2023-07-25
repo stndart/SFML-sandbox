@@ -16,6 +16,12 @@ class Field;
 
 using namespace sf;
 
+// Player binds keyboard input with animated Character
+// Player contains pressed directions, blocking information and player coordinates
+// When arrows or WASD pressed, call <add_movement_direction> when released, call <release_movement_direction> to cancel order
+// You can manually move Player with move_player
+// Transformable methods (setPosition, etc.) overriden to work with contained Character
+
 struct Movement
 {
     int direction;

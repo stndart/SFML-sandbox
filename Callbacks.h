@@ -11,6 +11,22 @@
 class Scene;
 class Scene_Field;
 
+// Callbacks.h contains factory for creating conditional events. Usually they are to bound with pressing keys or UI buttons
+// Simple factories just return callback which, when called, perform certain action.
+// Actions list:
+// 1. change current Scene
+// 2. change current Field
+// 3. close Window
+// 4. create visual effect of screen fading to black (or specified color)
+// 5. reverse effect to fading
+// 6. create colored rectangle
+// 7. create colored circle
+// 8. create colored circle, but with center above Player
+// 9. remove all sprites from either framebuffer in Scene
+// 10. block player controls (and most UI buttons)
+// Complicated factories return a sequence of callbacks, with delays specified. These factories are used as ready presets to some cool effects, such as:
+// 1. Tom and Jerry field transition effect: in the 1st phase darkness gathers aroung player in circle, after which circle fades, then, after field change, actions are repeated in inverse order
+
 // creates callback to change scene in SceneController
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to);
 // creates callback that closes window

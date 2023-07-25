@@ -19,16 +19,23 @@
 
 using namespace sf;
 
-// AnimatedSprite is drawable sprite, that can play and switch animations. Updated with deltatime, it automatically switches frames of Animation
+// AnimatedSprite (referred as ASprite hereafter) is a drawable sprite
+// ASprite has a Shape (rectangle, circle or polygonal), that can be filled with a color with alpha-channel and/or with texture.
+// Color blending with underlying drawable objects by default works with alpha-channel (BlendAlpha), but works with any other BlendMode as well (no blending, adding/multiplying colors)
+// Besides, ASprite can be set with dynamically switchable texture (i.e. Animation), in this case methods <play>, <stop>, <pause>, <stop_after> control playback of switching textures (frames).
+// Animation can be looped, reversed or straight-forward
+// Transformable methods are overridden, so they handle Shape and Animation correctly
+
 class AnimatedSprite : public Drawable, public Transformable
 {
 
 private:
+    // coordinates of ASprite
     Vector2f m_position;
 
     // pointer to spritesheet
     std::shared_ptr<Animation> m_animation;
-    //time for one frame
+    // one frame time length
     Time m_frameTime;
     // current frame index
     std::size_t m_currentFrame;
@@ -39,11 +46,13 @@ private:
     bool m_isReversed;
     bool m_isReversible;
 
-    // shape over which texture may (or may not) be put
+    // shape over which texture (or color) may be put
     std::unique_ptr<Shape> parent_shape;
     // blend mode
     sf::BlendMode sprite_blend_mode;
 
+    // returns false if <newframe> is after <stop_after> or out of bounds
+    // in other words, returns true, if switching to <newframe> is provided by playback
     bool is_frame_valid(int newframe);
 
 protected:
@@ -56,6 +65,7 @@ protected:
     // Total time passed since pause
     Time passed_after_stop;
 
+    // Smart pointers to logger handlers
     std::shared_ptr<spdlog::logger> loading_logger, graphics_logger;
 
 public:
@@ -73,14 +83,14 @@ public:
     AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, FloatRect posrect, Vector2f origin = Vector2f(0, 0),
                    Time frameTime = seconds(0.2f), bool looped = true, bool reversible = false, int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
 
-    /// Animation parameters setters/getters
+    // Animation parameters setters/getters
     // for external uses after VisualEffect inheritance
     virtual std::shared_ptr<Animation> getAnimation();
     // set animation spritesheet
     virtual void setAnimation(std::shared_ptr<Animation> animation);
     // set time for which each frame lasts
     void setFrameTime(Time time);
-    // just play. No frame resetting
+    // resume playback from current position. No frame resetting
     virtual void play();
     // Play with offset. Use <shift> and <frame_start> to manage offset
     virtual void play(std::size_t frame_start, Time shift=seconds(0));

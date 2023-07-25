@@ -17,7 +17,13 @@ struct Joint
     int frame_to;
 };
 
-// Animation is a structure with a list of spritesheets inside and an array of frames coordinates on appropriate spritesheet
+// Animation is used to store mutliple textures or frames
+// Different frames can use same texture (spritesheet)
+// AnimatedSprite uses Animation to store sequences of frames and switch through them
+// Animation also contains array of Joints: key frames, that are bound to other Animations (by name)
+// use addSpriteSheet(texture) to add texture to Animation
+// use addFrame(frame, tex_i) to add frame with tex_i th spritesheet
+
 class Animation
 {
 private:
