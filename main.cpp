@@ -21,6 +21,7 @@
 #include "Scene_Field.h"
 #include "Scene_editor.h"
 #include "SceneController.h"
+#include "ResourceLoader.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -98,169 +99,16 @@ int main()
     window->setKeyRepeatEnabled(false);
     loading_logger->info("Created window {}x{}", 1920, 1080);
 
-    // load textures
-    /// TODO: move to resource loader
-    Texture menu_texture;
-    int tex_counter = 0;
-    if (!menu_texture.loadFromFile("Images/menu.jpg"))
-    {
-        loading_logger->critical("Failed to load texture");
-        return 1;
-    }
-    tex_counter++;
+    ResourceLoader resload;
 
-    Texture new_button_texture;
-    if (!new_button_texture.loadFromFile("Images/new_game_button.png"))
-    {
-        loading_logger->critical("Failed to load texture");
-        return 1;
-    }
-    tex_counter++;
-
-    Texture new_button_pushed_texture;
-    if (!new_button_pushed_texture.loadFromFile("Images/new_game_button_pushed.png"))
-    {
-        loading_logger->critical("Failed to load texture");
-        return 1;
-    }
-    tex_counter++;
-
-    Texture player_texture;
-    if (!player_texture.loadFromFile("Images/player.png"))
-    {
-        loading_logger->critical("Failed to load texture");
-        return 1;
-    }
-    tex_counter++;
-
-    Texture field_bg_texture;
-    if (!field_bg_texture.loadFromFile("Images/field_bg.jpg"))
-    {
-        loading_logger->critical("Failed to load texture");
-        return 1;
-    }
-    tex_counter++;
-    loading_logger->info("Loaded {} textures", tex_counter);
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-///--------------------------------------= TEST downloading =--------------------------------------------
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
-    map <string, Texture*> test_images;
-
-    {
-        std::string inputPath = "Images/test/";
-
-        tex_counter = 0;
-        for (auto& p : std::filesystem::directory_iterator(inputPath))
-        {
-            std::filesystem::path path;
-            path = p;
-            std::string tempStr;
-            tempStr = path.generic_string();
-
-            Texture* cur_texture = new Texture;
-            if (!cur_texture->loadFromFile(tempStr))
-            {
-                loading_logger->critical("Failed to load texture");
-                return 1;
-            }
-            tex_counter++;
-            std::string name = re_name(tempStr);
-            loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-            test_images.insert({name, cur_texture});
-        }
-        loading_logger->info("Loaded {} textures", tex_counter);
-    }
-**/
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-///---------------------------------------= UI downloading =---------------------------------------------
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    map <string, Texture*> UI_block;
-
-    std::string inputPath = "Images/UI/";
-
-    tex_counter = 0;
-    for (auto& p : std::filesystem::directory_iterator(inputPath))
-    {
-        std::filesystem::path path;
-        path = p;
-        std::string tempStr;
-        tempStr = path.generic_string();
-
-        Texture* cur_texture = new Texture;
-        if (!cur_texture->loadFromFile(tempStr))
-        {
-            loading_logger->critical("Failed to load texture");
-            return 1;
-        }
-        tex_counter++;
-        std::string name = re_name(tempStr);
-        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-        UI_block.insert({name, cur_texture});
-    }
-    loading_logger->info("Loaded {} textures for UI", tex_counter);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*******************************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    map <string, Texture*> field_tex_map;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-///-------------------------------------= CELLS downloading =--------------------------------------------
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /*std::string*/ inputPath = "Images/CELLS/";
-    tex_counter = 0;
-    for (auto& p : std::filesystem::directory_iterator(inputPath))
-    {
-        std::filesystem::path path;
-        path = p;
-        std::string tempStr;
-        tempStr = path.generic_string();
-
-        Texture* cur_texture = new Texture;
-        if (!cur_texture->loadFromFile(tempStr))
-        {
-            loading_logger->critical("Failed to load texture");
-            return 1;
-        }
-        tex_counter++;
-        std::string name = re_name(tempStr);
-        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-        field_tex_map.insert({name, cur_texture});
-    }
-    loading_logger->info("Loaded {} textures for cells", tex_counter);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-///-----------------------------------= CELL_objects downloading =---------------------------------------
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    inputPath = "Images/CELL_objects/";
-    tex_counter = 0;
-    for (auto& p : std::filesystem::directory_iterator(inputPath))
-    {
-        std::filesystem::path path;
-        path = p;
-        std::string tempStr;
-        tempStr = path.generic_string();
-
-        Texture* cur_texture = new Texture;
-        if (!cur_texture->loadFromFile(tempStr))
-        {
-            loading_logger->critical("Failed to load texture");
-            return 1;
-        }
-        tex_counter++;
-        std::string name = re_name(tempStr);
-        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-        field_tex_map.insert({name, cur_texture});
-    }
-    loading_logger->info("Loaded {} textures for cell objects", tex_counter);
-
+    // load main_menu textures
+    resload.load_main_menu_textures();
+    // load ui textures
+    resload.load_ui_textures();
+    // load cells textures
+    resload.load_cell_textures();
+    // load cell objects textures
+    resload.load_cell_object_textures();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///----------------------------------------= UI_elements =-----------------------------------------------
@@ -271,10 +119,10 @@ int main()
         IntRect m1;
         m1.left = 0;
         m1.top = 0;
-        Vector2u v1 = UI_block["horizontal_column"]->getSize();
+        Vector2u v1 = resload.UI_block["horizontal_column"]->getSize();
         m1.width = v1.x;
         m1.height = v1.y;
-        Animation tAn(UI_block["horizontal_column"]);
+        Animation tAn(resload.UI_block["horizontal_column"]);
         tAn.addFrame(m1, 0);
         //UI_button* element1 = new UI_button("horizontal", m1, &tAn);
         //main_ui_elements.push_back(element1);
@@ -282,7 +130,7 @@ int main()
         IntRect m2;
         m2.left = 0;
         m2.top = 1060;
-        Vector2u v2 = UI_block["horizontal_column"]->getSize();
+        Vector2u v2 = resload.UI_block["horizontal_column"]->getSize();
         m2.width = v2.x;
         m2.height = v2.y;
         //UI_button* element2 = new UI_button("horizontal", m2, &tAn);
@@ -291,10 +139,10 @@ int main()
         IntRect m3;
         m3.left = 0;
         m3.top = 0;
-        Vector2u v3 = UI_block["vertical_column"]->getSize();
+        Vector2u v3 = resload.UI_block["vertical_column"]->getSize();
         m3.width = v3.x;
         m3.height = v3.y;
-        Animation tAn2(UI_block["vertical_column"]);
+        Animation tAn2(resload.UI_block["vertical_column"]);
         tAn2.addFrame(m3, 0);
         //UI_button* element3 = new UI_button("vertical", m3, &tAn2);
         //main_ui_elements.push_back(element3);
@@ -302,7 +150,7 @@ int main()
         IntRect m4;
         m4.left = 1900;
         m4.top = 0;
-        Vector2u v4 = UI_block["vertical_column"]->getSize();
+        Vector2u v4 = resload.UI_block["vertical_column"]->getSize();
         m4.width = v4.x;
         m4.height = v4.y;
         //UI_button* element4 = new UI_button("vertical", m4, &tAn2);
@@ -311,14 +159,14 @@ int main()
 //////////////////////////////////////////////////////////////////
 
         IntRect mb1(1820, 0, 0, 0);
-        Vector2u vb1 = UI_block["ESCAPE"]->getSize();
+        Vector2u vb1 = resload.UI_block["ESCAPE"]->getSize();
         mb1.width = vb1.x;
         mb1.height = vb1.y;
 
         Animation tAnb;
-        tAnb.addSpriteSheet(UI_block["ESCAPE"]);
+        tAnb.addSpriteSheet(resload.UI_block["ESCAPE"]);
         tAnb.addFrame(mb1, 0);
-        tAnb.addSpriteSheet(UI_block["ESCAPE_pushed"]);
+        tAnb.addSpriteSheet(resload.UI_block["ESCAPE_pushed"]);
         tAnb.addFrame(mb1, 1);
         //UI_button* elementb1 = new UI_button("main_menu_button", mb1, &tAnb);
         //main_ui_elements.push_back(elementb1);
@@ -335,15 +183,15 @@ int main()
 
     // Create main menu scene. Scene is drawable and calls all subsequent draws for children drawable elements
     // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader through config json
-    shared_ptr<Scene> main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
+    shared_ptr<Scene> main_menu = new_menu_scene(&resload.menu_texture, &resload.new_button_texture, &resload.new_button_pushed_texture, screenDimensions);
     // Add button with text to desired position. Textures are passed via name->texture* map "UI_block"
-    main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_window_closed_callback(window), "top left");
+    main_menu->addButton("ESCAPE", resload.UI_block["ESCAPE"], resload.UI_block["ESCAPE_pushed"], 1820, 0, create_window_closed_callback(window), "top left");
 
     // Create field scene. At first it is inactive. Name and textures are passed
-    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), &field_tex_map);
+    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), &resload.field_tex_map);
 
     // Create editor scene. At first it is inactive. Scenes are swapped with callbacks to SceneController
-    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &field_tex_map);
+    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &resload.field_tex_map);
 
     // Set default scene. It is displayed first
     SceneController scene_controller;
@@ -362,8 +210,8 @@ int main()
     };
 
     // Create field with map#1. Despite it being inactive, we load map and player
-    Field* field_0 = new Field("field_scene 0", &field_bg_texture, screenDimensions);
-    field_0->load_field(field_tex_map, 0);
+    Field* field_0 = new Field("field_scene 0", &resload.field_bg_texture, screenDimensions);
+    field_0->load_field(resload.field_tex_map, 0);
     // Create first and only player.
     // Player knows, where he stands, and the field also
     field_0->addPlayer(player_animation_fnames);
@@ -374,14 +222,14 @@ int main()
     field_scene->add_field(field_0, 0);
 
     // Create field with map#2.
-    Field* field_1 = new Field("field_scene 1", &field_bg_texture, screenDimensions);
-    field_1->load_field(field_tex_map, 1);
+    Field* field_1 = new Field("field_scene 1", &resload.field_bg_texture, screenDimensions);
+    field_1->load_field(resload.field_tex_map, 1);
     field_1->player_0 = player_0;
     field_scene->add_field(field_1, 1);
 
     // Create field with map#1 in editor scene
-    Field* field_3 = new Field("field_scene 0", &field_bg_texture, screenDimensions);
-    field_3->load_field(field_tex_map, 0);
+    Field* field_3 = new Field("field_scene 0", &resload.field_bg_texture, screenDimensions);
+    field_3->load_field(resload.field_tex_map, 0);
     field_3->player_0 = player_0;
     editor_scene->add_field(field_3, 0);
 
@@ -389,12 +237,12 @@ int main()
     player_0->set_current_field(field_3);
 
     // Create field with map#2 in editor scene
-    Field* field_4 = new Field("field_scene 1", &field_bg_texture, screenDimensions);
-    field_4->load_field(field_tex_map, 1);
+    Field* field_4 = new Field("field_scene 1", &resload.field_bg_texture, screenDimensions);
+    field_4->load_field(resload.field_tex_map, 1);
     field_4->player_0 = player_0;
     editor_scene->add_field(field_4, 1);
 
-    editor_scene->addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
+    editor_scene->addButton("main_menu", resload.UI_block["ESCAPE"], resload.UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
     editor_scene->addUI_element(main_ui_elements);
 
     loading_logger->info("Loaded fields");

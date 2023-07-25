@@ -18,9 +18,9 @@ using namespace sf;
 class Cell : public Drawable, public Transformable
 {
 private:
-    // texture corners on background texture
-    Vertex m_vertices[4];
-    const Texture* background;
+    // sprite to display texture
+    Sprite sprite;
+
     // placeable objects by name
     std::map <std::string, Cell_object*> objects;
 
@@ -32,11 +32,9 @@ public:
     std::string type_name;
 
     Cell(std::string name);
-    Cell(std::string name, Texture* background);
+    Cell(std::string name, Texture* background, IntRect texRect = IntRect(0, 0, 120, 120));
     // change tile texture and name
     void change_texture(std::string name, Texture* texture);
-    // change m_vertices
-    void addTexCoords(IntRect rect);
     // set position to Cell and all child objects
     void set_position_recursive(double x, double y);
     // is object in object map by name
@@ -49,6 +47,10 @@ public:
     void action_change(std::string name, Texture* texture);
     // save cell and child objects to json
     void save_cell(unsigned int x, unsigned int y, Json::Value& Location);
+
+    // overriding Transformable methods
+    void setPosition(const Vector2f &pos);
+    void setPosition(float x, float y);
 
     // overriding Drawable methods
     virtual void draw(RenderTarget& target, RenderStates states) const override;

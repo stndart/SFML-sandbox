@@ -1,46 +1,24 @@
 #include "Cell.h"
 
-Cell::Cell(std::string name) : background(NULL), type_name(name)
+Cell::Cell(std::string name) : type_name(name)
 {
     // Reaching out to global "map_events" logger by name
     map_events_logger = spdlog::get("map_events");
 }
 
-Cell::Cell(std::string name, Texture* texture) : background(texture), type_name(name)
+Cell::Cell(std::string name, Texture* texture, IntRect texRect) : type_name(name)
 {
     map_events_logger = spdlog::get("map_events");
 
-    /// MAGIC NUMBERS
-    addTexCoords(IntRect(0, 0, 120, 120));
+    sprite.setTexture(*texture);
+    sprite.setTextureRect(texRect);
 }
 
 // change tile texture and name
 void Cell::change_texture(std::string name, Texture* texture)
 {
-    /// potential bug: m_vertices uninitialized
-    background = texture;
     type_name = name;
-}
-
-// change m_vertices
-void Cell::addTexCoords(IntRect rect)
-{
-    cutout_texture_to_frame(m_vertices, rect);
-
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-    float left = static_cast<float>(rect.left) + 0.0001f;
-    float right = left + static_cast<float>(rect.width);
-    float top = static_cast<float>(rect.top);
-    float bottom = top + static_cast<float>(rect.height);
-
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+    sprite.setTexture(*texture);
 }
 
 // set position to Cell and all child objects
@@ -121,18 +99,26 @@ void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Loca
     }
 }
 
+// overriding Transformable methods
+void Cell::setPosition(const Vector2f &pos)
+{
+    Transformable::setPosition(pos);
+    sprite.setPosition(pos);
+}
+
+void Cell::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    sprite.setPosition(x, y);
+}
+
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
     states.transform *= getTransform();
-    if (background)
+    if (sprite.getTexture())
     {
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
+        target.draw(sprite);
     }
-//    for (auto obj : objects)
-//    {
-//        obj.second->draw(target, states);
-//    }
 }
 
 void Cell::draw_objects(RenderTarget& target, RenderStates states) const
