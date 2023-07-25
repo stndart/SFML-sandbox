@@ -48,7 +48,7 @@ private:
 
     // shape over which texture (or color) may be put
     std::unique_ptr<Shape> parent_shape;
-    // blend mode
+    // blend mode of this sprite
     sf::BlendMode sprite_blend_mode;
 
     // returns false if <newframe> is after <stop_after> or out of bounds
@@ -123,11 +123,6 @@ public:
 
     // paints shape with color. by default shape is transparent
     virtual void setColor(const Color& color);
-    /// currently not needed
-//    // sets texture to display in shape. Doesn't store it
-//    virtual void setTexture(Texture* texture);
-//    // returns current texture from shape
-//    Texture* getTexture() const;
 
     virtual Time animation_remaining_time() const;
     virtual Time animation_remaining_time(size_t to_frame) const;
