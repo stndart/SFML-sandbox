@@ -424,7 +424,14 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
         {
             // add cell
             std::string cell_type = Location["map"][x][y]["type"].asString();
-            cells[x][y] = new Cell(cell_type, field_block[cell_type]);
+
+            Vector2u cell_tex_size = Vector2u(Location["cell_texture_size"].get(Json::ArrayIndex(0), 0).asInt(),
+                                              Location["cell_texture_size"].get(Json::ArrayIndex(1), 0).asInt());
+            if (cell_tex_size.x == 0 || cell_tex_size.y == 0)
+                cell_tex_size = field_block[cell_type]->getSize();
+
+            IntRect cell_tex_coords = IntRect(cell_tex_size.x * x, cell_tex_size.y * y, cell_tex_size.x, cell_tex_size.y);
+            cells[x][y] = new Cell(cell_type, field_block[cell_type], cell_tex_coords);
 
             // add placeable objects to cell
             std::string object_type = "";
