@@ -52,7 +52,7 @@ void Scene_Field::change_current_field(int num)
         throw;
     }
 
-    field[num]->load_field(*field_tex_map, num);
+    //field[num]->load_field(*field_tex_map, num);
 
     field[num]->teleport_to();
 

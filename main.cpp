@@ -223,12 +223,12 @@ int main()
 
     // Create field with map#2.
     Field* field_1 = new Field("field_scene 1", &resload.field_bg_texture, screenDimensions);
-    field_1->load_field(resload.field_tex_map, 1);
+    field_1->load_field(resload.field_tex_map, 2);
     field_1->player_0 = player_0;
     field_scene->add_field(field_1, 1);
 
     // Create field with map#1 in editor scene
-    Field* field_3 = new Field("field_scene 0", &resload.field_bg_texture, screenDimensions);
+    Field* field_3 = new Field("editor_scene 0", &resload.field_bg_texture, screenDimensions);
     field_3->load_field(resload.field_tex_map, 0);
     field_3->player_0 = player_0;
     editor_scene->add_field(field_3, 0);
@@ -237,8 +237,8 @@ int main()
     player_0->set_current_field(field_3);
 
     // Create field with map#2 in editor scene
-    Field* field_4 = new Field("field_scene 1", &resload.field_bg_texture, screenDimensions);
-    field_4->load_field(resload.field_tex_map, 1);
+    Field* field_4 = new Field("editor_scene 1", &resload.field_bg_texture, screenDimensions);
+    field_4->load_field(resload.field_tex_map, 2);
     field_4->player_0 = player_0;
     editor_scene->add_field(field_4, 1);
 
