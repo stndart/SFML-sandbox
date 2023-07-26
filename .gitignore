@@ -37,3 +37,4 @@
 *.cbp
 *.depend
 *.layout
+*.cscope_file_list

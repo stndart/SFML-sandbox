@@ -40,6 +40,26 @@ name(name)
     animations[idle_animation]->addFrame(texrect, spritesheet_index);
 }
 
+Character::Character(string name, map<string, std::shared_ptr<Animation> > nanimations, FloatRect posrect) :
+moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
+current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
+movement_started(false), next_movement_planned(false), next_animation_dir(-1),
+name(name)
+{
+    // Reaching out to global "map_events" logger and "graphics" logger by names
+    map_events_logger = spdlog::get("map_events");
+    graphics_logger = spdlog::get("graphics");
+
+    animations = nanimations;
+    set_facing_direction(0);
+
+    base_sprite = new AnimatedSprite(name, animations[idle_animation], posrect);
+    moving_sprite = base_sprite;
+
+    /// MAGIC CONSTANT!
+    base_sprite->setFrameTime(seconds(0.01));
+}
+
 string Character::get_animation_name_by_shift(Vector2f shift, int direction, string animation_name) const
 {
     if (direction == -1)

@@ -23,13 +23,15 @@ using namespace sf;
 // Character has AnimatedSprite as a backbone and stores different Animations, which are activated with certain actions.
 // As Animations support Joints (possible animation binding frames), Character searches for a shortest sequence of Animations to switch to desired Animation.
 // Found Animation sequences are storedin <next_animations> and activated one after another automatically
-// Method <plan_movement> provides logic for animation sequencing when Character needs to be moved by <shift>
+// Method <plan_movement> provides logic for animation sequencing when Character needs to be moved by <shift> pixels on screen
 // Joints mechanic is optional and can be disabled. In this case, Character provides moving and displaying underlying AnimatedSprite.
 // Featured methods:
 // set_facing_direction: sets direction to which Character needs to be faced. It changes default idle animation, but won't have an impact immediately
 // add_animation: registers animation by name, otherwise it won't be scheduled when needed
-// plan_movement: saves next move (by shift in pixels) or animation as scheduled animation. If Joints enabled, transition is set and played automatically
+// plan_movement: saves next move (by screen shift shift in pixels) or animation as scheduled animation. If Joints enabled, transition is set and played automatically
 // order_completed: states if scheduled movement reached it's screen movement part. Resets flag after call
+
+// VE means VisualEffect
 
 struct AnimMovement
 {
@@ -53,14 +55,14 @@ string get_movement_animation_s(int direction);
 class Character : public Drawable, public Transformable
 {
 private:
-    // flag if VE is active
+    // flag if VE (VisualEffect) is active
     bool moving;
-    // flag if smooth movement is enabled (teleports otherwise)
-    /// DEPRECATED: backward compatibility required
+    // flag if smooth movement is enabled, otherwise Character teleports from one cell to another
+    /// TODO (DEPRECATED) - not implemented
     bool moving_enabled;
     // flag if has valid animation
     bool animated;
-    // flag if VE is started. Resets after call eponymous func
+    // flag if VE (VisualEffect) is started. Resets after call eponymous func
     bool is_order_completed;
     // flag ignoring joints (default: off)
     bool ignore_joints;
@@ -69,7 +71,7 @@ private:
     string current_animation;
     // animation name ends with facing direction: "movement_0"
     int facing_direction; // standard 0 - right, 1 - down, 2 - left, 3 - up
-    // direction and shift of current VE
+    // direction and shift of current VE (VisualEffect)
     int moving_direction;
     Vector2f moving_shift;
     // flag if Player needs to update self coordinates. Resets once checked
@@ -106,11 +108,9 @@ public:
 
     AnimatedSprite* moving_sprite;
     // default animation by name
-    // DEPRECATED ?
     string idle_animation;
 
     // set facing direction and change idle animation by direction (default: idle_animation_0)
-    // DEPRECATED(set) ?
     void set_facing_direction(int new_direction);
     int get_facing_direction() const;
 
@@ -128,7 +128,7 @@ public:
 
 public:
     Character(string name, Texture* texture_default, IntRect texrect, FloatRect posrect);
-    Character(string name, map<string, std::shared_ptr<Animation> > animations, FloatRect posrect); /// NOT IMPLEMENTED
+    Character(string name, map<string, std::shared_ptr<Animation> > animations, FloatRect posrect);
 
     // add animation to map by name
     void add_animation(string animation_name, std::shared_ptr<Animation> p_animation);
@@ -142,7 +142,7 @@ public:
     int get_next_movement_direction() const;
     // if next movement is scheduled
     bool is_next_movement_planned() const;
-    // if VE just started. Resets flag after call
+    // if VE (VisualEffect) just started. Resets flag after call
     bool order_completed();
 
     // gets current movement info
@@ -155,7 +155,7 @@ public:
     // pops and plays an animation from AnimMovement deque (VEs as well)
     void next_movement_start();
 
-    // stop and delete VE forcefully
+    // stop and delete VE (VisualEffect) forcefully
     void stop_movement_by_force();
     // flush animation queue by force
     void stop_animation_by_force();

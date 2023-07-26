@@ -1,8 +1,6 @@
 #ifndef EXTRA_ALGORITHMS
 #define EXTRA_ALGORITHMS
 
-#pragma once
-
 #include <iostream>
 #include <string>
 #include <memory>
