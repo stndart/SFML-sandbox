@@ -43,12 +43,15 @@ Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level
 {
     map_events_logger->debug("Adding object \"{}\" to cell with z-level {}", name, depth_level);
 
-    Cell_object* new_object;
+    Cell_object* new_object = new Cell_object(name, texture);
+
     /// Что за магическое число 120?
     if (name == "house")
-        new_object = new Cell_object(name, texture, IntRect(0, 0, 360, 240));
+        new_object->setDisplaySize(Vector2f(360, 240));
+    else if (name == "table")
+        new_object->setDisplaySize(Vector2f(240, 120));
     else
-        new_object = new Cell_object(name, texture, IntRect(0, 0, 120, 120));
+        new_object->setDisplaySize(Vector2f(120, 120));
 
     new_object->depth_level = depth_level;
     /// TODO: обработать, если objects[name] уже существует
@@ -114,10 +117,9 @@ void Cell::setPosition(float x, float y)
 
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
-    states.transform *= getTransform();
     if (sprite.getTexture())
     {
-        target.draw(sprite);
+        target.draw(sprite, states);
     }
 }
 

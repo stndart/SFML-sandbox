@@ -32,6 +32,8 @@ private:
     // 2d vector of cells
     std::vector<std::vector<Cell*> > cells;
 
+    // cell texture size
+    Vector2u cell_tex_size;
     // cell size in pixels
     double cell_length_x, cell_length_y;
     // index of center cell (usually that under player)

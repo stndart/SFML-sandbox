@@ -47,6 +47,8 @@
 		<Unit filename="Field.h" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.h" />
+		<Unit filename="ResourceLoader.cpp" />
+		<Unit filename="ResourceLoader.h" />
 		<Unit filename="Scene.cpp" />
 		<Unit filename="Scene.h" />
 		<Unit filename="SceneController.cpp" />

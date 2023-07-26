@@ -14,6 +14,8 @@ Field::Field(std::string name) : background(NULL), name(name), player_0(NULL)
     cell_center_x = 0;
     cell_center_y = 0;
 
+    cell_tex_size = Vector2u(120, 120);
+
     current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
     default_player_pos = Vector2i(1, 1);
     cells_changed = false;
@@ -68,7 +70,15 @@ void Field::addTexture(Texture* texture, IntRect rect)
 // add cell by indexes [x, y] with texture
 void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 {
-    cells[x][y] = new Cell("new_cell", texture);
+    // if cell_tex_size is (0, 0), then ask certain texture of her size
+    Vector2u temp_cell_tex_size = cell_tex_size;
+    if (temp_cell_tex_size.x == 0 || temp_cell_tex_size.y == 0)
+        temp_cell_tex_size = texture->getSize();
+
+    IntRect cell_tex_coords = IntRect(temp_cell_tex_size.x * x, temp_cell_tex_size.y * y,
+                                      temp_cell_tex_size.x, temp_cell_tex_size.y);
+
+    cells[x][y] = new Cell("new_cell", texture, cell_tex_coords);
     cells_changed = true;
 }
 
@@ -418,6 +428,9 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     default_player_pos.y = Location["default_player_pos"][1].asInt();
     field_resize(field_length, field_width);
 
+    cell_tex_size = Vector2u(Location["cell_texture_size"].get(Json::ArrayIndex(0), 0).asInt(),
+                                      Location["cell_texture_size"].get(Json::ArrayIndex(1), 0).asInt());
+
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
@@ -425,12 +438,13 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
             // add cell
             std::string cell_type = Location["map"][x][y]["type"].asString();
 
-            Vector2u cell_tex_size = Vector2u(Location["cell_texture_size"].get(Json::ArrayIndex(0), 0).asInt(),
-                                              Location["cell_texture_size"].get(Json::ArrayIndex(1), 0).asInt());
-            if (cell_tex_size.x == 0 || cell_tex_size.y == 0)
-                cell_tex_size = field_block[cell_type]->getSize();
+            // if cell_tex_size is (0, 0), then ask certain texture of her size
+            Vector2u temp_cell_tex_size = cell_tex_size;
+            if (temp_cell_tex_size.x == 0 || temp_cell_tex_size.y == 0)
+                temp_cell_tex_size = field_block[cell_type]->getSize();
 
-            IntRect cell_tex_coords = IntRect(cell_tex_size.x * x, cell_tex_size.y * y, cell_tex_size.x, cell_tex_size.y);
+            IntRect cell_tex_coords = IntRect(temp_cell_tex_size.x * x, temp_cell_tex_size.y * y,
+                                              temp_cell_tex_size.x, temp_cell_tex_size.y);
             cells[x][y] = new Cell(cell_type, field_block[cell_type], cell_tex_coords);
 
             // add placeable objects to cell
