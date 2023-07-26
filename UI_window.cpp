@@ -1,17 +1,23 @@
 #include "UI_window.h"
 
-UI_window::UI_window(std::string name, sf::IntRect UIFrame, bool is_framed) : UI_element(name, UIFrame),
+UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, bool is_framed) : UI_element(name, UIFrame, parent),
 isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
     displayed = true;
 }
 
 // adds UI_element into set with z_index
-void UI_window::addElement(UI_element* new_element, int z_index)
+void UI_window::addElement(std::shared_ptr<UI_element> new_element, int z_index)
 {
     displayed = true;
 
+    new_element->z_index = z_index;
     elements.insert(std::make_pair(z_index, new_element));
+}
+
+void UI_window::deleteElement(std::shared_ptr<UI_element> element)
+{
+    elements.erase(std::make_pair(element->z_index, element));
 }
 
 // mouse hover check
@@ -35,7 +41,7 @@ bool UI_window::is_clicked() const
 }
 
 // pushes hovered element
-void UI_window::push_click(sf::Vector2f cursor)
+void UI_window::push_click(sf::Vector2f cursor, bool controls_blocked)
 {
     input_logger->trace("Window {} clicked at {}x{}", name, cursor.x, cursor.y);
 
@@ -55,10 +61,10 @@ void UI_window::push_click(sf::Vector2f cursor)
         // find the clicked child and remember
         for (auto pi : elements)
         {
-            UI_element* uie = pi.second;
+            std::shared_ptr<UI_element> uie = pi.second;
             if (uie->contains(cursor))
             {
-                uie->push_click(cursor);
+                uie->push_click(cursor, controls_blocked);
                 clicked_child = uie;
                 break;
             }
@@ -67,7 +73,7 @@ void UI_window::push_click(sf::Vector2f cursor)
 }
 
 // releases push (and invokes callback if hovered element is pushed)
-void UI_window::release_click(sf::Vector2f cursor, bool skip_action)
+void UI_window::release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action)
 {
     input_logger->trace("Window {} released from {}x{}", name, cursor.x, cursor.y);
 
@@ -76,7 +82,7 @@ void UI_window::release_click(sf::Vector2f cursor, bool skip_action)
     // transfer event to pushed child. If <skip_action>, no callback is called regardless of <cursor>
     if (clicked_child)
     {
-        clicked_child->release_click(cursor, skip_action);
+        clicked_child->release_click(cursor, controls_blocked, skip_action);
         clicked_child = NULL;
     }
 }

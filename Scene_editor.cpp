@@ -1,6 +1,6 @@
 #include "Scene_editor.h"
 
-Scene_editor::Scene_editor(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, field_blocks),
+Scene_editor::Scene_editor(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, screensize, field_blocks),
 s_input(""), input_focus(false)
 {
     // None
@@ -158,28 +158,33 @@ void Scene_editor::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->set_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(3);
                 //field[current_field]->move_player(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->set_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(0);
                 //field[current_field]->move_player(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->set_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(1);
                 //field[current_field]->move_player(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->set_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(2);
                 //field[current_field]->move_player(2);
                 break;
             case sf::Keyboard::Space:
-                field[current_field]->action((*field_tex_map)["stump"]);
-                break;
-            case sf::Keyboard::Tab:
-                change_current_field((current_field+1)%2);
+                if (!controls_blocked)
+                    field[current_field]->action((*field_tex_map)["stump"]);
                 break;
             default:
+                // if key is not set in contols, check dynamic bindings
+                if (!controls_blocked)
+                    evaluate_bound_callbacks(event.key.code);
                 break;
             }
         }
@@ -191,16 +196,20 @@ void Scene_editor::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->release_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->release_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->release_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->release_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(2);
                 break;
             default:
                 break;
@@ -237,7 +246,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             /// WHY?
             if (UI_update_mouse(curPos, event, command_main))
                 return;
-            Interface->push_click(curPos);
+            Interface->push_click(curPos, controls_blocked);
             break;
 
         default:
@@ -254,7 +263,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
             /// WHY?
             if (UI_update_mouse(curPos, event, command_main))
                 return;
-            Interface->release_click(curPos);
+            Interface->release_click(curPos, controls_blocked);
             break;
 
         default:
@@ -265,7 +274,8 @@ void Scene_editor::update(Event& event, std::string& command_main)
 
 void Scene_editor::update(Time deltaTime)
 {
-    field[current_field]->update(deltaTime);
+    Scene_Field::update(deltaTime);
+
 /**
     пишет в левом верхнем углу текущий тип клетки
 
@@ -277,17 +287,8 @@ void Scene_editor::update(Time deltaTime)
 
 void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 {
-    /*if (background)
-    {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
-    }*/
-    if (current_field != -1)
-    {
-        field[current_field]->draw(target, states);
-    }
-    draw_scene_Interface(target, states);
+    Scene_Field::draw(target, states);
+
     if (s_input != "")
     {
         Font font;
@@ -304,16 +305,4 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
         text.setPosition(0, 0);
         target.draw(text);
     }
-    draw_scene_buttons(target, states);
 }
-
-/// TEMP
-// MyFirstSceneEditor constructor
-Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
-{
-    Scene_editor editor_scene(std::string("editor_scene"), field_blocks); // FIX (pointer)
-    editor_scene.add_Field(bg, length, width, field_blocks, player_texture, screen_dimensions, num);
-    return editor_scene;
-}
-

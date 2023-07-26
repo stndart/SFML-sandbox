@@ -13,14 +13,15 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_sinks.h"
 
-#include "extra_algorithms.h"
-
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
 #include "SceneController.h"
+#include "UI_button.h"
+#include "extra_algorithms.h"
+#include "Callbacks.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -53,7 +54,8 @@ int main()
     {
         // load loggers and log sinks
         string logfile_path = "logs/log.txt"; /// TEMP (to config file)
-        auto logfile_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logfile_path);
+        // truncate = true - means delete log on startup
+        auto logfile_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logfile_path, true);
         auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_st>();
         spdlog::sinks_init_list sink_list = {logfile_sink, stdout_sink};
         // create synchronous loggers
@@ -63,9 +65,14 @@ int main()
         graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
         loading_logger->set_level(spdlog::level::trace);
-        input_logger->set_level(spdlog::level::info);
+        input_logger->set_level(spdlog::level::trace);
         map_events_logger->set_level(spdlog::level::info);
         graphics_logger->set_level(spdlog::level::info);
+
+        loading_logger->flush_on(spdlog::level::trace);
+        input_logger->flush_on(spdlog::level::trace);
+        map_events_logger->flush_on(spdlog::level::trace);
+        graphics_logger->flush_on(spdlog::level::trace);
 
         stdout_sink->set_level(spdlog::level::debug);
         logfile_sink->set_level(spdlog::level::trace);
@@ -266,7 +273,7 @@ int main()
 ///----------------------------------------= UI_elements =-----------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    vector <UI_element*> main_ui_elements;
+    vector<shared_ptr<UI_element> > main_ui_elements;
     {
         IntRect m1;
         m1.left = 0;
@@ -276,7 +283,7 @@ int main()
         m1.height = v1.y;
         Animation tAn(UI_block["horizontal_column"]);
         tAn.addFrame(m1, 0);
-        //UI_button* element1 = new UI_button("horizontal", m1, &tAn);
+        //shared_ptr<UI_button> element1("horizontal", m1, &tAn);
         //main_ui_elements.push_back(element1);
 
         IntRect m2;
@@ -285,7 +292,7 @@ int main()
         Vector2u v2 = UI_block["horizontal_column"]->getSize();
         m2.width = v2.x;
         m2.height = v2.y;
-        //UI_button* element2 = new UI_button("horizontal", m2, &tAn);
+        //shared_ptr<UI_button> element2("horizontal", m2, &tAn);
         //main_ui_elements.push_back(element2);
 
         IntRect m3;
@@ -296,7 +303,7 @@ int main()
         m3.height = v3.y;
         Animation tAn2(UI_block["vertical_column"]);
         tAn2.addFrame(m3, 0);
-        //UI_button* element3 = new UI_button("vertical", m3, &tAn2);
+        //shared_ptr<UI_button> element3("vertical", m3, &tAn2);
         //main_ui_elements.push_back(element3);
 
         IntRect m4;
@@ -305,7 +312,7 @@ int main()
         Vector2u v4 = UI_block["vertical_column"]->getSize();
         m4.width = v4.x;
         m4.height = v4.y;
-        //UI_button* element4 = new UI_button("vertical", m4, &tAn2);
+        //shared_ptr<UI_button> element4("vertical", m4, &tAn2);
         //main_ui_elements.push_back(element4);
 
 //////////////////////////////////////////////////////////////////
@@ -320,7 +327,7 @@ int main()
         tAnb.addFrame(mb1, 0);
         tAnb.addSpriteSheet(UI_block["ESCAPE_pushed"]);
         tAnb.addFrame(mb1, 1);
-        //UI_button* elementb1 = new UI_button("main_menu_button", mb1, &tAnb);
+        //shared_ptr<UI_button> elementb1("main_menu_button", mb1, &tAnb);
         //main_ui_elements.push_back(elementb1);
     }
 
@@ -337,13 +344,13 @@ int main()
     // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader through config json
     shared_ptr<Scene> main_menu = new_menu_scene(&menu_texture, &new_button_texture, &new_button_pushed_texture, screenDimensions);
     // Add button with text to desired position. Textures are passed via name->texture* map "UI_block"
-    main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_window_closed_callback(window), "top left");
+    main_menu->addButton("ESCAPE", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, "top left", create_window_closed_callback(window));
 
     // Create field scene. At first it is inactive. Name and textures are passed
-    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), &field_tex_map);
+    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), screenDimensions, &field_tex_map);
 
     // Create editor scene. At first it is inactive. Scenes are swapped with callbacks to SceneController
-    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), &field_tex_map);
+    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), screenDimensions, &field_tex_map);
 
     // Set default scene. It is displayed first
     SceneController scene_controller;
@@ -394,7 +401,11 @@ int main()
     field_4->player_0 = player_0;
     editor_scene->add_field(field_4, 1);
 
-    editor_scene->addButton("main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, create_change_scene_callback(editor_scene, "main_menu"), "top left");
+    // return to main menu button
+    editor_scene->addButton("to_main_menu", UI_block["ESCAPE"], UI_block["ESCAPE_pushed"], 1820, 0, "top left", create_change_scene_callback(editor_scene, "main_menu"));
+
+    editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(editor_scene));
+
     editor_scene->addUI_element(main_ui_elements);
 
     loading_logger->info("Loaded fields");
@@ -405,6 +416,8 @@ int main()
 
     // Well, because we start with main menu
     scene_controller.set_current_scene("main_menu");
+
+    loading_logger->info("Starting main loop");
 
     // main loop
     while (window->isOpen())
@@ -441,7 +454,10 @@ int main()
         // clear previous frame and draw from scratch
         window->clear();
         if (cur_scene)
+        {
+            cur_scene->draw_buffers();
             window->draw(*cur_scene);
+        }
 
         window->display();
 

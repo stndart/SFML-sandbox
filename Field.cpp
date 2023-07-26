@@ -98,13 +98,11 @@ void Field::addPlayer(Texture* player_texture, Vector2i pos)
     if (pos == Vector2i(-1, -1))
         pos = default_player_pos;
 
-    map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
-
-    player_0 = std::make_shared<Player>("default_player", player_texture, IntRect(120, 0, 120, 120));
+    player_0 = std::make_shared<Player>("default_player", player_texture, FloatRect(0, 0, 120, 120));
     player_0->set_current_field(this);
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
-    Animation* idle_animation = new Animation();
+    std::shared_ptr<Animation> idle_animation = std::make_shared<Animation>();
     idle_animation->addSpriteSheet(player_texture);
     /// MAGIC NUMBERS!
     idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
@@ -129,21 +127,19 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     if (pos == Vector2i(-1, -1))
         pos = default_player_pos;
 
-    map_events_logger->info("Adding player to field with pos {}x{}", pos.x, pos.y);
-
     Texture* p_tex = new Texture;
     if (!p_tex->loadFromFile("Images/Flametail/default.png"))
     {
         loading_logger->error("Failed to load texture");
         throw;
     }
-
     /// TODO: change to no-default-texture-player
-    player_0 = std::make_shared<Player>("animated_player", p_tex, IntRect(0, 0, frame_size.x, frame_size.y));
+    player_0 = std::make_shared<Player>("animated_player", p_tex, FloatRect(0, 0, frame_size.x, frame_size.y));
     player_0->set_current_field(this);
+    map_events_logger->trace("Created player");
 
     // create default animation with some magic constants (to be resolved with addition of resources manager)
-    Animation* idle_animation_0 = new Animation();
+    std::shared_ptr<Animation> idle_animation_0 = make_shared<Animation>();
     idle_animation_0->load_from_file(animation_filenames[0], frame_size);
     idle_animation_0->add_joint(-1, "idle_animation_0", 1);
 
@@ -163,7 +159,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     idle_animation_0->add_joint(30, "movement_2", 1);
     idle_animation_0->add_joint(35, "movement_2", 1);
 
-    Animation* idle_animation_2 = new Animation();
+    std::shared_ptr<Animation> idle_animation_2 = make_shared<Animation>();
     idle_animation_2->load_from_file(animation_filenames[1], frame_size);
     idle_animation_2->add_joint(-1, "idle_animation_2", 1);
 
@@ -183,22 +179,24 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     idle_animation_2->add_joint(30, "movement_2", 1);
     idle_animation_2->add_joint(35, "movement_2", 1);
 
-    Animation* movement_0 = new Animation();
+    std::shared_ptr<Animation> movement_0 = make_shared<Animation>();
     movement_0->load_from_file(animation_filenames[2], frame_size);
     movement_0->add_joint(-1, "movement_0", 1);
     movement_0->add_joint(-1, "idle_animation_0", 1);
 
-    Animation* movement_2 = new Animation();
+    std::shared_ptr<Animation> movement_2 = make_shared<Animation>();
     movement_2->load_from_file(animation_filenames[3], frame_size);
     movement_2->add_joint(-1, "movement_2", 1);
     movement_2->add_joint(-1, "idle_animation_2", 1);
+
+    map_events_logger->trace("Field: created 4 animations, joints joined");
 
     player_0->add_animation("idle_animation_0", idle_animation_0);
     player_0->add_animation("idle_animation_2", idle_animation_2);
     player_0->add_animation("movement_0", movement_0);
     player_0->add_animation("movement_2", movement_2);
 
-    map_events_logger->trace("Field: created 4 animations, joints joined");
+    map_events_logger->trace("Field: added 4 animations to player");
 
     // fit sprite into cell (horizontally)
     /// MAGIC NUMBERS!
@@ -388,9 +386,26 @@ void Field::update_view_center()
     {
         view_center = player_0->getPosition();
     }
+
     view_center = check_view_bounds(view_center);
 
     current_view.setCenter(view_center);
+}
+
+// get view rectangle
+FloatRect Field::getViewport() const
+{
+//    map_events_logger->info("VIEWPORT {}x{}", current_view.getViewport().left, current_view.getViewport().top);
+//    map_events_logger->info("VIEWPORT center {}x{}", current_view.getCenter().x, current_view.getCenter().y);
+    Vector2f topleft = current_view.getCenter() - Vector2f(current_view.getSize().x / 2.0f, current_view.getSize().y / 2.0f);
+    Vector2f getsize = current_view.getSize();
+    return FloatRect(topleft.x, topleft.y, getsize.x, getsize.y);
+}
+
+// get Cell size
+Vector2f Field::getCellSize() const
+{
+    return Vector2f(cell_length_x, cell_length_y);
 }
 
 // load field and cells from json file <Locations/loc_%loc_id%>

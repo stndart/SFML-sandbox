@@ -21,7 +21,6 @@ void SceneController::add_scene(std::string name, std::shared_ptr<Scene> scene)
 
     // sets new map with scen_contoller as self
     scene_map[name]->set_scene_controller(*this);
-    loading_logger->info("Setting to {} weak_ptr to self", name);
 }
 
 // switches current scene
@@ -29,6 +28,12 @@ void SceneController::set_current_scene(std::string name)
 {
     loading_logger->info("Changing scene to {}", name);
 
+    if (scene_map[cur_scene_name]->has_callbacks())
+    {
+        loading_logger->warn("Discarding callbacks due to scene change");
+    }
+
+    scene_map[cur_scene_name]->cancel_callbacks();
     cur_scene_name = name;
 }
 

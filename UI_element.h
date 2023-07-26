@@ -25,15 +25,20 @@ class UI_element : public sf::Drawable, public sf::Transformable
         // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)
         bool focus;
 
+        // Scene at which this element is displayed
+        Scene* parent_scene;
+
         std::shared_ptr<spdlog::logger> loading_logger, input_logger;
 
     public:
         std::string name;
         // is displayed or hidden;
         bool displayed;
+        // z-index, at which it is displayed in <parent_scene>
+        int z_index;
 
-        UI_element(std::string name, sf::IntRect UIFrame);
-        UI_element(std::string name, sf::IntRect UIFrame, Animation* spritesheet);
+        UI_element(std::string name, sf::IntRect UIFrame, Scene* parent);
+        UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* spritesheet);
 
         // Frame_scale setter/getter
         void setFrame(sf::IntRect new_frame_scale);
@@ -52,9 +57,9 @@ class UI_element : public sf::Drawable, public sf::Transformable
         bool contains(sf::Vector2f cursor) const;
 
         // pushes hovered element
-        virtual void push_click(sf::Vector2f cursor);
+        virtual void push_click(sf::Vector2f cursor, bool controls_blocked=false);
         // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
-        virtual void release_click(sf::Vector2f cursor, bool skip_action=false);
+        virtual void release_click(sf::Vector2f cursor, bool controls_bloacked=false, bool skip_action=false);
 
         // overriding Transformable methods
         virtual void move(const Vector2f &offset);

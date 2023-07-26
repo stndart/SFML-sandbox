@@ -23,16 +23,13 @@ class Scene_editor : public Scene_Field
         void save_map();
 
     public:
-        Scene_editor(std::string name, std::map <std::string, Texture*> *field_tex_map);
+        Scene_editor(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_tex_map);
 
         // overriding Drawable methods
         virtual void update(Event& event, std::string& command_main);
         virtual void update(Time deltaTime);
+        // we don't want to override it... but Tima's loading fonts there
         virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
 
-/// TEMP
-// MyFirstSceneEditor constructor
-Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num);
-#endif // SCENE_EDITOR_H_INCLUDED
+#endif  // SCENE_EDITOR_H_INCLUDED

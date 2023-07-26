@@ -1,14 +1,26 @@
 #include "Scene.h"
 #include "SceneController.h"
 
-Scene::Scene(std::string name) : background(NULL), name(name)
+int Scene::UI_Z_INDEX = 10;
+
+Scene::Scene(std::string name, Vector2i screensize) : timer(seconds(0)), background(NULL), controls_blocked(false), name(name)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
     // Create new user interface
-    Interface = new UI_window("Interface", IntRect(0, 0, 1920, 1080));
+    IntRect UIFrame(0, 0, screensize.x, screensize.y);
+    Interface = new UI_window("Interface", UIFrame, this);
+
+    // add to drawables index
+    sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface));
+
+    if (!framebuffer.create(screensize.x, screensize.y))
+    {
+        loading_logger->critical("Couldn't construct framebuffer");
+        throw;
+    }
 }
 
 // sets scene controller to invoke callbacks of switching scenes
@@ -36,15 +48,48 @@ void Scene::addTexture(Texture* texture, IntRect rect)
     cutout_texture_to_frame(m_vertices, rect);
 }
 
-void Scene::addSprite(AnimatedSprite* sprite)
+void Scene::addSprite(AnimatedSprite* sprite, int z_index, bool to_frame_buffer)
 {
-    loading_logger->debug("Added sprite \"{}\" to scene", sprite->name);
+    loading_logger->trace("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, (int)to_frame_buffer);
 
-    sprites.push_back(sprite);
+    if (!to_frame_buffer)
+    {
+        sprites.push_back(sprite);
+        sprite->z_index = z_index;
+        sorted_drawables.insert(make_pair(z_index, sprite));
+    }
+    else
+    {
+        sprites_to_framebuffer.push_back(sprite);
+        sprite->z_index = z_index;
+        sorted_drawables_to_framebuffer.insert(make_pair(z_index, sprite));
+    }
+}
+
+// deletes all sprites either from framebuffer or not
+void Scene::delete_sprites(bool from_frame_buffer)
+{
+    if (!from_frame_buffer)
+    {
+        for (auto s : sprites)
+        {
+            sorted_drawables.erase(make_pair(s->z_index, s));
+        }
+        sprites.clear();
+    }
+    else
+    {
+        for (auto s : sprites_to_framebuffer)
+        {
+            sorted_drawables_to_framebuffer.erase(make_pair(s->z_index, s));
+        }
+        sprites_to_framebuffer.clear();
+    }
 }
 
 // add and place button
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame, std::function<void()> ncallback, std::string origin)
+std::shared_ptr<UI_button> Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame,
+                                            std::string origin, std::function<void()> ncallback)
 {
     loading_logger->debug("Added button \"{}\" to scene", name);
 
@@ -61,7 +106,7 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 
     loading_logger->warn("Created new Animation for button: MEMORY LEAK");
 
-    UI_button* new_button = new UI_button(name, pos_frame, tAn, ncallback);
+    std::shared_ptr<UI_button> new_button = std::make_shared<UI_button>(UI_button(name, pos_frame, this, tAn, ncallback));
     // default origin is "center"
     if (origin == "center")
     {
@@ -80,18 +125,21 @@ void Scene::addButton(std::string name, Texture* texture_default, Texture* textu
 
     // register new button to Interface
     Interface->addElement(new_button);
+
+    return new_button;
 }
 
-void Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y, std::function<void()> ncallback, std::string origin)
+std::shared_ptr<UI_button> Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y,
+                                            std::string origin, std::function<void()> ncallback)
 {
     // creating animation frame from args
     Vector2u tex_size = texture_default->getSize();
     IntRect pos_frame(pos_x, pos_y, tex_size.x, tex_size.y);
 
-    addButton(name, texture_default, texture_released, pos_frame, ncallback, origin);
+    return addButton(name, texture_default, texture_released, pos_frame, origin, ncallback);
 }
 
-void Scene::addUI_element(std::vector<UI_element*> &new_ui_elements)
+void Scene::addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements)
 {
     loading_logger->debug("Added ui elements[{}] to scene", new_ui_elements.size());
 
@@ -109,7 +157,7 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
     {
         if (Interface->contains(curPos))
         {
-            Interface->push_click(curPos);
+            Interface->push_click(curPos, controls_blocked);
             return true;
         }
     }
@@ -117,11 +165,71 @@ bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_
     {
         if (Interface->is_clicked())
         {
-            Interface->release_click(curPos);
+            Interface->release_click(curPos, controls_blocked);
             return Interface->contains(curPos);
         }
     }
     return false;
+}
+
+// schedule callback to call after <t> seconds
+void Scene::add_callback(std::function<void()> callback, Time t)
+{
+    if (!callback)
+    {
+        input_logger->error("Adding empty callback");
+        throw;
+    }
+
+    scheduled_callbacks[timer + t].push_back(std::move(callback));
+}
+
+// cancels callback
+void Scene::cancel_callbacks()
+{
+    scheduled_callbacks.clear();
+    callbacks_to_call.clear();
+}
+
+bool Scene::has_callbacks() const
+{
+    return !callbacks_to_call.empty();
+}
+
+// bind callback to keys on the keyboard
+void Scene::bind_callback(sf::Keyboard::Key keycode, std::function<void()> callback, Time t)
+{
+    bound_callbacks[keycode].push_back(std::make_pair(callback, t));
+}
+
+// set callbacs array for the key
+void Scene::set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks)
+{
+    reset_bind(keycode);
+    bound_callbacks[keycode] = callbacks;
+}
+
+// deletes all callbacks bound to key
+void Scene::reset_bind(sf::Keyboard::Key keycode)
+{
+    bound_callbacks[keycode].clear();
+    bound_callbacks.erase(keycode);
+}
+
+// evaluate all callbacks bount to key
+void Scene::evaluate_bound_callbacks(sf::Keyboard::Key keycode)
+{
+    input_logger->debug("Key {} calling callback", (int)keycode);
+    if (bound_callbacks.count(keycode) == 0)
+    {
+        input_logger->debug("No callbacks bound to key {}", (int)keycode);
+        return;
+    }
+
+    for (std::pair<std::function<void()>, sf::Time> callpair : bound_callbacks[keycode])
+    {
+        add_callback(callpair.first, callpair.second);
+    }
 }
 
 void Scene::update(Event& event, std::string& command_main)
@@ -136,13 +244,6 @@ void Scene::update(Event& event, std::string& command_main)
         case Mouse::Left:
             // if mouse hovers UI (not buttons) then skip
             if (UI_update_mouse(curPos, event, command_main)) return;
-            for (auto s : sprites)
-            {
-                if (s->getGlobalBounds().contains(curPos))
-                {
-                    s->onClick(true);
-                }
-            }
             break;
 
         default:
@@ -156,15 +257,6 @@ void Scene::update(Event& event, std::string& command_main)
         {
         case Mouse::Left:
             if (UI_update_mouse(curPos, event, command_main)) return;
-            for (auto s : sprites)
-            {
-                // if release mouse over any sprite then switch scene to editor scene
-                if (s->getGlobalBounds().contains(curPos))
-                {
-                    s->onClick(false);
-                    command_main = "editor_scene";
-                }
-            }
             break;
 
         default:
@@ -175,53 +267,96 @@ void Scene::update(Event& event, std::string& command_main)
 
 void Scene::update(Time deltaTime)
 {
+//    input_logger->trace("Scene::update callbacks size {}", scheduled_callbacks.size());
+
+    // scheduled callbacks logic
+    timer += deltaTime;
+
+    callbacks_to_call.clear();
+    // now check for expired timers and remove after callback calls
+    while (!scheduled_callbacks.empty() && scheduled_callbacks.begin()->first <= timer)
+    {
+        for (auto callback : scheduled_callbacks.begin()->second)
+            callbacks_to_call.push_back(std::move(callback));
+
+        // erase outdated timers
+        scheduled_callbacks.erase(scheduled_callbacks.begin());
+    }
+    // now evaluating saved callbacks
+    while (!callbacks_to_call.empty())
+    {
+        callbacks_to_call.front()();
+
+        // because callback can empty this deque
+        if (!callbacks_to_call.empty())
+            callbacks_to_call.pop_front();
+    }
+
     for (auto s : sprites)
     {
-        s->getGlobalBounds();
-        /// ???
-        deltaTime += seconds(0.00002f);
+        s->update(deltaTime);
+    }
+    for (auto s : sprites_to_framebuffer)
+    {
         s->update(deltaTime);
     }
 }
 
-void Scene::draw_scene_back(RenderTarget& target, RenderStates states) const
+// draw all framebuffers (because <draw> is const)
+void Scene::draw_buffers()
 {
+    RenderStates states;
+    framebuffer.clear(sf::Color::Transparent);
+
+    auto p = sorted_drawables_to_framebuffer.begin();
+    for (; p != sorted_drawables_to_framebuffer.end(); ++p)
+    {
+        if (p->first > UI_Z_INDEX)
+            break;
+
+        // if valid drawable, then draw it
+        if (p->second)
+            framebuffer.draw(*p->second);
+    }
+
+    framebuffer.display();
+}
+
+void Scene::draw(RenderTarget& target, RenderStates states) const
+{
+    // draw scene back
     if (background)
     {
         states.transform *= getTransform();
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
     }
-}
 
-void Scene::draw_scene_buttons(RenderTarget& target, RenderStates states) const
-{
-    for (std::size_t i = 0; i < sprites.size(); ++i)
-        if (sprites[i])
-            target.draw(*sprites[i]);
-}
+    auto p = sorted_drawables.begin();
+    for (; p != sorted_drawables.end(); ++p)
+    {
+        //break; /// dont draw field
+        if (p->first > UI_Z_INDEX)
+            break;
 
-void Scene::draw_scene_Interface(RenderTarget& target, RenderStates states) const
-{
-    if (Interface)
-        Interface->draw(target, states);
-}
+        // if valid drawable, then draw it
+        if (p->second)
+            target.draw(*p->second);
+    }
 
-void Scene::draw(RenderTarget& target, RenderStates states) const
-{
-    draw_scene_back(target, states);
-    draw_scene_buttons(target, states);
-    draw_scene_Interface(target, states);
+    sf::Sprite framebuffer_sprite(framebuffer.getTexture());
+    target.draw(framebuffer_sprite, states);
 }
 
 /// TEMP
 // MyFirstScene constructor
 std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
 {
-    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu");
+    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu", screen_dimensions);
     main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));
     main_menu->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 
+    /// is it really an error?
     if (new_button == new_button_pressed)
     {
         spdlog::get("loading")->error("Same textures for pressed/released button");
@@ -235,7 +370,7 @@ std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture*
     std::function<void()> ncallback = create_change_scene_callback(main_menu, "Scene_editor");
     spdlog::get("loading")->debug("Constructed callback");
 
-    main_menu->addButton("button", new_button, new_button_pressed, button_frame, ncallback);
+    main_menu->addButton("button", new_button, new_button_pressed, button_frame, "center", ncallback);
     spdlog::get("loading")->debug("Constructed button");
 
     return main_menu;

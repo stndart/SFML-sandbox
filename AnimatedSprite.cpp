@@ -1,41 +1,65 @@
 #include "AnimatedSprite.h"
 
-AnimatedSprite::AnimatedSprite(std::string name, Time frameTime, bool paused, bool looped, bool reversible) :
-    m_texture(NULL), m_animation(NULL),
-    m_frameTime(frameTime), m_currentFrame(0), frame_stop_after(0),
-    m_isLooped(looped), m_isReversed(false), m_isReversible(reversible),
-    m_currentTime(seconds(0)), m_isPaused(paused), duration(seconds(0)), passed_after_stop(seconds(0)),
-    name(name)
+// creates ASrite with given shape and position. Shape can have texture with texcoords set
+// shape is unchangeable after initialization
+// accepts origin as well. Default it top-left
+AnimatedSprite::AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin, int z_ind, sf::BlendMode blend_mode) : m_position(pos),
+m_frameTime(seconds(0)), m_currentFrame(0), frame_stop_after(-1), m_isLooped(false), m_isReversed(false), m_isReversible(false),
+parent_shape(std::move(shape)), sprite_blend_mode(blend_mode),
+m_currentTime(seconds(0)), m_isPaused(true), passed_after_stop(seconds(0)),
+name(name), z_index(z_ind)
 {
+    // Reaching out to global "loading" logger and "graphics" logger by names
+    loading_logger = spdlog::get("loading");
     graphics_logger = spdlog::get("graphics");
+
+    setPosition(m_position);
+    setOrigin(origin);
+
+    m_animation = std::shared_ptr<Animation>{nullptr};
 }
 
-AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect frame0) :
-    m_frameTime(seconds(0.2f)), m_currentFrame(0), frame_stop_after(0),
-    m_isLooped(true), m_isReversed(false), m_isReversible(false),
-    m_currentTime(seconds(0)), m_isPaused(true), duration(seconds(0)), passed_after_stop(seconds(0)),
-    name(name)
+// creates ASprite with rectangular shape of <posrect> size and position and <texrect> texture coordinates
+AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect texrect, FloatRect posrect, Vector2f origin, int z_ind, sf::BlendMode blend_mode) :
+    AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind, blend_mode)
 {
-    // Reaching out to global "graphics" logger by names
-    graphics_logger = spdlog::get("graphics");
+    // set to 0th frame and reset time
+    setFrame(0, true);
+}
 
-    m_animation = new Animation();
-    m_animation->addFrame(frame0);
-    m_animation->setSpriteSheet(texture);
-    setFrame(m_currentFrame);
+// creates ASprite with given animation and parameters (frametime, paused, looped, reversible)
+AnimatedSprite::AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, FloatRect posrect, Vector2f origin,
+               Time frameTime, bool looped, bool reversible, int z_ind, sf::BlendMode blend_mode) :
+    AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind, blend_mode)
+{
+    if (animation->getSize() == 0)
+    {
+        loading_logger->error("Trying to construct ASprite with empty Animation");
+        throw; /// ходят слухи, что throw в конструкторе - выстрел в ногу
+    }
+
+    m_animation = animation;
+    m_frameTime = frameTime;
+    m_isLooped = looped;
+    m_isReversible = reversible;
+
+    // set to 0th frame and reset time
+    setFrame(0, true);
 }
 
 // Load animation, spritesheet and set current frame to 0
-void AnimatedSprite::setAnimation(Animation* animation)
+void AnimatedSprite::setAnimation(std::shared_ptr<Animation> animation)
 {
     m_animation = animation;
-    m_texture = m_animation->getSpriteSheet();
 
-    m_currentFrame = 0;
-    setFrame(m_currentFrame);
-    stop_after(m_animation->getSize() - 1);
+    // set to 0th frame and reset time
+    setFrame(0, true);
+}
 
-    duration = m_frameTime * (float)m_animation->getSize();
+// for external uses after VisualEffect inheritance
+std::shared_ptr<Animation> AnimatedSprite::getAnimation()
+{
+    return m_animation;
 }
 
 void AnimatedSprite::setFrameTime(Time time)
@@ -58,22 +82,20 @@ void AnimatedSprite::play(std::size_t frame_start, Time shift)
     setFrame(frame_start);
     m_currentTime = shift;
     play();
-    //update();
 }
 
 // set Animation, cur_time and then play
-void AnimatedSprite::play(Animation* animation, Time shift)
+void AnimatedSprite::play(std::shared_ptr<Animation> animation, Time shift)
 {
     graphics_logger->trace("play with shift: {}", shift.asSeconds());
 
     setAnimation(animation);
     m_currentTime = shift;
     play();
-    //update();
 }
 
 // set Animation, cur_frame, cur_time and then play
-void AnimatedSprite::play(Animation* animation, std::size_t frame_start, Time shift)
+void AnimatedSprite::play(std::shared_ptr<Animation> animation, std::size_t frame_start, Time shift)
 {
     graphics_logger->trace("play with shift: {}", shift.asSeconds());
 
@@ -100,19 +122,23 @@ void AnimatedSprite::stop()
     m_currentFrame = 0;
     setFrame(m_currentFrame);
 }
-// sets frame to stop after
+
+// sets frame to stop after. -1 means last frame
 void AnimatedSprite::stop_after(int frame)
 {
     if (!m_animation)
     {
-        frame_stop_after = 0;
+        frame_stop_after = -1;
         return;
     }
 
     if (frame != -1)
-        frame_stop_after = (std::size_t)frame;
+        frame_stop_after = frame;
     else
         frame_stop_after = m_animation->getSize() - 1;
+
+    // if asked to stop after x, then unloop
+    setLooped(false);
 }
 
 // replays animation from the beginning after the end is reached
@@ -132,66 +158,6 @@ void AnimatedSprite::setReversed(bool reversed)
 void AnimatedSprite::setReversible(bool reversible)
 {
     m_isReversible = reversible;
-}
-
-// paints texture with color ROFL; by default transparent
-void AnimatedSprite::setColor(const Color& color)
-{
-    // Update the vertices' color
-    m_vertices[0].color = color;
-    m_vertices[1].color = color;
-    m_vertices[2].color = color;
-    m_vertices[3].color = color;
-}
-
-Animation* AnimatedSprite::getAnimation()
-{
-    return m_animation;
-}
-
-void AnimatedSprite::move(const Vector2f &offset)
-{
-    Transformable::move(offset);
-}
-
-void AnimatedSprite::rotate(float angle)
-{
-    Transformable::rotate(angle);
-}
-
-void AnimatedSprite::scale(const Vector2f &factor)
-{
-    Transformable::scale(factor);
-}
-
-FloatRect AnimatedSprite::getLocalBounds() const
-{
-    return FloatRect(m_animation->getFrame(m_currentFrame));
-}
-
-FloatRect AnimatedSprite::getGlobalBounds() const
-{
-    return getTransform().transformRect(getLocalBounds());
-}
-
-Vector2f AnimatedSprite::getPosition() const
-{
-    return Transformable::getPosition();
-}
-
-void AnimatedSprite::setPosition(const Vector2f &position)
-{
-    Transformable::setPosition(position);
-}
-
-void AnimatedSprite::setScale(const Vector2f &factors)
-{
-    Transformable::setScale(factors);
-}
-
-void AnimatedSprite::setScale(float factorX, float factorY)
-{
-    Transformable::setScale(factorX, factorY);
 }
 
 bool AnimatedSprite::isLooped() const
@@ -226,17 +192,14 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
     if (m_animation)
     {
         m_currentFrame = newFrame;
-        //calculate new vertex positions and texture coordiantes
-        IntRect rect = m_animation->getFrame(newFrame);
 
-        cutout_texture_to_frame(m_vertices, rect);
-
-        // Ensure correct texture is selected
-        m_texture = m_animation->getTexture(newFrame);
+        // set to new frame in spritesheet
+        parent_shape->setTexture(m_animation->getTexture(m_currentFrame));
+        parent_shape->setTextureRect(m_animation->getFrame(m_currentFrame));
     }
 
     if (resetTime)
-        m_currentTime = Time::Zero;
+        m_currentTime = seconds(0);
 }
 
 size_t AnimatedSprite::getFrame() const
@@ -244,19 +207,13 @@ size_t AnimatedSprite::getFrame() const
     return m_currentFrame;
 }
 
-Time AnimatedSprite::time_after_stop() const
+// paints texture with color ROFL; by default transparent
+void AnimatedSprite::setColor(const Color& color)
 {
-    return passed_after_stop;
-}
-
-// whole animation duration
-Time AnimatedSprite::get_duration() const
-{
-    return duration;
+    parent_shape->setFillColor(color);
 }
 
 // get time until animation ends. Ignores m_Looped. Takes m_Reversible and m_Reversed into account
-/// Not tested after repair
 Time AnimatedSprite::animation_remaining_time() const
 {
     if (m_animation)
@@ -264,7 +221,7 @@ Time AnimatedSprite::animation_remaining_time() const
         if (isReversed())
             return animation_remaining_time(frame_stop_after - 1);
         else
-            return animation_remaining_time(frame_stop_after + 1);
+            return animation_remaining_time(frame_stop_after);
     }
     else
         return seconds(0);
@@ -320,6 +277,114 @@ Time AnimatedSprite::movement_remaining_time() const
     return seconds(0);
 }
 
+Time AnimatedSprite::time_after_stop() const
+{
+    return passed_after_stop;
+}
+
+void AnimatedSprite::move(const Vector2f &shift)
+{
+    Transformable::move(shift);
+    parent_shape->move(shift);
+}
+
+void AnimatedSprite::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    parent_shape->rotate(angle);
+}
+
+void AnimatedSprite::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    parent_shape->scale(factor);
+}
+
+FloatRect AnimatedSprite::getLocalBounds() const
+{
+    return parent_shape->getLocalBounds();
+}
+
+FloatRect AnimatedSprite::getGlobalBounds() const
+{
+    return parent_shape->getGlobalBounds();
+}
+
+const Vector2f& AnimatedSprite::getPosition() const
+{
+    return Transformable::getPosition();
+}
+
+float AnimatedSprite::getRotation() const
+{
+    return Transformable::getRotation();
+}
+
+const Vector2f& AnimatedSprite::getScale() const
+{
+    return Transformable::getScale();
+}
+
+void AnimatedSprite::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+    parent_shape->setPosition(position);
+}
+
+void AnimatedSprite::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    parent_shape->setPosition(x, y);
+}
+
+void AnimatedSprite::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    parent_shape->setScale(factors);
+}
+
+void AnimatedSprite::setScale(float factorX, float factorY)
+{
+    Transformable::setScale(factorX, factorY);
+    parent_shape->setScale(factorX, factorY);
+}
+
+void AnimatedSprite::setOrigin(const Vector2f &origin)
+{
+    Transformable::setOrigin(origin);
+    parent_shape->setOrigin(origin);
+}
+
+void AnimatedSprite::setOrigin(float x, float y)
+{
+    Transformable::setOrigin(x, y);
+    parent_shape->setOrigin(x, y);
+}
+
+bool AnimatedSprite::is_frame_valid(int newframe)
+{
+    // when no animation, then no frame is valid
+    if (!m_animation)
+    {
+        return false;
+    }
+    else
+    {
+        // out of bounds error
+        if (newframe < 0 && newframe >= (int)m_animation->getSize())
+            return false;
+        else if (frame_stop_after == -1)
+            return true;
+        else // if frame_stop_after is valid and frame is in bounds
+        {
+            if (!m_isReversed)
+                return newframe <= frame_stop_after;
+            else
+                return newframe >= frame_stop_after;
+        }
+    }
+}
+
 void AnimatedSprite::update(Time deltaTime)
 {
     // if not paused and we have a valid animation
@@ -341,21 +406,21 @@ void AnimatedSprite::update(Time deltaTime)
                 break;
             }
             // get next frame index
-            size_t nextFrame;
+            int nextFrame;
             if (!m_isReversed)
                 nextFrame = m_currentFrame + 1;
             else
                 nextFrame = m_currentFrame - 1;
 
             // if next frame index is valid
-            if (nextFrame <= frame_stop_after && nextFrame >= 0) {
+            if (is_frame_valid(nextFrame)) {
                 m_currentFrame = nextFrame;
             }
             // animation has reached last frame
             else
             {
                 // normal animation end
-                if (frame_stop_after == m_animation->getSize() - 1)
+                if (frame_stop_after == -1)
                 {
                     if (m_isReversed)
                     {
@@ -415,31 +480,13 @@ void AnimatedSprite::update(Time deltaTime)
 //                           !m_isPaused, m_currentTime.asSeconds(), passed_after_stop.asSeconds(), deltaTime.asSeconds());
 }
 
-void AnimatedSprite::redraw(RenderTarget& target, RenderStates states) const
-{
-    draw(target, states);
-}
-
 // standard draw method. Draws only if animation is valid
 void AnimatedSprite::draw(RenderTarget& target, RenderStates states) const
 {
-    if (m_animation && m_texture)
-    {
-        states.transform *= getTransform();
-        states.texture = m_texture;
-        target.draw(m_vertices, 4, Quads, states);
-    }
-}
+//    graphics_logger->trace("drawing AS {} with color {}.{}.{} and blend mode alpha? {}", name,
+//                          parent_shape->getFillColor().r, parent_shape->getFillColor().g, parent_shape->getFillColor().b,
+//                          (int)(sprite_blend_mode == sf::BlendAlpha));
 
-// stops and plays animation (for buttons)
-void AnimatedSprite::onClick(bool pressed)
-{
-    if (pressed)
-    {
-        play();
-    }
-    else
-    {
-        stop();
-    }
+    states.blendMode = sprite_blend_mode;
+    target.draw(*parent_shape, states);
 }
