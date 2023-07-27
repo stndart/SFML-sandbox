@@ -10,7 +10,7 @@
 #include "Cell_object.h"
 #include "extra_algorithms.h"
 
-#include <jsoncpp/json.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/Sprite.hpp>
 
@@ -52,7 +52,7 @@ public:
     // invoke action by name. texture - temporary variable, used for creating <stump>
     void action_change(std::string name, Texture* texture);
     // save cell and child objects to json
-    void save_cell(unsigned int x, unsigned int y, Json::Value& Location);
+    void save_cell(unsigned int x, unsigned int y, nlohmann::json& Location);
 
     // set blocking
     void set_in_block(int direction, bool block=true);

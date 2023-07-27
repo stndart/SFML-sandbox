@@ -1,0 +1,9 @@
+[submodule "external/SFML"]
+	path = external/SFML
+	url = git@github.com:SFML/SFML.git
+[submodule "external/spdlog"]
+	path = external/spdlog
+	url = git@github.com:gabime/spdlog.git
+[submodule "external/json"]
+	path = external/json
+	url = git@github.com:nlohmann/json.git
