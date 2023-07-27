@@ -8,6 +8,8 @@
 #include <memory>
 
 // logging library
+#include "SFML/Window/VideoMode.hpp"
+#include "SFML/Window/WindowStyle.hpp"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_sinks.h"
@@ -91,7 +93,7 @@ int main()
     /// TODO: try-catch (lookup error type)
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2i screenDimensions(1920, 1080);
-    shared_ptr<RenderWindow> window = make_shared<RenderWindow>(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
+    shared_ptr<RenderWindow> window = make_shared<RenderWindow>(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
 //    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
     window->setFramerateLimit(60);
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
