@@ -1,12 +1,12 @@
 #include "Cell.h"
 
-Cell::Cell(std::string name) : type_name(name)
+Cell::Cell(std::string name) : blocking(0), type_name(name)
 {
     // Reaching out to global "map_events" logger by name
     map_events_logger = spdlog::get("map_events");
 }
 
-Cell::Cell(std::string name, Texture* texture, IntRect texRect) : type_name(name)
+Cell::Cell(std::string name, Texture* texture, IntRect texRect) : blocking(0), type_name(name)
 {
     map_events_logger = spdlog::get("map_events");
 
@@ -100,6 +100,28 @@ void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Loca
         Location["big_objects"][cell_x][cell_y][i]["depth_level"] = zindex;
         i++;
     }
+}
+
+// set blocking
+void Cell::set_in_block(int direction, bool block)
+{
+    blocking[direction] = block;
+}
+
+void Cell::set_out_block(int direction, bool block)
+{
+    blocking[direction + 4] = block;
+}
+
+// ask blocking
+bool Cell::has_in_block(int direction) const
+{
+    return blocking[direction];
+}
+
+bool Cell::has_out_block(int direction) const
+{
+    return blocking[direction + 4];
 }
 
 // overriding Transformable methods
