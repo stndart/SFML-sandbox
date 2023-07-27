@@ -1,4 +1,3 @@
-#include <conio.h>
 #include <map>
 #include <cassert>
 #include <filesystem>
@@ -9,9 +8,9 @@
 #include <memory>
 
 // logging library
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/stdout_sinks.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 #include "extra_algorithms.h"
 
