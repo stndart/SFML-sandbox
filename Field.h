@@ -32,6 +32,8 @@ private:
     // 2d vector of cells
     std::vector<std::vector<Cell*> > cells;
 
+    // size of field onscreen. Used to update view position
+    Vector2u field_screen_size;
     // cell texture size
     Vector2u cell_tex_size;
     // cell size in pixels
@@ -47,7 +49,11 @@ private:
     bool cells_changed;
 
     // returns view center with field boundaries check
-    Vector2f check_view_bounds(Vector2f view_center);
+    Vector2f correct_view_bounds(Vector2f view_center);
+
+    // FloatRect containing all possible view center coords
+    // If view center is located outside this rect, field borders become visible
+    FloatRect get_valid_view_center_rect(bool has_border = true);
 
     std::shared_ptr<spdlog::logger> map_events_logger, loading_logger;
 
@@ -57,8 +63,8 @@ public:
     // player that is controlled by user. It is the only player. Controls are bound to it
     std::shared_ptr<Player> player_0;
 
-    Field(std::string name);
-    Field(std::string name, Texture* bg_texture, Vector2i screenDimensions);
+    Field(std::string name, Vector2u screenDimensions);
+    Field(std::string name, Texture* bg_texture, Vector2u screenDimensions);
 
     // update background with texture, View size with rect, m_vertices with rect as well
     void addTexture(Texture* texture, IntRect rect);
@@ -121,6 +127,6 @@ public:
 
 // MyFirstFieldConstructor (to be removed)
 Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width,
-                 Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions);
+                 Texture* cell_texture, Texture* player_texture, Vector2u screen_dimensions);
 
 #endif // FIELD_INCLUDE

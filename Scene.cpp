@@ -216,7 +216,7 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
 
 /// TEMP
 // MyFirstScene constructor
-std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
+std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2u screen_dimensions)
 {
     std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu");
     main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));

@@ -1,14 +1,19 @@
 #include "Cell.h"
 
-Cell::Cell(std::string name) : blocking(0), type_name(name)
+Cell::Cell(std::string name) : blocking(0), type_name(name), displayed(true)
 {
     // Reaching out to global "map_events" logger by name
     map_events_logger = spdlog::get("map_events");
 }
 
-Cell::Cell(std::string name, Texture* texture, IntRect texRect) : blocking(0), type_name(name)
+Cell::Cell(std::string name, Texture* texture, IntRect texRect) : Cell::Cell(name)
 {
     map_events_logger = spdlog::get("map_events");
+
+    for (int i = 0; i < 8; ++i)
+    {
+        blocking[i] = false;
+    }
 
     sprite.setTexture(*texture);
     sprite.setTextureRect(texRect);
@@ -39,25 +44,40 @@ bool Cell::hasObject(std::string name)
 }
 
 // add object with name and z-coordinate
-Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
+Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, IntRect tex_rect, int depth_level)
 {
     map_events_logger->debug("Adding object \"{}\" to cell with z-level {}", name, depth_level);
 
     Cell_object* new_object = new Cell_object(name, texture);
 
-    /// Что за магическое число 120?
-    if (name == "house")
-        new_object->setDisplaySize(Vector2f(360, 240));
-    else if (name == "table")
-        new_object->setDisplaySize(Vector2f(240, 120));
-    else
-        new_object->setDisplaySize(Vector2f(120, 120));
+    new_object->addTexCoords(tex_rect);
+    new_object->setDisplaySize(display_size);
 
     new_object->depth_level = depth_level;
     /// TODO: обработать, если objects[name] уже существует
     objects[name] = new_object;
     return new_object;
 }
+
+Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, int depth_level)
+{
+    IntRect tex_rect(Vector2i(0, 0), Vector2i(texture->getSize()));
+    return addObject(name, texture, display_size, tex_rect, depth_level);
+}
+
+Cell_object* Cell::addObject(std::string name, Texture* texture, IntRect tex_rect, int depth_level)
+{
+    Vector2f display_size(texture->getSize());
+    return addObject(name, texture, display_size, tex_rect, depth_level);
+}
+
+Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
+{
+    IntRect tex_rect(Vector2i(0, 0), Vector2i(texture->getSize()));
+    Vector2f display_size(texture->getSize());
+    return addObject(name, texture, display_size, tex_rect, depth_level);
+}
+
 
 // remove object from map by name
 void Cell::removeObject(std::string name)
@@ -78,7 +98,7 @@ void Cell::action_change(std::string name, Texture* texture)
     removeObject(name);
     if (name == "tree")
     {
-        addObject("stump", texture, 1);
+        addObject("stump", texture, IntRect(0, 0, 120, 120), 1);
     }
 }
 
@@ -105,12 +125,31 @@ void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Loca
 // set blocking
 void Cell::set_in_block(int direction, bool block)
 {
+    if (type_name == "table")
+        map_events_logger->trace("Setting {} IN blocking {} in direction {}", type_name, block, direction);
+
     blocking[direction] = block;
 }
 
 void Cell::set_out_block(int direction, bool block)
 {
+    if (type_name == "table")
+        map_events_logger->trace("Setting {} OUT blocking {} in direction {}", type_name, block, direction);
+
     blocking[direction + 4] = block;
+}
+
+// update blocking: change only if block = true
+void Cell::update_in_block(int direction, bool block)
+{
+    if (block)
+        set_in_block(direction, block);
+}
+
+void Cell::update_out_block(int direction, bool block)
+{
+    if (block)
+        set_out_block(direction, block);
 }
 
 // ask blocking
@@ -139,7 +178,7 @@ void Cell::setPosition(float x, float y)
 
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
-    if (sprite.getTexture())
+    if (sprite.getTexture() && displayed)
     {
         target.draw(sprite, states);
     }

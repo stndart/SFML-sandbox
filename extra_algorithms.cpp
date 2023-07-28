@@ -47,6 +47,22 @@ int direction_from_shift(sf::Vector2f shift)
     return direction;
 }
 
+sf::Vector2f save_aspect_ratio(sf::Vector2f new_size, sf::Vector2f old_size)
+{
+    sf::Vector2f aspect_ratio_2f = sf::Vector2f(new_size.x / old_size.x, new_size.y / old_size.y);
+
+    // if new size is not specified (0, 0), then stick with old size
+    // if only one component is not specified (x, 0), then save aspect ratio
+    if (aspect_ratio_2f.x == 0)
+        aspect_ratio_2f.x = (aspect_ratio_2f.y == 0) ? 1 : aspect_ratio_2f.y;
+    if (aspect_ratio_2f.y == 0)
+        aspect_ratio_2f.y = aspect_ratio_2f.x;
+    
+    float aspect_ratio = std::min(aspect_ratio_2f.x, aspect_ratio_2f.y);
+
+    return old_size * aspect_ratio;
+}
+
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to)
 {
     std::function<void()> callback = [scene, scene_to]{

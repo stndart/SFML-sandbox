@@ -34,7 +34,7 @@ public:
     /// TEMP
     // create field, add by index
     void add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num);
+                            Texture* player_texture, Vector2u screen_dimensions, int num);
     // swap to field by index
     void change_current_field(int num);
     /// TEMP
@@ -48,8 +48,8 @@ public:
     virtual void release_player_movement_direction(int direction);
 
     // overriding Drawable methods
-    virtual void update(Event& event, std::string& command_main);
-    virtual void update(Time deltaTime);
+    void update(Event& event, std::string& command_main) override;
+    void update(Time deltaTime) override;
     void draw(RenderTarget& target, RenderStates states) const override;
 
     ///TEMP
@@ -60,5 +60,5 @@ public:
 };
 
 Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num);
+                            Texture* player_texture, Vector2u screen_dimensions, int num);
 #endif // SCENE_FIELD_H_INCLUDED

@@ -16,6 +16,8 @@ std::string re_name(std::string path);
 // get direction from vector2f movement; Direction is enumerate 0, 1, 2, 3: east, south, west, north
 int direction_from_shift(sf::Vector2f shift);
 
+sf::Vector2f save_aspect_ratio(sf::Vector2f new_size, sf::Vector2f old_size);
+
 // creates callback to change scene in SceneController
 std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to);
 // creates callback that closes window

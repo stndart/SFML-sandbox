@@ -19,6 +19,9 @@
 /obj/*
 /build/*
 /test/*
+/Release/*
+/Debug/*
+/RelWithDebInfo/*
 
 # Resources
 /Images/archive/*
@@ -27,7 +30,6 @@
 jsoncpp/*
 spdlog/*
 SFML/*
-.vscode/*
 
 # images sources
 /Images/resources/*
@@ -44,3 +46,5 @@ SFML/*
 
 !**/CMakeLists.txt
 test/CMakeLists.txt
+.vscode/settings.json
+.vscode/c_cpp_properties.json

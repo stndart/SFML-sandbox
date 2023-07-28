@@ -62,9 +62,9 @@ int main()
         map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
         graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
-        loading_logger->set_level(spdlog::level::trace);
+        loading_logger->set_level(spdlog::level::debug);
         input_logger->set_level(spdlog::level::info);
-        map_events_logger->set_level(spdlog::level::info);
+        map_events_logger->set_level(spdlog::level::trace);
         graphics_logger->set_level(spdlog::level::info);
 
         stdout_sink->set_level(spdlog::level::debug);
@@ -90,7 +90,7 @@ int main()
 
     /// TODO: try-catch (lookup error type)
     // Window initial setup: resolution, name, fulscreen, fps
-    Vector2i screenDimensions(1920, 1080);
+    Vector2u screenDimensions(1920, 1080);
     shared_ptr<RenderWindow> window = make_shared<RenderWindow>(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
 //    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
     window->setFramerateLimit(60);

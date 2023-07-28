@@ -267,7 +267,7 @@ void Scene_editor::update(Time deltaTime)
 {
     field[current_field]->update(deltaTime);
 /**
-    пишет в левом верхнем углу текущий тип клетки
+    пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
     int a = field[current_field]->player_0->x_cell_coord;
     int b = field[current_field]->player_0->y_cell_coord;
@@ -310,7 +310,7 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 /// TEMP
 // MyFirstSceneEditor constructor
 Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
+                            Texture* player_texture, Vector2u screen_dimensions, int num)
 {
     Scene_editor editor_scene(std::string("editor_scene"), field_blocks); // FIX (pointer)
     editor_scene.add_Field(bg, length, width, field_blocks, player_texture, screen_dimensions, num);

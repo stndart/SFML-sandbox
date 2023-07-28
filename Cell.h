@@ -36,6 +36,8 @@ protected:
 public:
     // tile type
     std::string type_name;
+    // if sprite is displayed
+    bool displayed;
 
     Cell(std::string name);
     Cell(std::string name, Texture* background, IntRect texRect = IntRect(0, 0, 120, 120));
@@ -47,6 +49,9 @@ public:
     bool hasObject(std::string name);
     // add object with name and z-coordinate
     Cell_object* addObject(std::string name, Texture* texture, int depth_level);
+    Cell_object* addObject(std::string name, Texture* texture, IntRect tex_rect, int depth_level);
+    Cell_object* addObject(std::string name, Texture* texture, Vector2f display_size, int depth_level);
+    Cell_object* addObject(std::string name, Texture* texture, Vector2f display_size, IntRect tex_rect, int depth_level);
     // remove object from map by name
     void removeObject(std::string name);
     // invoke action by name. texture - temporary variable, used for creating <stump>
@@ -57,6 +62,9 @@ public:
     // set blocking
     void set_in_block(int direction, bool block=true);
     void set_out_block(int direction, bool block=true);
+    // update blocking: change only if block = true
+    void update_in_block(int direction, bool block=true);
+    void update_out_block(int direction, bool block=true);
     // ask blocking
     bool has_in_block(int direction) const;
     bool has_out_block(int direction) const;

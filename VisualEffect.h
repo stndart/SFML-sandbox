@@ -69,7 +69,7 @@ public:
     Vector2f getPosition() const override;
     void setPosition(const Vector2f &position) override;
 
-    virtual bool isPlaying() const;
+    bool isPlaying() const override;
     virtual Time animation_remaining_time() const override;
     // overriding same method from AnimatedSprite. Now makes sense
     virtual Time movement_remaining_time() const override;

@@ -28,7 +28,7 @@ void Scene_Field::add_field(Field* field_to_add, int num)
 /// TEMP
 // create field, add by index
 void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
+                            Texture* player_texture, Vector2u screen_dimensions, int num)
 {
     loading_logger->trace("Create field #{} to scene", num);
 
@@ -162,7 +162,7 @@ void Scene_Field::draw(RenderTarget& target, RenderStates states) const
 }
 
 Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
+                            Texture* player_texture, Vector2u screen_dimensions, int num)
 {
     Scene_Field field_scene(std::string("field_scene"), field_blocks); // FIX (pointer)
     field_scene.add_Field(bg, length, width, field_blocks, player_texture, screen_dimensions, num);
