@@ -30,6 +30,7 @@
 jsoncpp/*
 spdlog/*
 SFML/*
+imgui.ini
 
 # images sources
 /Images/resources/*
