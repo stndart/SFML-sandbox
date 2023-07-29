@@ -48,3 +48,4 @@ SFML/*
 test/CMakeLists.txt
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+*.cscope_file_list

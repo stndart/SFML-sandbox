@@ -1,6 +1,9 @@
 #include "Scene_Field.h"
 
-Scene_Field::Scene_Field(std::string name, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name), field_tex_map(field_blocks)
+int Scene_Field::FIELD_Z_INDEX = 0;
+
+Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize),
+field_tex_map(field_blocks)
 {
     loading_logger = spdlog::get("loading");
     map_events_logger = spdlog::get("map_events");
@@ -19,10 +22,9 @@ void Scene_Field::add_field(Field* field_to_add, int num)
     loading_logger->trace("Add field #{} to scene", num);
 
     field[num] = field_to_add;
+
     if (current_field == -1)
-    {
-        current_field = num;
-    }
+        change_current_field(num);
 }
 
 /// TEMP
@@ -34,16 +36,21 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 
     Field* field_0 = new_field(bg, length, width, (*field_blocks)["null"], player_texture, screen_dimensions);
     field[num] = field_0;
+
     if (current_field == -1)
-    {
-        current_field = num;
-    }
+        change_current_field(num);
 }
 
-// swap to field by index
+// swap to field by index. If index is -1, then switch cyclically
 void Scene_Field::change_current_field(int num)
 {
-    map_events_logger->trace("Changed current field to {}", num);
+    if (num == -1)
+        num = (current_field + 1) % field_N;
+
+    map_events_logger->trace("Changing current field to {}", num);
+
+    // unload current field from drawables index
+    sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, field[current_field]));
 
     current_field = num;
 
@@ -52,11 +59,10 @@ void Scene_Field::change_current_field(int num)
         throw;
     }
 
-    //field[num]->load_field(*field_tex_map, num);
+    // load new current field to drawables index
+    sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, field[current_field]));
 
     field[num]->teleport_to();
-
-    map_events_logger->info("Changed field to #{}", num);
 }
 
 /// TEMP
@@ -64,6 +70,48 @@ void Scene_Field::change_current_field(int num)
 void Scene_Field::load_field(int num, std::string who_call)
 {
     field[num]->load_field(*field_tex_map, num);
+}
+
+FloatRect Scene_Field::getPlayerLocalBounds() const
+{
+    FloatRect bounds = FloatRect(0, 0, 0, 0);
+    if (current_field != -1)
+    {
+        bounds = field[current_field]->player_0->getLocalBounds();
+        bounds.left -= field[current_field]->getViewport().left;
+        bounds.top -= field[current_field]->getViewport().top;
+    }
+    return bounds;
+}
+
+FloatRect Scene_Field::getPlayerGlobalBounds() const
+{
+    FloatRect bounds = FloatRect(0, 0, 0, 0);
+    if (current_field != -1)
+    {
+        bounds = field[current_field]->player_0->getGlobalBounds();
+        // doesn't work, when view is boundary-blocked
+        // if (field[current_field]->player_0->is_moving())
+        // {
+        //     bounds.left = (float)field[current_field]->player_0->x_cell_coord * field[current_field]->getCellSize().x;
+        //     bounds.top = (float)field[current_field]->player_0->y_cell_coord * field[current_field]->getCellSize().y;
+        // }
+        bounds.left -= field[current_field]->getViewport().left;
+        bounds.top -= field[current_field]->getViewport().top;
+    }
+    return bounds;
+}
+
+void Scene_Field::block_controls(bool blocked)
+{
+    map_events_logger->debug("Blocked controls {}", blocked);
+
+    controls_blocked = blocked;
+    if (blocked)
+    {
+        for (int i = 0; i < 4; ++i)
+            release_player_movement_direction(i);
+    }
 }
 
 void Scene_Field::set_player_movement_direction(int direction)
@@ -93,24 +141,28 @@ void Scene_Field::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->set_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->set_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->set_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->set_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->set_player_movement_direction(2);
                 break;
             case sf::Keyboard::Space:
                 field[current_field]->action((*field_tex_map)["stump"]);
                 break;
-            case sf::Keyboard::Tab:
-                change_current_field((current_field+1)%2);
-                break;
             default:
+                // if key is not set in contols, check dynamic bindings
+                if (!controls_blocked)
+                    evaluate_bound_callbacks(event.key.code);
                 break;
             }
         }
@@ -119,16 +171,20 @@ void Scene_Field::update(Event& event, std::string& command_main)
             switch (event.key.code)
             {
             case sf::Keyboard::W:
-                field[current_field]->release_player_movement_direction(3);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
-                field[current_field]->release_player_movement_direction(0);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
-                field[current_field]->release_player_movement_direction(1);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
-                field[current_field]->release_player_movement_direction(2);
+                if (!controls_blocked)
+                    field[current_field]->release_player_movement_direction(2);
                 break;
             default:
                 break;
@@ -139,32 +195,10 @@ void Scene_Field::update(Event& event, std::string& command_main)
 
 void Scene_Field::update(Time deltaTime)
 {
+    Scene::update(deltaTime);
+
     if (current_field != -1)
     {
         field[current_field]->update(deltaTime);
     }
-}
-
-void Scene_Field::draw(RenderTarget& target, RenderStates states) const
-{
-    /// WHY?
-    /*if (background)
-    {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
-    }*/
-    if (current_field != -1)
-    {
-        field[current_field]->draw(target, states);
-    }
-    draw_scene_Interface(target, states);
-}
-
-Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2u screen_dimensions, int num)
-{
-    Scene_Field field_scene(std::string("field_scene"), field_blocks); // FIX (pointer)
-    field_scene.add_Field(bg, length, width, field_blocks, player_texture, screen_dimensions, num);
-    return field_scene;
 }

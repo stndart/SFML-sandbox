@@ -23,7 +23,7 @@ class Scene_editor : public Scene_Field
         void save_map();
 
     public:
-        Scene_editor(std::string name, std::map <std::string, Texture*> *field_tex_map);
+        Scene_editor(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_tex_map);
 
         // overriding Drawable methods
         void update(Event& event, std::string& command_main) override;

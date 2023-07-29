@@ -16,7 +16,7 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character(string name, Texture *texture_default, IntRect frame0) :
+Character::Character(string name, Texture *texture_default, IntRect texrect, FloatRect posrect) :
 moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
 current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
@@ -26,17 +26,38 @@ name(name)
     map_events_logger = spdlog::get("map_events");
     graphics_logger = spdlog::get("graphics");
 
-    base_sprite = new AnimatedSprite(name, texture_default, frame0);
+    base_sprite = new AnimatedSprite(name, texture_default, texrect, posrect);
+    moving_sprite = base_sprite;
+    setPosition(posrect.getPosition());
 
     /// MAGIC CONSTANT!
     base_sprite->setFrameTime(seconds(0.01));
 
-    moving_sprite = base_sprite;
     set_facing_direction(0);
 
-    animations[idle_animation] = new Animation();
+    animations[idle_animation] = std::make_shared<Animation>();
     int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
-    animations[idle_animation]->addFrame(frame0, spritesheet_index);
+    animations[idle_animation]->addFrame(texrect, spritesheet_index);
+}
+
+Character::Character(string name, map<string, std::shared_ptr<Animation> > nanimations, FloatRect posrect) :
+moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
+current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
+movement_started(false), next_movement_planned(false), next_animation_dir(-1),
+name(name)
+{
+    // Reaching out to global "map_events" logger and "graphics" logger by names
+    map_events_logger = spdlog::get("map_events");
+    graphics_logger = spdlog::get("graphics");
+
+    animations = nanimations;
+    set_facing_direction(0);
+
+    base_sprite = new AnimatedSprite(name, animations[idle_animation], posrect);
+    moving_sprite = base_sprite;
+
+    /// MAGIC CONSTANT!
+    base_sprite->setFrameTime(seconds(0.01));
 }
 
 string Character::get_animation_name_by_shift(Vector2f shift, int direction, string animation_name) const
@@ -281,7 +302,7 @@ deque<Joint> Character::find_next_joint(string animation_name) const
 }
 
 // add animation to map by name
-void Character::add_animation(string animation_name, Animation* p_animation)
+void Character::add_animation(string animation_name, std::shared_ptr<Animation> p_animation)
 {
     animations[animation_name] = p_animation;
     for (Joint j : p_animation->get_joints())
@@ -559,10 +580,60 @@ void Character::stop_animation_by_force()
     // the rest is up to update
 }
 
+
+void Character::move(const Vector2f &offset)
+{
+    Transformable::move(offset);
+    moving_sprite->move(offset);
+}
+
+void Character::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    moving_sprite->rotate(angle);
+}
+
+void Character::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    moving_sprite->scale(factor);
+}
+
+FloatRect Character::getLocalBounds() const
+{
+    return moving_sprite->getLocalBounds();
+}
+
+FloatRect Character::getGlobalBounds() const
+{
+    return moving_sprite->getGlobalBounds();
+}
+
+const Vector2f& Character::getPosition() const
+{
+    return moving_sprite->getPosition();
+}
+
+float Character::getRotation() const
+{
+    return moving_sprite->getRotation();
+}
+
+const Vector2f& Character::getScale() const
+{
+    return moving_sprite->getScale();
+}
+
 void Character::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
     moving_sprite->setPosition(position);
+}
+
+void Character::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    moving_sprite->setPosition(x, y);
 }
 
 void Character::setScale(const Vector2f &factors)
@@ -571,9 +642,22 @@ void Character::setScale(const Vector2f &factors)
     moving_sprite->setScale(factors);
 }
 
-Vector2f Character::getPosition() const
+void Character::setScale(float factorX, float factorY)
 {
-    return moving_sprite->getPosition();
+    Transformable::setScale(factorX, factorY);
+    moving_sprite->setScale(factorX, factorY);
+}
+
+void Character::setOrigin(const Vector2f &origin)
+{
+    Transformable::setOrigin(origin);
+    moving_sprite->setOrigin(origin);
+}
+
+void Character::setOrigin(float x, float y)
+{
+    Transformable::setOrigin(x, y);
+    moving_sprite->setOrigin(x, y);
 }
 
 void Character::update(Time deltaTime)

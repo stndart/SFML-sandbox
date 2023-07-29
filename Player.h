@@ -16,6 +16,12 @@ class Field;
 
 using namespace sf;
 
+// Player binds keyboard input with animated Character
+// Player contains pressed directions, blocking information and player coordinates
+// When arrows or WASD pressed, call <add_movement_direction> when released, call <release_movement_direction> to cancel order
+// You can manually move Player with move_player
+// Transformable methods (setPosition, etc.) overriden to work with contained Character
+
 struct Movement
 {
     int direction;
@@ -27,7 +33,7 @@ struct Movement
 class Player : public Drawable, public Transformable
 {
 private:
-    Character* sprite;
+    std::unique_ptr<Character> sprite;
     // removes "blocking checked" from movements queue
     void reset_blocking_check();
 
@@ -48,8 +54,9 @@ public:
     // smooth movement flag
     bool movement_animation; /// NOT IMPLEMENTED (look Character::moving_enabled)
 
+public:
     Player(std::string name);
-    Player(std::string name, Texture* texture, IntRect frame0);
+    Player(std::string name, Texture* texture, FloatRect posrect);
 
     // current_field pointer setter/getter
     void set_current_field(Field* nfield);
@@ -71,6 +78,8 @@ public:
     void setPosition(const Vector2f &position);
     Vector2f getPosition() const;
     void setScale(const Vector2f &factors);
+    FloatRect getLocalBounds() const;
+    FloatRect getGlobalBounds() const;
 
     // overriding Drawable methods
     void update(Time deltaTime);
@@ -78,7 +87,7 @@ public:
 
     /// TEMP
     // interface to sprite methods
-    void add_animation(string animation_name, Animation* p_animation);
+    void add_animation(string animation_name, std::shared_ptr<Animation> p_animation);
     void set_animation(string animation_name);
 };
 

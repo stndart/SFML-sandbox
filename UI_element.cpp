@@ -1,9 +1,9 @@
 #include "UI_element.h"
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame) :
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     background(NULL), cur_frame(-1),
-    focus(false),
-    name(name), displayed(false)
+    focus(false), parent_scene(parent),
+    name(name), displayed(false), z_index(0)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
@@ -14,7 +14,7 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame) :
     setOrigin(sf::Vector2f(UIFrame.width / 2., UIFrame.height / 2.));
 }
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Animation* spritesheet) : UI_element(name, UIFrame)
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* spritesheet) : UI_element(name, UIFrame, parent)
 {
     setAnimation(spritesheet);
 }
@@ -106,13 +106,13 @@ bool UI_element::contains(sf::Vector2f cursor) const
 }
 
 // pushes hovered element
-void UI_element::push_click(sf::Vector2f cursor)
+void UI_element::push_click(sf::Vector2f cursor, bool controls_blocked)
 {
     // pure virtual
     input_logger->debug("Element {} clicked at {}x{}", name, cursor.x, cursor.y);
 }
 // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
-void UI_element::release_click(sf::Vector2f cursor, bool skip_action)
+void UI_element::release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action)
 {
     // pure virtual;
     input_logger->debug("Element {} popped at {}x{}", name, cursor.x, cursor.y);

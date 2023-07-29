@@ -8,7 +8,9 @@
 #include "Scene.h"
 #include "Player.h"
 
-// stores all Scenes and swithces between them
+// SceneController contains and manages all Scenes.
+// Change current scene with set_current_scene. While changing scene, SceneController discards any unexecuted callbacks of old scene.
+
 class SceneController
 {
 private:

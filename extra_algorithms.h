@@ -4,11 +4,11 @@
 #include <iostream>
 #include <string>
 #include <memory>
-#include <functional>
 
 #include <SFML/Graphics.hpp>
 
 class Scene;
+class Scene_Field;
 
 // extract filename (without extension) from full path
 std::string re_name(std::string path);
@@ -17,11 +17,6 @@ std::string re_name(std::string path);
 int direction_from_shift(sf::Vector2f shift);
 
 sf::Vector2f save_aspect_ratio(sf::Vector2f new_size, sf::Vector2f old_size);
-
-// creates callback to change scene in SceneController
-std::function<void()> create_change_scene_callback(std::shared_ptr<Scene> scene, std::string scene_to);
-// creates callback that closes window
-std::function<void()> create_window_closed_callback(std::shared_ptr<sf::RenderWindow> window);
 
 void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect, sf::IntRect texFrame);
 void cutout_texture_to_frame(sf::Vertex m_vertices[4], sf::IntRect rect);

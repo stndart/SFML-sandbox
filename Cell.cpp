@@ -46,7 +46,7 @@ bool Cell::hasObject(std::string name)
 // add object with name and z-coordinate
 Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, IntRect tex_rect, int depth_level)
 {
-    map_events_logger->debug("Adding object \"{}\" to cell with z-level {}", name, depth_level);
+    map_events_logger->trace("Adding object \"{}\" to cell with z-level {}", name, depth_level);
 
     Cell_object* new_object = new Cell_object(name, texture);
 
