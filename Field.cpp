@@ -2,7 +2,7 @@
 
 bool isdrawed = false;
 
-Field::Field(std::string name) : background(NULL), name(name), player_0(NULL)
+Field::Field(std::string name, Vector2u screenDimensions) : background(NULL), field_screen_size(screenDimensions), name(name), player_0(NULL)
 {
     // Reaching out to global "loading" logger and "map_events" logger by names
     map_events_logger = spdlog::get("map_events");
@@ -14,12 +14,14 @@ Field::Field(std::string name) : background(NULL), name(name), player_0(NULL)
     cell_center_x = 0;
     cell_center_y = 0;
 
+    cell_tex_size = Vector2u(120, 120);
+
     current_view = View(Vector2f(400, 200), Vector2f(1920, 1080));
     default_player_pos = Vector2i(1, 1);
     cells_changed = false;
 }
 
-Field::Field(std::string name, Texture* bg_texture, Vector2i screenDimensions) : Field(name)
+Field::Field(std::string name, Texture* bg_texture, Vector2u screenDimensions) : Field(name, screenDimensions)
 {
     /// MAGIC NUMBERS!
     addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
@@ -27,32 +29,55 @@ Field::Field(std::string name, Texture* bg_texture, Vector2i screenDimensions) :
 }
 
 // returns view center with field boundaries check
-/// screen resolution is temporary only 1920x1080
-Vector2f Field::check_view_bounds(Vector2f view_center)
+Vector2f Field::correct_view_bounds(Vector2f view_center)
 {
-    double view_center_x = view_center.x;
-    double view_center_y = view_center.y;
+    FloatRect valid_rect = get_valid_view_center_rect();
 
-    int size_x = cells.size();
-    int size_y = 0;
-    if (size_x > 0)
-        size_y = cells[0].size();
+    if (valid_rect.contains(view_center))
+        return view_center;
+    
+    if (valid_rect.left > view_center.x)
+        view_center.x = valid_rect.left;
+    if (valid_rect.left + valid_rect.width < view_center.x)
+        view_center.x = valid_rect.left + valid_rect.width;
+    
+    if (valid_rect.top > view_center.y)
+        view_center.y = valid_rect.top;
+    if (valid_rect.top + valid_rect.height < view_center.y)
+        view_center.y = valid_rect.top + valid_rect.height;
+    
+    return view_center;
+}
 
-    // if distance to right border is less than half screen
-    if ((size_x - 1) * cell_length_x - view_center_x < 960)
-        view_center_x = ((size_x - 1) - 960 / cell_length_x) * cell_length_x;
-    // if distance to left border is less than half screen
-    if (-1 * cell_length_x + view_center_x < 960)
-        view_center_x = (1 + 960 / cell_length_x) * cell_length_x;
+// FloatRect containing all possible view center coords
+// If view center is located outside this rect, field borders become visible
+// has_border: if field has border, that should not be displayed
+FloatRect Field::get_valid_view_center_rect(bool has_border)
+{
+    Vector2f topleft = Vector2f(field_screen_size) / 2.0f;
+    if (has_border)
+        topleft += Vector2f(cell_length_x, cell_length_y);
 
-    // if distance to bottom border is less than half screen
-    if ((size_y - 1) * cell_length_y - view_center_y < 540)
-        view_center_y = ((size_y - 1) - 540 / cell_length_y) * cell_length_y;
-    // if distance to upper border is less than half screen
-    if (-1 * cell_length_y + view_center_y < 540)
-        view_center_y = (1 + 540 / cell_length_y) * cell_length_y;
+    Vector2f field_full_size(0, 0);
+    if (cells.size() > 0 && cells[0].size() > 0)
+        field_full_size = Vector2f(cell_length_x * cells.size(), cell_length_y * cells[0].size());
+    
+    Vector2f downright = field_full_size - Vector2f(field_screen_size) / 2.0f;
+    if (has_border)
+        downright -= Vector2f(cell_length_x, cell_length_y);
+    if (downright.x < topleft.x && downright.y < topleft.y)
+        downright = topleft;
+    
+    FloatRect valid_view_center(topleft, downright - topleft);
 
-    return Vector2f(view_center_x, view_center_y);
+    // if displayed field is less than desired field screen size, then move it to screen center
+    if ((downright - topleft).x < field_screen_size.x && (downright - topleft).y < field_screen_size.y)
+        valid_view_center =  FloatRect(Vector2f(field_full_size) / 2.0f, Vector2f(0, 0));
+    
+    // map_events_logger->trace("Set valid view center rect to +{}+{}, {}x{}",
+    //     valid_view_center.left, valid_view_center.top, valid_view_center.width, valid_view_center.height);
+    
+    return valid_view_center;
 }
 
 // update background with texture, View size with rect, m_vertices with rect as well
@@ -68,7 +93,15 @@ void Field::addTexture(Texture* texture, IntRect rect)
 // add cell by indexes [x, y] with texture
 void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
 {
-    cells[x][y] = new Cell("new_cell", texture);
+    // if cell_tex_size is (0, 0), then ask certain texture of her size
+    Vector2u temp_cell_tex_size = cell_tex_size;
+    if (temp_cell_tex_size.x == 0 || temp_cell_tex_size.y == 0)
+        temp_cell_tex_size = texture->getSize();
+
+    IntRect cell_tex_coords = IntRect(temp_cell_tex_size.x * x, temp_cell_tex_size.y * y,
+                                      temp_cell_tex_size.x, temp_cell_tex_size.y);
+
+    cells[x][y] = new Cell("new_cell", texture, cell_tex_coords);
     cells_changed = true;
 }
 
@@ -249,13 +282,13 @@ bool Field::is_player_movable(int direction)
         int cell_x = player_0->x_cell_coord;
         int cell_y = player_0->y_cell_coord;
 
-        if (cells[cell_x][cell_y]->type_name == "border")
-            return false;  // Player is stuck
+        if (cells[cell_x][cell_y]->has_out_block(direction))
+            return false; // Player is stuck
 
         cell_x += direction_x[direction];
         cell_y += direction_y[direction];
-        if (cells[cell_x][cell_y]->type_name == "border")
-            return false;  // Next cell is border
+        if (cells[cell_x][cell_y]->has_in_block(direction))
+            return false;  // Next cell is unreachable
 
         return true;
     }
@@ -386,8 +419,9 @@ void Field::update_view_center()
     {
         view_center = player_0->getPosition();
     }
+    view_center = correct_view_bounds(view_center);
 
-    view_center = check_view_bounds(view_center);
+    // map_events_logger->trace("new view center: +{}+{}, {}x{}", view_center.x, view_center.y, current_view.getSize().x, current_view.getSize().y);
 
     current_view.setCenter(view_center);
 }
@@ -433,13 +467,34 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
     default_player_pos.y = Location["default_player_pos"][1].asInt();
     field_resize(field_length, field_width);
 
+    cell_tex_size = Vector2u(Location["cell_texture_size"].get(Json::ArrayIndex(0), 0).asInt(),
+                                      Location["cell_texture_size"].get(Json::ArrayIndex(1), 0).asInt());
+
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
             // add cell
             std::string cell_type = Location["map"][x][y]["type"].asString();
-            cells[x][y] = new Cell(cell_type, field_block[cell_type]);
+
+            // if cell_tex_size is (0, 0), then ask certain texture of her size
+            Vector2u temp_cell_tex_size = cell_tex_size;
+            if (temp_cell_tex_size.x == 0 || temp_cell_tex_size.y == 0)
+                temp_cell_tex_size = field_block[cell_type]->getSize();
+
+            IntRect cell_tex_coords = IntRect(temp_cell_tex_size.x * x, temp_cell_tex_size.y * y,
+                                              temp_cell_tex_size.x, temp_cell_tex_size.y);
+            cells[x][y] = new Cell(cell_type, field_block[cell_type], cell_tex_coords);
+
+            cells[x][y]->displayed = Location["map"][x][y].get("displayed", true).asBool();
+            
+            // when cell is border-like, enable full movement blocking: in and out
+            if (cell_type == "border")
+                for (int dir = 0; dir < 4; dir++)
+                {
+                    cells[x][y]->set_out_block(dir, true);
+                    cells[x][y]->set_in_block(dir, true);
+                }
 
             // add placeable objects to cell
             std::string object_type = "";
@@ -451,8 +506,26 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
                     if (Location["big_objects"][x][y][i].isObject())
                     {
                         std::string object_type = Location["big_objects"][x][y][0]["type"].asString();
-                        std::string object_depth_level = Location["big_objects"][x][y][0]["depth_level"].asString();
-                        cells[x][y]->addObject(object_type, field_block[object_type], 1);
+                        int object_depth_level = Location["big_objects"][x][y][0]["depth_level"].asInt();
+                        float displayed_width = Location["big_objects"][x][y][0].get("displayed_width", 0).asFloat();
+                        float displayed_height = Location["big_objects"][x][y][0].get("displayed_height", 0).asFloat();
+                        Vector2f object_displayed_size = save_aspect_ratio(Vector2f(displayed_width, displayed_height), Vector2f(field_block[object_type]->getSize()));
+
+                        cells[x][y]->addObject(object_type, field_block[object_type], object_displayed_size,  object_depth_level);
+                        
+                        float origin_x = Location["big_objects"][x][y][0]["origin"].get(Json::ArrayIndex(0), 0).asFloat();
+                        float origin_y = Location["big_objects"][x][y][0]["origin"].get(Json::ArrayIndex(1), 0).asFloat();
+                        cells[x][y]->setOrigin(origin_x, origin_y);
+                        
+                        // load blocking info from json
+                        Json::Value in_blocking = Location["big_objects"][x][y][0]["in_blocking"];
+                        for (int dir = 0; dir < 4; dir++)
+                            cells[x][y]->update_in_block(dir, in_blocking.get(Json::ArrayIndex(dir), false).asBool());
+                        Json::Value out_blocking = Location["big_objects"][x][y][0]["out_blocking"];
+                        for (int dir = 0; dir < 4; dir++)
+                            cells[x][y]->update_out_block(dir, out_blocking.get(Json::ArrayIndex(dir), false).asBool());
+
+                        loading_logger->trace("Added object {} to cell {} at {}x{}", object_type, cell_type, x, y);
                     }
                 }
             }
@@ -531,11 +604,6 @@ void Field::update(Time deltaTime)
 
 void Field::draw(RenderTarget& target, RenderStates states) const
 {
-    // save previous view not to destroy UI etc.
-    View previous_view = target.getView();
-    // we only draw in field View
-    target.setView(current_view);
-
     // draw background below everything
     if (background)
     {
@@ -543,6 +611,11 @@ void Field::draw(RenderTarget& target, RenderStates states) const
         states.texture = background;
         target.draw(m_vertices, 4, Quads, states);
     }
+    
+    // save previous view not to destroy UI etc.
+    View previous_view = target.getView();
+    // we only draw in field View
+    target.setView(current_view);
 
     // center cell in view
     int center_cell_x = current_view.getCenter().x / cell_length_x;
@@ -591,9 +664,9 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 }
 
 // MyFirstFieldConstructor (to be removed)
-Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width, Texture* cell_texture, Texture* player_texture, Vector2i screen_dimensions)
+Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width, Texture* cell_texture, Texture* player_texture, Vector2u screen_dimensions)
 {
-    Field* field = new Field("Main field");
+    Field* field = new Field("Main field", screen_dimensions);
     field->addTexture(bg, IntRect(0, 0, 1920, 1080));
     field->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
 

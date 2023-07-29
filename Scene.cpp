@@ -3,7 +3,7 @@
 
 int Scene::UI_Z_INDEX = 10;
 
-Scene::Scene(std::string name, Vector2i screensize) : timer(seconds(0)), background(NULL), controls_blocked(false), name(name)
+Scene::Scene(std::string name, Vector2u screensize) : timer(seconds(0)), background(NULL), controls_blocked(false), name(name)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
@@ -350,7 +350,7 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
 
 /// TEMP
 // MyFirstScene constructor
-std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions)
+std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2u screen_dimensions)
 {
     std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu", screen_dimensions);
     main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));

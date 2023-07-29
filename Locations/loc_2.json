@@ -1,0 +1,350 @@
+{
+	"big_objects" : 
+	[
+		[
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_wooden_wall_inside",
+					"origin": [0, 60],
+					"displayed_width": 1080
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_inner_wall_left",
+					"origin": [0, 120],
+					"displayed_width": 120
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_inner_wall_left",
+					"origin": [0, 120],
+					"displayed_width": 120
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_inner_wall_left",
+					"origin": [0, 120],
+					"displayed_width": 120
+				}
+			],
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "table",
+					"in_blocking" : [false, true, false, false],
+					"out_blocking" : [false, false, false, true],
+					"displayed_height": 120
+				}
+			],
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		[
+			null,
+			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_inner_wall_right",
+					"origin": [0, 120],
+					"displayed_width": 120
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_inner_wall_right",
+					"origin": [0, 120],
+					"displayed_width": 120
+				}
+			],
+			[
+				{
+					"depth_level" : 1,
+					"type" : "house_inner_wall_right",
+					"origin": [0, 120],
+					"displayed_width": 120
+				}
+			],
+			null
+		]
+	],
+	"default_player_pos" : 
+	[
+		2,
+		2
+	],
+	"cell_texture_size": 
+	[
+		120,
+		120
+	],
+	"map" : 
+	[
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "wooden_floor"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		],
+		[
+			{
+				"type" : "border",
+				"displayed": false
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border"
+			},
+			{
+				"type" : "border",
+				"displayed": false
+			}
+		]
+	],
+	"scale" : 
+	[
+		9,
+		6
+	]
+}

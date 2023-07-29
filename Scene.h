@@ -64,7 +64,7 @@ protected:
 public:
     std::string name;
 
-    Scene(std::string name, Vector2i screensize);
+    Scene(std::string name, Vector2u screensize);
 
     // sets scene controller to invoke callbacks of switching scenes
     void set_scene_controller(SceneController& sc);
@@ -114,6 +114,6 @@ public:
 
 /// TEMP
 // MyFirstScene constructor
-std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2i screen_dimensions);
+std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2u screen_dimensions);
 
 #endif // SCENE_INCLUDE

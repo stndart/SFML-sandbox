@@ -1,46 +1,29 @@
 #include "Cell.h"
 
-Cell::Cell(std::string name) : background(NULL), type_name(name)
+Cell::Cell(std::string name) : blocking(0), type_name(name), displayed(true)
 {
     // Reaching out to global "map_events" logger by name
     map_events_logger = spdlog::get("map_events");
 }
 
-Cell::Cell(std::string name, Texture* texture) : background(texture), type_name(name)
+Cell::Cell(std::string name, Texture* texture, IntRect texRect) : Cell::Cell(name)
 {
     map_events_logger = spdlog::get("map_events");
 
-    /// MAGIC NUMBERS
-    addTexCoords(IntRect(0, 0, 120, 120));
+    for (int i = 0; i < 8; ++i)
+    {
+        blocking[i] = false;
+    }
+
+    sprite.setTexture(*texture);
+    sprite.setTextureRect(texRect);
 }
 
 // change tile texture and name
 void Cell::change_texture(std::string name, Texture* texture)
 {
-    /// potential bug: m_vertices uninitialized
-    background = texture;
     type_name = name;
-}
-
-// change m_vertices
-void Cell::addTexCoords(IntRect rect)
-{
-    cutout_texture_to_frame(m_vertices, rect);
-
-    m_vertices[0].position = Vector2f(0.f, 0.f);
-    m_vertices[1].position = Vector2f(0.f, static_cast<float>(rect.height));
-    m_vertices[2].position = Vector2f(static_cast<float>(rect.width), static_cast<float>(rect.height));
-    m_vertices[3].position = Vector2f(static_cast<float>(rect.width), 0.f);
-
-    float left = static_cast<float>(rect.left) + 0.0001f;
-    float right = left + static_cast<float>(rect.width);
-    float top = static_cast<float>(rect.top);
-    float bottom = top + static_cast<float>(rect.height);
-
-    m_vertices[0].texCoords = Vector2f(left, top);
-    m_vertices[1].texCoords = Vector2f(left, bottom);
-    m_vertices[2].texCoords = Vector2f(right, bottom);
-    m_vertices[3].texCoords = Vector2f(right, top);
+    sprite.setTexture(*texture);
 }
 
 // set position to Cell and all child objects
@@ -61,22 +44,40 @@ bool Cell::hasObject(std::string name)
 }
 
 // add object with name and z-coordinate
-Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
+Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, IntRect tex_rect, int depth_level)
 {
-    map_events_logger->debug("Adding object \"{}\" to cell with z-level {}", name, depth_level);
+    map_events_logger->trace("Adding object \"{}\" to cell with z-level {}", name, depth_level);
 
-    Cell_object* new_object;
-    /// Что за магическое число 120?
-    if (name == "house")
-        new_object = new Cell_object(name, texture, IntRect(0, 0, 360, 240));
-    else
-        new_object = new Cell_object(name, texture, IntRect(0, 0, 120, 120));
+    Cell_object* new_object = new Cell_object(name, texture);
+
+    new_object->addTexCoords(tex_rect);
+    new_object->setDisplaySize(display_size);
 
     new_object->depth_level = depth_level;
     /// TODO: обработать, если objects[name] уже существует
     objects[name] = new_object;
     return new_object;
 }
+
+Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, int depth_level)
+{
+    IntRect tex_rect(Vector2i(0, 0), Vector2i(texture->getSize()));
+    return addObject(name, texture, display_size, tex_rect, depth_level);
+}
+
+Cell_object* Cell::addObject(std::string name, Texture* texture, IntRect tex_rect, int depth_level)
+{
+    Vector2f display_size(texture->getSize());
+    return addObject(name, texture, display_size, tex_rect, depth_level);
+}
+
+Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
+{
+    IntRect tex_rect(Vector2i(0, 0), Vector2i(texture->getSize()));
+    Vector2f display_size(texture->getSize());
+    return addObject(name, texture, display_size, tex_rect, depth_level);
+}
+
 
 // remove object from map by name
 void Cell::removeObject(std::string name)
@@ -97,7 +98,7 @@ void Cell::action_change(std::string name, Texture* texture)
     removeObject(name);
     if (name == "tree")
     {
-        addObject("stump", texture, 1);
+        addObject("stump", texture, IntRect(0, 0, 120, 120), 1);
     }
 }
 
@@ -121,18 +122,66 @@ void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Loca
     }
 }
 
+// set blocking
+void Cell::set_in_block(int direction, bool block)
+{
+    if (type_name == "table")
+        map_events_logger->trace("Setting {} IN blocking {} in direction {}", type_name, block, direction);
+
+    blocking[direction] = block;
+}
+
+void Cell::set_out_block(int direction, bool block)
+{
+    if (type_name == "table")
+        map_events_logger->trace("Setting {} OUT blocking {} in direction {}", type_name, block, direction);
+
+    blocking[direction + 4] = block;
+}
+
+// update blocking: change only if block = true
+void Cell::update_in_block(int direction, bool block)
+{
+    if (block)
+        set_in_block(direction, block);
+}
+
+void Cell::update_out_block(int direction, bool block)
+{
+    if (block)
+        set_out_block(direction, block);
+}
+
+// ask blocking
+bool Cell::has_in_block(int direction) const
+{
+    return blocking[direction];
+}
+
+bool Cell::has_out_block(int direction) const
+{
+    return blocking[direction + 4];
+}
+
+// overriding Transformable methods
+void Cell::setPosition(const Vector2f &pos)
+{
+    Transformable::setPosition(pos);
+    sprite.setPosition(pos);
+}
+
+void Cell::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    sprite.setPosition(x, y);
+}
+
 void Cell::draw(RenderTarget& target, RenderStates states) const
 {
-    states.transform *= getTransform();
-    if (background)
+    if (sprite.getTexture() && displayed)
     {
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
+        target.draw(sprite, states);
     }
-//    for (auto obj : objects)
-//    {
-//        obj.second->draw(target, states);
-//    }
 }
 
 void Cell::draw_objects(RenderTarget& target, RenderStates states) const

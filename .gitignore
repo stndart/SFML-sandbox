@@ -17,14 +17,19 @@
 # Build
 /bin/*
 /obj/*
+/build/*
+/test/*
+/Release/*
+/Debug/*
+/RelWithDebInfo/*
 
 # Resources
 /Images/archive/*
 
 # third party
-/jsoncpp/*
-/spdlog/*
-/SFML/*
+jsoncpp/*
+spdlog/*
+SFML/*
 
 # images sources
 /Images/resources/*
@@ -37,4 +42,10 @@
 *.cbp
 *.depend
 *.layout
+*.cscope_file_list
+
+!**/CMakeLists.txt
+test/CMakeLists.txt
+.vscode/settings.json
+.vscode/c_cpp_properties.json
 *.cscope_file_list

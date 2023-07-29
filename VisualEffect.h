@@ -88,7 +88,7 @@ public:
     void setOrigin(const Vector2f &origin) override;
     void setOrigin(float x, float y) override;
 
-    virtual bool isPlaying() const;
+    bool isPlaying() const override;
     virtual Time animation_remaining_time() const override;
     // overriding same method from AnimatedSprite. Now makes sense
     virtual Time movement_remaining_time() const override;

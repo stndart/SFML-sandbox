@@ -1,6 +1,6 @@
 #include "Scene_editor.h"
 
-Scene_editor::Scene_editor(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, screensize, field_blocks),
+Scene_editor::Scene_editor(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, screensize, field_blocks),
 s_input(""), input_focus(false)
 {
     // None
@@ -277,7 +277,7 @@ void Scene_editor::update(Time deltaTime)
     Scene_Field::update(deltaTime);
 
 /**
-    пишет в левом верхнем углу текущий тип клетки
+    пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
     int a = field[current_field]->player_0->x_cell_coord;
     int b = field[current_field]->player_0->y_cell_coord;

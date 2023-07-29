@@ -2,7 +2,7 @@
 
 int Scene_Field::FIELD_Z_INDEX = 0;
 
-Scene_Field::Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize),
+Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize),
 field_tex_map(field_blocks)
 {
     loading_logger = spdlog::get("loading");
@@ -30,7 +30,7 @@ void Scene_Field::add_field(Field* field_to_add, int num)
 /// TEMP
 // create field, add by index
 void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num)
+                            Texture* player_texture, Vector2u screen_dimensions, int num)
 {
     loading_logger->trace("Create field #{} to scene", num);
 
@@ -62,7 +62,6 @@ void Scene_Field::change_current_field(int num)
     // load new current field to drawables index
     sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, field[current_field]));
 
-    field[num]->load_field(*field_tex_map, num);
     field[num]->teleport_to();
 }
 

@@ -1,5 +1,8 @@
 #include "extra_algorithms.h"
 
+#include "Scene_Field.h"
+
+#include "SceneController.h"
 
 // extract filename (without extension) from full path
 std::string re_name(std::string path)
@@ -43,6 +46,22 @@ int direction_from_shift(sf::Vector2f shift)
             direction = 3;
     }
     return direction;
+}
+
+sf::Vector2f save_aspect_ratio(sf::Vector2f new_size, sf::Vector2f old_size)
+{
+    sf::Vector2f aspect_ratio_2f = sf::Vector2f(new_size.x / old_size.x, new_size.y / old_size.y);
+
+    // if new size is not specified (0, 0), then stick with old size
+    // if only one component is not specified (x, 0), then save aspect ratio
+    if (aspect_ratio_2f.x == 0)
+        aspect_ratio_2f.x = (aspect_ratio_2f.y == 0) ? 1 : aspect_ratio_2f.y;
+    if (aspect_ratio_2f.y == 0)
+        aspect_ratio_2f.y = aspect_ratio_2f.x;
+    
+    float aspect_ratio = std::min(aspect_ratio_2f.x, aspect_ratio_2f.y);
+
+    return old_size * aspect_ratio;
 }
 
 // prepares texture to display: sets vertexes to screen and tex coords

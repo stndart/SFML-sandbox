@@ -78,7 +78,7 @@ std::function<void()> create_rect(std::shared_ptr<Scene> scene, sf::FloatRect po
         std::unique_ptr<RectangleShape> rect = std::make_unique<RectangleShape>(posrect.getSize());
         rect->setFillColor(color);
         AnimatedSprite* as = new AnimatedSprite("dark rect",
-                                                move(rect), posrect.getPosition(), Vector2f(0, 0), 0, sf::BlendNone);
+                                                std::move(rect), posrect.getPosition(), Vector2f(0, 0), 0, sf::BlendNone);
         scene->addSprite(as, 0, true);
     };
     return callback;
@@ -92,7 +92,7 @@ std::function<void()> create_light_circle(std::shared_ptr<Scene> scene, sf::Vect
         std::unique_ptr<CircleShape> circle = std::make_unique<CircleShape>(radius, 100);
         circle->setFillColor(color);
         AnimatedSprite* as = new AnimatedSprite("light circle",
-                                                move(circle), pos, Vector2f(0, 0), 0, sf::BlendNone);
+                                                std::move(circle), pos, Vector2f(0, 0), 0, sf::BlendNone);
         scene->addSprite(as, 1, true);
     };
     return callback;
@@ -110,7 +110,7 @@ std::function<void()> create_light_circle_centered(std::shared_ptr<Scene_Field> 
         sf::Vector2f player_pos = player_bounds.getPosition() + player_bounds.getSize() / 2.0f;
 
         AnimatedSprite* as = new AnimatedSprite("light circle",
-                                                move(circle), player_pos, Vector2f(radius_1, radius_1), 0, sf::BlendNone);
+                                                std::move(circle), player_pos, Vector2f(radius_1, radius_1), 0, sf::BlendNone);
         VisualEffect* ve = new VisualEffect(as, sf::seconds(0), duration,
                                             State{0, color, player_pos, Vector2f(0, 0), Vector2f(1, 1)},
                                             State(0, color, player_pos, Vector2f(0, 0), Vector2f(radius_2 / radius_1, radius_2 / radius_1)),

@@ -28,14 +28,14 @@ protected:
 public:
     std::string name;
 
-    Scene_Field(std::string name, sf::Vector2i screensize, std::map <std::string, Texture*> *field_tex_map);
+    Scene_Field(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_tex_map);
 
     // change field by index
     void add_field(Field* field_to_add, int num);
     /// TEMP
     // create field, add by index
     void add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2i screen_dimensions, int num);
+                            Texture* player_texture, Vector2u screen_dimensions, int num);
     // swap to field by index. If index is -1, then switch cyclically
     void change_current_field(int num=-1);
     /// TEMP
@@ -50,12 +50,12 @@ public:
     void block_controls(bool blocked);
 
     // transfer to Field methods
-    virtual void set_player_movement_direction(int direction);
-    virtual void release_player_movement_direction(int direction);
+    void set_player_movement_direction(int direction);
+    void release_player_movement_direction(int direction);
 
     // overriding Drawable methods
-    virtual void update(Event& event, std::string& command_main);
-    virtual void update(Time deltaTime);
+    void update(Event& event, std::string& command_main) override;
+    void update(Time deltaTime) override;
     // we don't override draw since it stays the same
 
     ///TEMP
@@ -65,4 +65,6 @@ public:
     }
 };
 
+Scene_Field new_field_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
+                            Texture* player_texture, Vector2u screen_dimensions, int num);
 #endif // SCENE_FIELD_H_INCLUDED
