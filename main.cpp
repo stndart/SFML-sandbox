@@ -315,6 +315,8 @@ int main()
 
         ImGui::SFML::Update(*window, frameTime);
 
+        // ImGui::ShowDemoWindow();
+
         if (cur_scene)
             cur_scene->update(frameTime);
 

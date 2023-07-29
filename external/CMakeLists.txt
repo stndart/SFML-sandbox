@@ -17,7 +17,7 @@ add_subdirectory(SFML)
 target_link_libraries(external INTERFACE sfml-window sfml-graphics sfml-system sfml-audio sfml-network)
 target_include_directories(external INTERFACE sfml-window sfml-graphics sfml-system sfml-audio sfml-network)
 
-add_library(imgui imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp imgui/imgui.cpp)
+add_library(imgui imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp imgui/imgui.cpp imgui/imgui_demo.cpp)
 
 target_compile_features(imgui PUBLIC cxx_std_20)
 
