@@ -12,6 +12,9 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
 #include "Scene.h"
@@ -104,6 +107,8 @@ int main()
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
     window->setKeyRepeatEnabled(false);
     loading_logger->info("Created window {}x{}", 1920, 1080);
+
+    ImGui::SFML::Init(*window);
 
     ResourceLoader resload;
 
@@ -285,6 +290,8 @@ int main()
 
         while (window->pollEvent(event))
         {
+            ImGui::SFML::ProcessEvent(*window, event);
+
             // Occures when x-mark in the corner of the window is pressed
             // TODO: research, which system events exist and when occur
             if (event.type == Event::Closed){
@@ -302,11 +309,15 @@ int main()
             if (cur_scene)
                 cur_scene->update(event, command_main);
         }
-
+        
         // get time spent per last frame and update all drawables with it
         Time frameTime = frameClock.restart();
+
+        ImGui::SFML::Update(*window, frameTime);
+
         if (cur_scene)
             cur_scene->update(frameTime);
+
 
         // clear previous frame and draw from scratch
         window->clear();
@@ -315,6 +326,8 @@ int main()
             cur_scene->draw_buffers();
             window->draw(*cur_scene);
         }
+
+        ImGui::SFML::Render(*window);
 
         window->display();
 
