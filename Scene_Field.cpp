@@ -2,8 +2,7 @@
 
 int Scene_Field::FIELD_Z_INDEX = 0;
 
-Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_blocks) : Scene::Scene(name, screensize),
-field_tex_map(field_blocks)
+Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, ResourceLoader* resload) : Scene(name, screensize), resource_manager(resload)
 {
     loading_logger = spdlog::get("loading");
     map_events_logger = spdlog::get("map_events");
@@ -14,6 +13,12 @@ field_tex_map(field_blocks)
     {
         field[i] = nullptr;
     }
+}
+
+// returns type name ("Scene_Field" for this class)
+std::string Scene_Field::get_type()
+{
+    return "Scene_Field";
 }
 
 // change field by index
@@ -157,7 +162,7 @@ void Scene_Field::update(Event& event, std::string& command_main)
                     field[current_field]->set_player_movement_direction(2);
                 break;
             case sf::Keyboard::Space:
-                field[current_field]->action((*field_tex_map)["stump"]);
+                field[current_field]->action(resource_manager->field_tex_map["stump"]);
                 break;
             default:
                 // if key is not set in contols, check dynamic bindings

@@ -212,10 +212,10 @@ int main()
     );
 
     // Create field scene. At first it is inactive. Name and textures are passed
-    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), screenDimensions, &resload.field_tex_map);
+    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), screenDimensions, &resload);
 
     // Create editor scene. At first it is inactive. Scenes are swapped with callbacks to SceneController
-    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), screenDimensions, &resload.field_tex_map);
+    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), screenDimensions, &resload);
 
     // Set default scene. It is displayed first
     SceneController scene_controller;

@@ -1,0 +1,20 @@
+{
+    "screensize": [1920, 1080],
+    "scenes":
+    [
+        {
+            "name": "main_menu",
+            "type": "Scene",
+            "config": {
+
+            }
+        },
+        {
+            "name": "field_scene",
+            "type": "Scene_Field",
+            "config": {
+
+            }
+        }
+    ]
+}

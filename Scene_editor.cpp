@@ -1,9 +1,15 @@
 #include "Scene_editor.h"
 
-Scene_editor::Scene_editor(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, screensize, field_blocks),
+Scene_editor::Scene_editor(std::string name, sf::Vector2u screensize, ResourceLoader *resload) : Scene_Field(name, screensize, resload),
 s_input(""), input_focus(false)
 {
     // None
+}
+
+// returns type name ("Scene_editor" for this class)
+std::string Scene_editor::get_type()
+{
+    return "Scene_editor";
 }
 
 // evaluate command line command
@@ -60,12 +66,12 @@ void Scene_editor::command(std::string data)
                     s_input = "out of field's range";
                     return;
                 }
-                if (field_tex_map->find(s[4]) == field_tex_map->end())
+                if (resource_manager->field_tex_map.find(s[4]) == resource_manager->field_tex_map.end())
                 {
                     s_input = "can't find the texture";
                     return;
                 }
-                field[current_field]->add_object_to_cell(x, y, s[4], (*field_tex_map)[s[4]]);
+                field[current_field]->add_object_to_cell(x, y, s[4], (resource_manager->field_tex_map)[s[4]]);
             }
             else
             {
@@ -100,12 +106,12 @@ void Scene_editor::command(std::string data)
                     s_input = "out of field's range";
                     return;
                 }
-                if (field_tex_map->find(s[4]) == field_tex_map->end())
+                if (resource_manager->field_tex_map.find(s[4]) == resource_manager->field_tex_map.end())
                 {
                     s_input = "can't find the texture";
                     return;
                 }
-                field[current_field]->change_cell_texture(x, y, s[4], (*field_tex_map)[s[4]]);
+                field[current_field]->change_cell_texture(x, y, s[4], (resource_manager->field_tex_map)[s[4]]);
             }
             else
             {
@@ -277,8 +283,6 @@ void Scene_editor::update(Time deltaTime)
     Scene_Field::update(deltaTime);
 
 /**
-    ����� � ����� ������� ���� ������� ��� ������
-
     int a = field[current_field]->player_0->x_cell_coord;
     int b = field[current_field]->player_0->y_cell_coord;
     s_input = field[current_field]->get_cellType_by_coord(a, b);

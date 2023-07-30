@@ -5,6 +5,7 @@
 
 #include "Scene.h"
 #include "Field.h"
+#include "ResourceLoader.h"
 
 class Scene_Field : public Scene
 {
@@ -20,6 +21,9 @@ protected:
     Field* field[field_N];
     // current map index
     int current_field;
+    // pointer to resource manager
+    ResourceLoader* resource_manager;
+
     // map background textures by name
     std::map <std::string, Texture*> *field_tex_map;
 
@@ -28,7 +32,10 @@ protected:
 public:
     std::string name;
 
-    Scene_Field(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_tex_map);
+    Scene_Field(std::string name, sf::Vector2u screensize, ResourceLoader* resload);
+
+    // returns type name ("Scene_Field" for this class)
+    std::string get_type() override;
 
     // change field by index
     void add_field(Field* field_to_add, int num);

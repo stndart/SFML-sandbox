@@ -12,6 +12,7 @@
 #include "Callbacks.h"
 
 #include <spdlog/spdlog.h>
+#include <nlohmann/json.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -65,6 +66,12 @@ public:
     std::string name;
 
     Scene(std::string name, Vector2u screensize);
+
+    // returns type name ("Scene" for this class)
+    virtual std::string get_type();
+
+    // returns config object to be saved externally
+    nlohmann::json get_config();
 
     // sets scene controller to invoke callbacks of switching scenes
     void set_scene_controller(SceneController& sc);

@@ -23,6 +23,19 @@ Scene::Scene(std::string name, Vector2u screensize) : timer(seconds(0)), backgro
     }
 }
 
+// returns type name ("Scene" for this class)
+std::string Scene::get_type()
+{
+    return "Scene";
+}
+
+// returns config object to be saved externally
+nlohmann::json Scene::get_config()
+{
+    nlohmann::json j;
+    return j;
+}
+
 // sets scene controller to invoke callbacks of switching scenes
 void Scene::set_scene_controller(SceneController& sc)
 {
