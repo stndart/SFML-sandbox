@@ -103,7 +103,7 @@ void Cell::action_change(std::string name, Texture* texture)
 }
 
 // save cell and child objects to json
-void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, Json::Value& Location)
+void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, nlohmann::json& Location)
 {
     Location["map"][cell_x][cell_y]["type"] = type_name;
     if (objects.size() == 0)
