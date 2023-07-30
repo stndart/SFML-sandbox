@@ -9,7 +9,7 @@
 #include "extra_algorithms.h"
 #include <SFML/Graphics/RenderTexture.hpp>
 
-#include <jsoncpp/json.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/Texture.hpp>
 
