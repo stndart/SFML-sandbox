@@ -36,3 +36,8 @@ add_subdirectory(json)
 
 target_link_libraries(external INTERFACE nlohmann_json::nlohmann_json)
 target_include_directories(external INTERFACE nlohmann_json::nlohmann_json)
+
+add_subdirectory(glob)
+
+target_link_libraries(external INTERFACE Glob)
+target_include_directories(external INTERFACE Glob)

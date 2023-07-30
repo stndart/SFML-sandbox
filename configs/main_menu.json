@@ -1,0 +1,32 @@
+{
+    "background": "main_menu_background",
+    "UI elements" : [
+        {
+            "type": "button",
+            "texture": "new_game_button",
+            "texture_pressed": "new_game_button_pushed",
+            "callback": {
+                "name": "change scene",
+                "scene to": "Scene_editor"
+            },
+            "Rel x": 0.105,
+            "Rel y": 0.2,
+            "Rel height": 0.1,
+            "Origin rel x": 0,
+            "Origin rel y": 0
+        },
+        {
+            "type": "button",
+            "texture": "escape",
+            "texture_pressed": "escape_pushed",
+            "callback": {
+                "name": "close window"
+            },
+            "Rel x": 1,
+            "Rel y": 1,
+            "Rel height": 0.1,
+            "Origin rel x": 1,
+            "Origin rel y": 0
+        }
+    ]
+}

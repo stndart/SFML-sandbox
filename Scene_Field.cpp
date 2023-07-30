@@ -2,17 +2,12 @@
 
 int Scene_Field::FIELD_Z_INDEX = 0;
 
-Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, ResourceLoader* resload) : Scene(name, screensize), resource_manager(resload)
+Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, std::shared_ptr<ResourceLoader> resload) : Scene(name, screensize, resload)
 {
     loading_logger = spdlog::get("loading");
     map_events_logger = spdlog::get("map_events");
 
     current_field = -1;
-
-    for (int i = 0; i < field_N; ++i)
-    {
-        field[i] = nullptr;
-    }
 }
 
 // returns type name ("Scene_Field" for this class)
@@ -21,26 +16,41 @@ std::string Scene_Field::get_type()
     return "Scene_Field";
 }
 
+// returns config object to be saved externally
+nlohmann::json Scene_Field::get_config()
+{
+    //
+}
+
+// loads interface and other info from config
+void Scene_Field::load_config(std::string config_path)
+{
+    Scene::load_config(config_path);
+
+    ifstream f(config_path);
+    nlohmann::json j = nlohmann::json::parse(f);
+    
+    // create fields
+    for (nlohmann::json j2 : j["fields"])
+    {
+        int id = j2.at("id");
+        int loc_id = j2.at("location id");
+
+        std::string field_name = "field #" + std::to_string(id);
+        fields[id] = std::make_shared<Field>(field_name, screensize, resource_manager);
+        fields[id]->load_field(loc_id);
+    }
+}
+
 // change field by index
-void Scene_Field::add_field(Field* field_to_add, int num)
+void Scene_Field::add_field(std::shared_ptr<Field> field_to_add, int num)
 {
     loading_logger->trace("Add field #{} to scene", num);
 
-    field[num] = field_to_add;
-
-    if (current_field == -1)
-        change_current_field(num);
-}
-
-/// TEMP
-// create field, add by index
-void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2u screen_dimensions, int num)
-{
-    loading_logger->trace("Create field #{} to scene", num);
-
-    Field* field_0 = new_field(bg, length, width, (*field_blocks)["null"], player_texture, screen_dimensions);
-    field[num] = field_0;
+    while (fields.size() <= num)
+        fields.push_back(std::shared_ptr<Field>(nullptr));
+    
+    fields[num] = field_to_add;
 
     if (current_field == -1)
         change_current_field(num);
@@ -50,41 +60,47 @@ void Scene_Field::add_Field(Texture* bg, unsigned int length, unsigned int width
 void Scene_Field::change_current_field(int num)
 {
     if (num == -1)
-        num = (current_field + 1) % field_N;
+        num = (current_field + 1) % fields.size();
 
     map_events_logger->trace("Changing current field to {}", num);
 
     // unload current field from drawables index
-    sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, field[current_field]));
+    sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
 
     current_field = num;
 
-    if (field[num] == nullptr) {
+    if (!fields[num]) {
         loading_logger->error("Trying to load null field");
         throw;
     }
 
     // load new current field to drawables index
-    sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, field[current_field]));
+    sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
 
-    field[num]->teleport_to();
+    fields[num]->teleport_to();
+}
+
+// get field pointer
+std::shared_ptr<Field> Scene_Field::get_field(int num) const
+{
+    return fields[num];
 }
 
 /// TEMP
 // reload field by index from default file
 void Scene_Field::load_field(int num, std::string who_call)
 {
-    field[num]->load_field(*field_tex_map, num);
+    fields[num]->load_field(num);
 }
 
 FloatRect Scene_Field::getPlayerLocalBounds() const
 {
     FloatRect bounds = FloatRect(0, 0, 0, 0);
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
-        bounds = field[current_field]->player_0->getLocalBounds();
-        bounds.left -= field[current_field]->getViewport().left;
-        bounds.top -= field[current_field]->getViewport().top;
+        bounds = fields[current_field]->player_0->getLocalBounds();
+        bounds.left -= fields[current_field]->getViewport().left;
+        bounds.top -= fields[current_field]->getViewport().top;
     }
     return bounds;
 }
@@ -92,17 +108,17 @@ FloatRect Scene_Field::getPlayerLocalBounds() const
 FloatRect Scene_Field::getPlayerGlobalBounds() const
 {
     FloatRect bounds = FloatRect(0, 0, 0, 0);
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
-        bounds = field[current_field]->player_0->getGlobalBounds();
+        bounds = fields[current_field]->player_0->getGlobalBounds();
         // doesn't work, when view is boundary-blocked
         // if (field[current_field]->player_0->is_moving())
         // {
         //     bounds.left = (float)field[current_field]->player_0->x_cell_coord * field[current_field]->getCellSize().x;
         //     bounds.top = (float)field[current_field]->player_0->y_cell_coord * field[current_field]->getCellSize().y;
         // }
-        bounds.left -= field[current_field]->getViewport().left;
-        bounds.top -= field[current_field]->getViewport().top;
+        bounds.left -= fields[current_field]->getViewport().left;
+        bounds.top -= fields[current_field]->getViewport().top;
     }
     return bounds;
 }
@@ -121,23 +137,23 @@ void Scene_Field::block_controls(bool blocked)
 
 void Scene_Field::set_player_movement_direction(int direction)
 {
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
-        field[current_field]->set_player_movement_direction(direction);
+        fields[current_field]->set_player_movement_direction(direction);
     }
 }
 
 void Scene_Field::release_player_movement_direction(int direction)
 {
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
-        field[current_field]->release_player_movement_direction(direction);
+        fields[current_field]->release_player_movement_direction(direction);
     }
 }
 
 void Scene_Field::update(Event& event, std::string& command_main)
 {
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
         if (event.type == sf::Event::KeyPressed)
         {
@@ -147,22 +163,22 @@ void Scene_Field::update(Event& event, std::string& command_main)
             {
             case sf::Keyboard::W:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(3);
+                    fields[current_field]->set_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(0);
+                    fields[current_field]->set_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(1);
+                    fields[current_field]->set_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(2);
+                    fields[current_field]->set_player_movement_direction(2);
                 break;
             case sf::Keyboard::Space:
-                field[current_field]->action(resource_manager->field_tex_map["stump"]);
+                fields[current_field]->action(resource_manager->getObjectTexture("stump"));
                 break;
             default:
                 // if key is not set in contols, check dynamic bindings
@@ -177,19 +193,19 @@ void Scene_Field::update(Event& event, std::string& command_main)
             {
             case sf::Keyboard::W:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(3);
+                    fields[current_field]->release_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(0);
+                    fields[current_field]->release_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(1);
+                    fields[current_field]->release_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(2);
+                    fields[current_field]->release_player_movement_direction(2);
                 break;
             default:
                 break;
@@ -202,8 +218,8 @@ void Scene_Field::update(Time deltaTime)
 {
     Scene::update(deltaTime);
 
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
-        field[current_field]->update(deltaTime);
+        fields[current_field]->update(deltaTime);
     }
 }

@@ -6,11 +6,11 @@
 #include <memory>
 #include <fstream>
 
+#include "ResourceLoader.h"
 #include "Scene.h"
 #include "Player.h"
 #include "Scene_Field.h"
 #include "Scene_editor.h"
-#include "ResourceLoader.h"
 
 #include <nlohmann/json.hpp>
 
@@ -23,17 +23,17 @@ private:
     // map, where Scenes are stored
     std::map<std::string, std::shared_ptr<Scene> > scene_map;
 
+    std::shared_ptr<sf::RenderWindow> current_window;
+
     // current scene name and pointer
     std::string cur_scene_name;
-    // screensize is loaded from config json
-    sf::Vector2u screensize;
+
+    std::shared_ptr<ResourceLoader> resource_manager;
 
     std::shared_ptr<spdlog::logger> loading_logger;
 
-    ResourceLoader* resource_manager;
-
 public:
-    SceneController(ResourceLoader* resload = nullptr);
+    SceneController(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<ResourceLoader> resload = std::make_shared<ResourceLoader>(nullptr));
 
     // reloads all scenes according to config
     void load_config(std::string path_to_config = "./configs/scenes.json");
@@ -45,8 +45,12 @@ public:
     // switches current scene
     void set_current_scene(std::string name);
 
+    // gets scene by name
+    std::shared_ptr<Scene> get_scene(std::string name) const;
     // gets scene from map
-    Scene* get_current_scene() const;
+    std::shared_ptr<Scene> get_current_scene() const;
+    // gets current window
+    std::shared_ptr<sf::RenderWindow> get_current_window() const;
 };
 
 #endif // SCENE_CONTROLLER_H_INCLUDED

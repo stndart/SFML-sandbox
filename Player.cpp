@@ -12,7 +12,7 @@ Player::Player(std::string name) :
     map_events_logger->debug("Constructed player, \"{}\" with no sprite", name);
 }
 
-Player::Player(std::string name, Texture* texture, FloatRect posrect) : Player::Player(name)
+Player::Player(std::string name, std::shared_ptr<Texture> texture, FloatRect posrect) : Player::Player(name)
 {
     map_events_logger->trace("Player::Player with tex? {}", (bool)texture);
 

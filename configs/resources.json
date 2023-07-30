@@ -1,0 +1,9 @@
+{
+    "default": "./Images/no-texture.jpg",
+    "categories": ["UI", "Cell", "Cell object", "Character"],
+    
+    "UI": ["./Images/UI/"],
+    "Cell": ["./Images/Cells/"],
+    "Cell object": ["./Images/Cell_objects/"],
+    "Character": ["./Images/Flametail/"]
+}

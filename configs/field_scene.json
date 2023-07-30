@@ -1,0 +1,24 @@
+{
+    "background": "main_menu_background",
+    "UI elements" : [
+        {
+            "type": "button",
+            "texture": "escape",
+            "texture_pressed": "escape_pushed",
+            "callback": {
+                "name": "close window"
+            },
+            "Rel x": 1,
+            "Rel y": 1,
+            "Rel height": 0.1,
+            "Origin rel x": 1,
+            "Origin rel y": 0
+        }
+    ],
+    "fields": [
+        {
+            "id": 0,
+            "location id": 0
+        }
+    ]
+}

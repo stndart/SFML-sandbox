@@ -20,9 +20,12 @@ name(name), z_index(z_ind)
 }
 
 // creates ASprite with rectangular shape of <posrect> size and position and <texrect> texture coordinates
-AnimatedSprite::AnimatedSprite(std::string name, Texture* texture, IntRect texrect, FloatRect posrect, Vector2f origin, int z_ind, sf::BlendMode blend_mode) :
+AnimatedSprite::AnimatedSprite(std::string name, std::shared_ptr<Texture> texture, IntRect texrect, FloatRect posrect, Vector2f origin, int z_ind, sf::BlendMode blend_mode) :
     AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind, blend_mode)
 {
+    parent_shape->setTexture(texture.get());
+    parent_shape->setTextureRect(texrect);
+
     // set to 0th frame and reset time
     setFrame(0, true);
 }
@@ -194,7 +197,7 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
         m_currentFrame = newFrame;
 
         // set to new frame in spritesheet
-        parent_shape->setTexture(m_animation->getTexture(m_currentFrame));
+        parent_shape->setTexture(m_animation->getTexture(m_currentFrame).get());
         parent_shape->setTextureRect(m_animation->getFrame(m_currentFrame));
     }
 

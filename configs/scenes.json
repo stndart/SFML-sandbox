@@ -1,20 +1,16 @@
 {
-    "screensize": [1920, 1080],
+    "default scene config path": "./configs/main_menu.json",
     "scenes":
     [
         {
             "name": "main_menu",
             "type": "Scene",
-            "config": {
-
-            }
+            "config": "./configs/main_menu.json"
         },
         {
-            "name": "field_scene",
-            "type": "Scene_Field",
-            "config": {
-
-            }
+            "name": "editor_scene",
+            "type": "Scene_editor",
+            "config": "./configs/field_scene.json"
         }
     ]
 }

@@ -104,9 +104,9 @@ private:
 public:
     string name;
 
-    AnimatedSprite* base_sprite;
+    std::shared_ptr<AnimatedSprite> base_sprite;
 
-    AnimatedSprite* moving_sprite;
+    std::shared_ptr<AnimatedSprite> moving_sprite;
     // default animation by name
     string idle_animation;
 
@@ -127,7 +127,7 @@ public:
     void set_ignore_joints(bool ignore);
 
 public:
-    Character(string name, Texture* texture_default, IntRect texrect, FloatRect posrect);
+    Character(string name, std::shared_ptr<Texture> texture_default, IntRect texrect, FloatRect posrect);
     Character(string name, map<string, std::shared_ptr<Animation> > animations, FloatRect posrect);
 
     // add animation to map by name

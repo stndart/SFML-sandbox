@@ -1,9 +1,13 @@
 #include "Scene.h"
+
 #include "SceneController.h"
+#include "ResourceLoader.h"
 
 int Scene::UI_Z_INDEX = 10;
 
-Scene::Scene(std::string name, Vector2u screensize) : timer(seconds(0)), background(NULL), controls_blocked(false), name(name)
+Scene::Scene(std::string name, Vector2u screensize, std::shared_ptr<ResourceLoader> resload) :
+    timer(seconds(0)), resource_manager(resload),
+    controls_blocked(false), name(name)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
@@ -11,10 +15,10 @@ Scene::Scene(std::string name, Vector2u screensize) : timer(seconds(0)), backgro
 
     // Create new user interface
     IntRect UIFrame(0, 0, screensize.x, screensize.y);
-    Interface = new UI_window("Interface", UIFrame, this);
+    Interface = std::make_shared<UI_window>("Interface", UIFrame, this);
 
     // add to drawables index
-    sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface));
+    sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface.get()));
 
     if (!framebuffer.create(screensize.x, screensize.y))
     {
@@ -36,6 +40,88 @@ nlohmann::json Scene::get_config()
     return j;
 }
 
+// loads interface and other info from config
+void Scene::load_config(std::string config_path)
+{
+    ifstream f(config_path);
+    nlohmann::json j = nlohmann::json::parse(f);
+
+    std::string background_texture = j["background"];
+    addTexture(resource_manager->getUITexture(background_texture), sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(screensize)));
+
+    // create and place buttons
+    for (nlohmann::json j2 : j["UI elements"])
+    {
+        shared_ptr<sf::Texture> back = resource_manager->getUITexture(j2["texture"]);
+
+        std::string element_name = j2["type"].get<std::string>() + ":" + j2["texture"].get<std::string>();
+
+        sf::Vector2f texsize(back->getSize());
+
+        sf::Vector2f coords(j2.value("Abs x", 0), j2.value("Abs y", 0));
+        coords.x += j2.value("Rel x", 0) * screensize.x;
+        coords.y += j2.value("Rel y", 0) * screensize.y;
+
+        sf::Vector2f size(j2.value("Abs width", 0), j2.value("Abs height", 0));
+        size.x += j2.value("Rel width", 0) * screensize.x;
+        size.y += j2.value("Rel height", 0) * screensize.y;
+        size = save_aspect_ratio(size, texsize);
+
+        IntRect posrect(coords.x, coords.y, size.x, size.y);
+        
+        sf::Vector2f origin(j2.value("Origin abs x", 0), j2.value("Origin abs y", 0));
+        origin.x += j2.value("Origin rel x", 0) * size.x;
+        origin.y += j2.value("Origin rel y", 0) * size.y;
+
+        std::shared_ptr<Animation> spritesheet = std::make_shared<Animation>();
+        spritesheet->addSpriteSheet(back);
+        spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize)), 0);
+
+        if (j2["type"] == "button")
+        {
+            shared_ptr<sf::Texture> back_pressed;
+            if (j2["texture_pressed"].is_string())
+                back_pressed = resource_manager->getUITexture(j2["texture_pressed"]);
+            else
+                back_pressed = back;
+
+            spritesheet->addSpriteSheet(back_pressed);
+            spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize)), 1);
+
+            std::function<void()> callback;
+            std::string callback_name = j2["callback"]["name"];
+            if (callback_name == "change scene")
+            {
+                callback = create_change_scene_callback(*this, j2["callback"]["scene to"].get<std::string>());
+            }
+            else if (callback_name == "change field")
+            {
+                Scene_Field* this_field = dynamic_cast<Scene_Field*>(this);
+                if (this_field == nullptr)
+                {
+                    loading_logger->error("Adding illegal callback to button: {}", j2["callback"]["name"]);
+                }
+                callback = create_change_field_callback(*this_field, j2["callback"]["field to"].get<int>());
+            }
+            else if (callback_name == "close window")
+            {
+                callback = create_window_closed_callback(*(scene_controller->get_current_window()));
+            }
+
+            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, this, spritesheet, callback);
+            
+            button->setOrigin(origin);
+
+            loading_logger->trace(
+                "Added button to scene with name {}, coords {}x{} and origin {}x{}",
+                element_name, coords.x, coords.y, origin.x, origin.y
+            );
+
+            Interface->addElement(button);
+        }
+    }
+}
+
 // sets scene controller to invoke callbacks of switching scenes
 void Scene::set_scene_controller(SceneController& sc)
 {
@@ -54,14 +140,13 @@ SceneController& Scene::get_scene_controller() const
 }
 
 // change texture and update background from it
-void Scene::addTexture(Texture* texture, IntRect rect)
+void Scene::addTexture(std::shared_ptr<Texture> texture, IntRect rect)
 {
-    background = texture;
-
-    cutout_texture_to_frame(m_vertices, rect);
+    background.setTexture(*texture);
+    background.setTextureRect(rect);
 }
 
-void Scene::addSprite(AnimatedSprite* sprite, int z_index, bool to_frame_buffer)
+void Scene::addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index, bool to_frame_buffer)
 {
     loading_logger->trace("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, (int)to_frame_buffer);
 
@@ -69,13 +154,13 @@ void Scene::addSprite(AnimatedSprite* sprite, int z_index, bool to_frame_buffer)
     {
         sprites.push_back(sprite);
         sprite->z_index = z_index;
-        sorted_drawables.insert(make_pair(z_index, sprite));
+        sorted_drawables.insert(make_pair(z_index, sprite.get()));
     }
     else
     {
         sprites_to_framebuffer.push_back(sprite);
         sprite->z_index = z_index;
-        sorted_drawables_to_framebuffer.insert(make_pair(z_index, sprite));
+        sorted_drawables_to_framebuffer.insert(make_pair(z_index, sprite.get()));
     }
 }
 
@@ -86,7 +171,7 @@ void Scene::delete_sprites(bool from_frame_buffer)
     {
         for (auto s : sprites)
         {
-            sorted_drawables.erase(make_pair(s->z_index, s));
+            sorted_drawables.erase(make_pair(s->z_index, s.get()));
         }
         sprites.clear();
     }
@@ -94,62 +179,10 @@ void Scene::delete_sprites(bool from_frame_buffer)
     {
         for (auto s : sprites_to_framebuffer)
         {
-            sorted_drawables_to_framebuffer.erase(make_pair(s->z_index, s));
+            sorted_drawables_to_framebuffer.erase(make_pair(s->z_index, s.get()));
         }
         sprites_to_framebuffer.clear();
     }
-}
-
-// add and place button
-std::shared_ptr<UI_button> Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame,
-                                            std::string origin, std::function<void()> ncallback)
-{
-    loading_logger->debug("Added button \"{}\" to scene", name);
-
-    // get animation frame from texture size
-    Vector2u tex_size = texture_default->getSize();
-    IntRect tex_frame(0, 0, tex_size.x, tex_size.y);
-
-    /// MEMORY LEAK
-    Animation* tAn = new Animation;
-    tAn->addSpriteSheet(texture_default);
-    tAn->addFrame(tex_frame, 0);
-    tAn->addSpriteSheet(texture_released);
-    tAn->addFrame(tex_frame, 1);
-
-    loading_logger->warn("Created new Animation for button: MEMORY LEAK");
-
-    std::shared_ptr<UI_button> new_button = std::make_shared<UI_button>(UI_button(name, pos_frame, this, tAn, ncallback));
-    // default origin is "center"
-    if (origin == "center")
-    {
-        loading_logger->trace("trying center");
-        new_button->setOrigin((float)pos_frame.width / 2.f, (float)pos_frame.height / 2.f);
-    }
-    else if (origin == "top left")
-    {
-        loading_logger->trace("trying top left");
-        new_button->setOrigin(0, 0);
-    }
-    else
-    {
-        loading_logger->warn("Unknown button alignment origin {}, set to \"center\"", origin);
-    }
-
-    // register new button to Interface
-    Interface->addElement(new_button);
-
-    return new_button;
-}
-
-std::shared_ptr<UI_button> Scene::addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y,
-                                            std::string origin, std::function<void()> ncallback)
-{
-    // creating animation frame from args
-    Vector2u tex_size = texture_default->getSize();
-    IntRect pos_frame(pos_x, pos_y, tex_size.x, tex_size.y);
-
-    return addButton(name, texture_default, texture_released, pos_frame, origin, ncallback);
 }
 
 void Scene::addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements)
@@ -338,11 +371,9 @@ void Scene::draw_buffers()
 void Scene::draw(RenderTarget& target, RenderStates states) const
 {
     // draw scene back
-    if (background)
+    if (background.getTexture())
     {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
+        target.draw(background, states);
     }
 
     auto p = sorted_drawables.begin();
@@ -359,32 +390,4 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
 
     sf::Sprite framebuffer_sprite(framebuffer.getTexture());
     target.draw(framebuffer_sprite, states);
-}
-
-/// TEMP
-// MyFirstScene constructor
-std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2u screen_dimensions)
-{
-    std::shared_ptr<Scene> main_menu = std::make_shared<Scene>("Main menu", screen_dimensions);
-    main_menu->addTexture(bg, IntRect(0, 0, 1920, 1080));
-    main_menu->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
-
-    /// is it really an error?
-    if (new_button == new_button_pressed)
-    {
-        spdlog::get("loading")->error("Same textures for pressed/released button");
-        throw;
-    }
-
-    spdlog::get("loading")->debug("Making NEWGAME button with callback");
-
-    IntRect button_frame = IntRect(screen_dimensions.x / 2, screen_dimensions.y / 4 * 3, 500, 250);
-
-    std::function<void()> ncallback = create_change_scene_callback(main_menu, "Scene_editor");
-    spdlog::get("loading")->debug("Constructed callback");
-
-    main_menu->addButton("button", new_button, new_button_pressed, button_frame, "center", ncallback);
-    spdlog::get("loading")->debug("Constructed button");
-
-    return main_menu;
 }

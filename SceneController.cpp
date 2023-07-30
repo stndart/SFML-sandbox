@@ -1,7 +1,7 @@
-#include "Scene.h"
 #include "SceneController.h"
 
-SceneController::SceneController(ResourceLoader* resload) : resource_manager(resload)
+SceneController::SceneController(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<ResourceLoader> resload) :
+    current_window(window), resource_manager(resload)
 {
     // Reaching out to global "loading" logger by names
     loading_logger = spdlog::get("loading");
@@ -15,29 +15,32 @@ void SceneController::load_config(std::string path_to_config)
     std::ifstream f(path_to_config);
     nlohmann::json j = nlohmann::json::parse(f);
 
-    screensize = sf::Vector2u(
-        j.at("screensize")[0].get<unsigned int>(),
-        j.at("screensize")[1].get<unsigned int>()
-    );
+    sf::Vector2u screensize = current_window->getSize();
     
-    for (nlohmann::json it : j)
+    std::string default_scene_config_path = j["default scene config path"];
+
+    for (nlohmann::json it : j["scenes"])
     {
         std::string scene_type = it.value("type", "Scene");
         std::string scene_name = it["name"];
+        std::string scene_config_path = it.value("config", default_scene_config_path);
         if (scene_type == "Scene")
         {
-            scene_map[scene_name] = std::make_shared<Scene>(scene_name, screensize);
+            scene_map[scene_name] = std::make_shared<Scene>(scene_name, screensize, resource_manager);
             scene_map[scene_name]->set_scene_controller(*this);
+            scene_map[scene_name]->load_config(scene_config_path);
         }
         else if (scene_type == "Scene_Field")
         {
             scene_map[scene_name] = std::make_shared<Scene_Field>(scene_name, screensize, resource_manager);
             scene_map[scene_name]->set_scene_controller(*this);
+            scene_map[scene_name]->load_config(scene_config_path);
         }
         else if (scene_type == "Scene_editor")
         {
             scene_map[scene_name] = std::make_shared<Scene_editor>(scene_name, screensize, resource_manager);
             scene_map[scene_name]->set_scene_controller(*this);
+            scene_map[scene_name]->load_config(scene_config_path);
         }
         else
         {
@@ -50,7 +53,6 @@ void SceneController::load_config(std::string path_to_config)
 void SceneController::save_config(std::string path_to_config)
 {
     nlohmann::json j;
-    j["screensize"] = {screensize.x, screensize.y};
     
     j["scenes"] = nlohmann::json::array();
     for (auto scene : scene_map)
@@ -93,8 +95,14 @@ void SceneController::set_current_scene(std::string name)
     cur_scene_name = name;
 }
 
+// gets scene by name
+std::shared_ptr<Scene> SceneController::get_scene(std::string name) const
+{
+    return scene_map.at(name);
+}
+
 // gets scene from map
-Scene* SceneController::get_current_scene() const
+std::shared_ptr<Scene> SceneController::get_current_scene() const
 {
     if (cur_scene_name == "")
         return NULL;
@@ -105,6 +113,11 @@ Scene* SceneController::get_current_scene() const
         throw;
     }
 
-    return scene_map.at(cur_scene_name).get();
+    return scene_map.at(cur_scene_name);
 }
 
+// gets current window
+std::shared_ptr<sf::RenderWindow> SceneController::get_current_window() const
+{
+    return current_window;
+}

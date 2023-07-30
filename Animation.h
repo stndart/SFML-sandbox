@@ -30,7 +30,7 @@ private:
     // frames coordinates on spritesheet list
     std::vector<IntRect> m_frames;
     // spritesheet list
-    std::vector<Texture*> textures;
+    std::vector<std::shared_ptr<Texture> > textures;
     // frames spritesheet index list
     std::vector<int> texture_index;
 
@@ -41,14 +41,14 @@ private:
 
 public:
     Animation();
-    Animation(Texture* texture);
+    Animation(std::shared_ptr<Texture> texture);
 
     // set texture by link for spritesheet #i
-    void setSpriteSheet(Texture* texture, std::size_t i=0);
+    void setSpriteSheet(std::shared_ptr<Texture> texture, std::size_t i=0);
     // append spritesheet with texture by link
-    int addSpriteSheet(Texture* texture);
+    int addSpriteSheet(std::shared_ptr<Texture> texture);
     // get spritesheet by index
-    Texture* getSpriteSheet(int i=0);
+    std::shared_ptr<Texture> getSpriteSheet(int i=0);
     // get number of frames
     std::size_t getSize() const;
 
@@ -74,7 +74,7 @@ public:
     // return frame coordinates of n-th frame
     const IntRect& getFrame(std::size_t n) const;
     // return spritesheet of n-th frame
-    Texture* getTexture(std::size_t n) const;
+    std::shared_ptr<Texture> getTexture(std::size_t n) const;
     // return spritesheet index of n frame
     int getTextureIndex(std::size_t n) const;
 
