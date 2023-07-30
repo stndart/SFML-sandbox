@@ -12,8 +12,12 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
+// dear imgui temporary library
 #include <imgui.h>
 #include <imgui-SFML.h>
+
+// json parsing library
+#include <nlohmann/json.hpp>
 
 #include "AnimatedSprite.h"
 #include "VisualEffect.h"
@@ -108,7 +112,11 @@ int main()
     window->setKeyRepeatEnabled(false);
     loading_logger->info("Created window {}x{}", 1920, 1080);
 
-    ImGui::SFML::Init(*window);
+    if (!ImGui::SFML::Init(*window))
+    {
+        loading_logger->error("Couldn't init imgui");
+        return 1;
+    }
 
     ResourceLoader resload;
 

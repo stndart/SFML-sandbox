@@ -31,3 +31,8 @@ add_subdirectory(imgui-sfml)
 
 target_link_libraries(external INTERFACE ImGui-SFML::ImGui-SFML)
 target_include_directories(external INTERFACE ImGui-SFML::ImGui-SFML)
+
+add_subdirectory(json)
+
+target_link_libraries(external INTERFACE nlohmann_json::nlohmann_json)
+target_include_directories(external INTERFACE nlohmann_json::nlohmann_json)
