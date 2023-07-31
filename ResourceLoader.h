@@ -16,6 +16,10 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 
+#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
+#include <SFML/Graphics/Texture.hpp>
+
 using namespace sf;
 
 class ResourceLoader

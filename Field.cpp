@@ -458,29 +458,31 @@ void Field::load_field(int loc_id)
 
     loading_logger->info("Loading field from \"{}\"", path);
 
-    Json::Value Location;
+    nlohmann::json Location;
     std::ifstream ifs(path);
     ifs >> Location;
 
     // get field size
-    unsigned int field_length = int(Location["scale"][0].asInt());
-    unsigned int field_width = int(Location["scale"][1].asInt());
+    unsigned int field_length = Location["scale"].at(0).get<int>();
+    unsigned int field_width = Location["scale"].at(1).get<int>();
 
     loading_logger->info("Loading field with size of {}x{}", field_length, field_width);
 
-    default_player_pos.x = Location["default_player_pos"][0].asInt();
-    default_player_pos.y = Location["default_player_pos"][1].asInt();
+    default_player_pos.x = Location["default_player_pos"].at(0).get<int>();
+    default_player_pos.y = Location["default_player_pos"].at(1).get<int>();
     field_resize(field_length, field_width);
 
-    cell_tex_size = Vector2u(Location["cell_texture_size"].get(Json::ArrayIndex(0), 0).asInt(),
-                                      Location["cell_texture_size"].get(Json::ArrayIndex(1), 0).asInt());
+    cell_tex_size = sf::Vector2u(
+        Location["cell_texture_size"].at(0).get<int>(),
+        Location["cell_texture_size"].at(1).get<int>()
+    );
 
     for (unsigned int x = 0; x < cells.size(); x++)
     {
         for (unsigned int y = 0; y < cells[x].size(); y++)
         {
             // add cell
-            std::string cell_type = Location["map"][x][y]["type"].asString();
+            std::string cell_type = Location["map"][x][y]["type"].get<string>();
 
             // if cell_tex_size is (0, 0), then ask certain texture of her size
             Vector2u temp_cell_tex_size = cell_tex_size;
@@ -491,7 +493,7 @@ void Field::load_field(int loc_id)
                                               temp_cell_tex_size.x, temp_cell_tex_size.y);
             cells[x][y] = std::make_shared<Cell>(cell_type, resource_manager->getCellTexture(cell_type), cell_tex_coords);
 
-            cells[x][y]->displayed = Location["map"][x][y].get("displayed", true).asBool();
+            cells[x][y]->displayed = Location["map"][x][y].value("displayed", true);
             
             // when cell is border-like, enable full movement blocking: in and out
             if (cell_type == "border")
@@ -503,17 +505,17 @@ void Field::load_field(int loc_id)
 
             // add placeable objects to cell
             std::string object_type = "";
-            if (Location["big_objects"][x][y].isArray())
+            if (Location["big_objects"][x][y].is_array())
             {
                 unsigned int cell_object_size = Location["big_objects"][x][y].size();
                 for (unsigned int i = 0; i < cell_object_size; i++)
                 {
-                    if (Location["big_objects"][x][y][i].isObject())
+                    if (Location["big_objects"][x][y][i].is_object())
                     {
-                        std::string object_type = Location["big_objects"][x][y][0]["type"].asString();
-                        int object_depth_level = Location["big_objects"][x][y][0]["depth_level"].asInt();
-                        float displayed_width = Location["big_objects"][x][y][0].get("displayed_width", 0).asFloat();
-                        float displayed_height = Location["big_objects"][x][y][0].get("displayed_height", 0).asFloat();
+                        std::string object_type = Location["big_objects"][x][y][0]["type"].get<string>();
+                        int object_depth_level = Location["big_objects"][x][y][0]["depth_level"].get<int>();
+                        float displayed_width = Location["big_objects"][x][y][0].value("displayed_width", 0);
+                        float displayed_height = Location["big_objects"][x][y][0].value("displayed_height", 0);
                         Vector2f object_displayed_size = save_aspect_ratio(
                             Vector2f(displayed_width, displayed_height),
                             Vector2f(resource_manager->getObjectTexture(object_type)->getSize())
@@ -521,17 +523,23 @@ void Field::load_field(int loc_id)
 
                         cells[x][y]->addObject(object_type, resource_manager->getObjectTexture(object_type), object_displayed_size, object_depth_level);
                         
-                        float origin_x = Location["big_objects"][x][y][0]["origin"].get(Json::ArrayIndex(0), 0).asFloat();
-                        float origin_y = Location["big_objects"][x][y][0]["origin"].get(Json::ArrayIndex(1), 0).asFloat();
-                        cells[x][y]->setOrigin(origin_x, origin_y);
+                        if (Location["big_objects"][x][y][0]["origin"].is_object())
+                        {
+                            float origin_x = Location["big_objects"][x][y][0]["origin"].at(0).get<float>();
+                            float origin_y = Location["big_objects"][x][y][0]["origin"].at(1).get<float>();
+                            cells[x][y]->setOrigin(origin_x, origin_y);
+                        }
                         
                         // load blocking info from json
-                        Json::Value in_blocking = Location["big_objects"][x][y][0]["in_blocking"];
-                        for (int dir = 0; dir < 4; dir++)
-                            cells[x][y]->update_in_block(dir, in_blocking.get(Json::ArrayIndex(dir), false).asBool());
-                        Json::Value out_blocking = Location["big_objects"][x][y][0]["out_blocking"];
-                        for (int dir = 0; dir < 4; dir++)
-                            cells[x][y]->update_out_block(dir, out_blocking.get(Json::ArrayIndex(dir), false).asBool());
+                        nlohmann::json in_blocking = Location["big_objects"][x][y][0]["in_blocking"];
+                        if (in_blocking.size() == 4)
+                        {
+                            for (int dir = 0; dir < 4; dir++)
+                                cells[x][y]->update_in_block(dir, in_blocking.at(dir).get<bool>());
+                            nlohmann::json out_blocking = Location["big_objects"][x][y][0]["out_blocking"];
+                            for (int dir = 0; dir < 4; dir++)
+                                cells[x][y]->update_out_block(dir, out_blocking.at(dir).get<bool>());
+                        }
 
                         loading_logger->trace("Added object {} to cell {} at {}x{}", object_type, cell_type, x, y);
                     }
@@ -552,7 +560,7 @@ void Field::save_field(int loc_id)
 
     loading_logger->info("Saving field to \"{}\"", path);
 
-    Json::Value Location;
+    nlohmann::json Location;
     Location["default_player_pos"][0] = 10;
     Location["default_player_pos"][1] = 10;
     Location["scale"][0] = cells.size();

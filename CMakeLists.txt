@@ -20,10 +20,6 @@ add_subdirectory(external)
 target_link_libraries(${PROJECT_NAME} PUBLIC external)
 target_include_directories(${PROJECT_NAME} PUBLIC external)
 
-add_subdirectory(jsoncpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC jsoncpp_lib)
-target_include_directories(${PROJECT_NAME} PUBLIC jsoncpp)
-
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR})
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR})

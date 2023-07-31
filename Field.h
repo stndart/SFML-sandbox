@@ -16,7 +16,7 @@
 #include "extra_algorithms.h"
 #include "ResourceLoader.h"
 
-#include <jsoncpp/json.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
