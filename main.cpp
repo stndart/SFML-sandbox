@@ -146,8 +146,8 @@ int main()
     // Create first and only player.
     // Player knows, where he stands, and the field also
     editor_scene->get_field(0)->addPlayer(player_animation_fnames);
-    shared_ptr<Player> player_0 = editor_scene->get_field(0)->player_0;
-    editor_scene->get_field(1)->player_0 = player_0;
+    editor_scene->get_field(1)->player_0 = editor_scene->get_field(0)->player_0;
+    editor_scene->get_field(0)->teleport_to();
 
     editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(*editor_scene));
 

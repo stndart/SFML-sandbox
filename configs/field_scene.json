@@ -6,7 +6,8 @@
             "texture": "escape",
             "texture_pressed": "escape_pushed",
             "callback": {
-                "name": "close window"
+                "name": "change scene",
+                "scene to": "main_menu"
             },
             "Rel x": 1,
             "Rel y": 0,

@@ -84,7 +84,7 @@ void SceneController::add_scene(std::string name, std::shared_ptr<Scene> scene)
 // switches current scene
 void SceneController::set_current_scene(std::string name)
 {
-    loading_logger->info("Changing scene to {} from ", name, cur_scene_name);
+    loading_logger->info("Changing scene to {} from {}", name, cur_scene_name);
 
     if (cur_scene_name != "")
     {

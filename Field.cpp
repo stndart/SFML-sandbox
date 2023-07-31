@@ -232,8 +232,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     map_events_logger->trace("Field: added 4 animations to player");
 
     // fit sprite into cell (horizontally)
-    /// MAGIC NUMBERS!
-    player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
+    player_0->setScale(Vector2f(cell_length_x / frame_size.x, cell_length_x / frame_size.x));
 
     if (pos.x == -1)
     {
@@ -245,6 +244,8 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
         player_0->x_cell_coord = pos.x;
         player_0->y_cell_coord = pos.y;
     }
+
+    loading_logger->info("Loaded player at cell {}x{}", player_0->x_cell_coord, player_0->y_cell_coord);
 }
 
 // places player onto this field by coords
@@ -271,6 +272,10 @@ void Field::teleport_to(Vector2i coords, std::shared_ptr<Player> player)
         player_0->y_cell_coord = coords.y;
 
         place_characters();
+    }
+    else
+    {
+        map_events_logger->warn("Teleport to {}x{}, but no player passed to {}", coords.x, coords.y, name);
     }
 }
 
