@@ -84,14 +84,17 @@ void SceneController::add_scene(std::string name, std::shared_ptr<Scene> scene)
 // switches current scene
 void SceneController::set_current_scene(std::string name)
 {
-    loading_logger->info("Changing scene to {}", name);
+    loading_logger->info("Changing scene to {} from ", name, cur_scene_name);
 
-    if (scene_map[cur_scene_name]->has_callbacks())
+    if (cur_scene_name != "")
     {
-        loading_logger->warn("Discarding callbacks due to scene change");
+        if (scene_map[cur_scene_name]->has_callbacks())
+        {
+            loading_logger->warn("Discarding callbacks due to scene change");
+        }
+        scene_map[cur_scene_name]->cancel_callbacks();
     }
-
-    scene_map[cur_scene_name]->cancel_callbacks();
+    
     cur_scene_name = name;
 }
 

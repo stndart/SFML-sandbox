@@ -7,7 +7,7 @@
             "texture_pressed": "new_game_button_pushed",
             "callback": {
                 "name": "change scene",
-                "scene to": "Scene_editor"
+                "scene to": "editor_scene"
             },
             "Rel x": 0.105,
             "Rel y": 0.2,

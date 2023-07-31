@@ -37,8 +37,9 @@ void Scene_Field::load_config(std::string config_path)
         int loc_id = j2.at("location id");
 
         std::string field_name = "field #" + std::to_string(id);
-        fields[id] = std::make_shared<Field>(field_name, screensize, resource_manager);
-        fields[id]->load_field(loc_id);
+        std::shared_ptr<Field> new_field = std::make_shared<Field>(field_name, screensize, resource_manager);
+        new_field->load_field(loc_id);
+        add_field(new_field, id);
     }
 }
 

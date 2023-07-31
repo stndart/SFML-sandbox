@@ -103,20 +103,27 @@ std::shared_ptr<Texture> ResourceLoader::getTexture(std::string texname, std::st
         loading_logger->warn("Trying to get texture {} of unknown category {}", texname, category);
         return notexture;
     }
-    if (textures[category].count(texname) == 0)
+    else
     {
-        if (!lazy)
+        if (textures[category].count(texname) == 0)
         {
-            loading_logger->warn("Trying to get texture {} of unknown category {}", texname, category);
-            return notexture;
+            if (!lazy)
+            {
+                loading_logger->warn("Trying to get unknown texture {} of category {}", texname, category);
+                return notexture;
+            }
+            else
+            {
+                load_texture_by_name(texname, category);
+                if (textures[category].count(texname) == 0)
+                    return notexture;
+                else
+                    return textures[category][texname];
+            }
         }
         else
         {
-            load_texture_by_name(texname, category);
-            if (textures[category].count(texname) == 0)
-                return notexture;
-            else
-                return textures[category][texname];
+            return textures[category][texname];
         }
     }
 }
