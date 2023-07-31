@@ -6,7 +6,7 @@
 int Scene::UI_Z_INDEX = 10;
 
 Scene::Scene(std::string name, Vector2u screensize, std::shared_ptr<ResourceLoader> resload) :
-    timer(seconds(0)), resource_manager(resload),
+    timer(seconds(0)), resource_manager(resload), screensize(screensize),
     controls_blocked(false), name(name)
 {
     // Reaching out to global "loading" logger and "input" logger by names
@@ -58,20 +58,44 @@ void Scene::load_config(std::string config_path)
 
         sf::Vector2f texsize(back->getSize());
 
-        sf::Vector2f coords(j2.value("Abs x", 0), j2.value("Abs y", 0));
-        coords.x += j2.value("Rel x", 0) * screensize.x;
-        coords.y += j2.value("Rel y", 0) * screensize.y;
+        sf::Vector2f coords;
+        if (j2.contains("Abs x"))
+            coords.x += j2["Abs x"].get<float>();
+        if (j2.contains("Abs y"))
+            coords.y += j2["Abs y"].get<float>();
+        if (j2.contains("Rel x"))
+            coords.x += j2["Rel x"].get<float>() * screensize.x;
+        if (j2.contains("Rel y"))
+            coords.y += j2["Rel y"].get<float>() * screensize.y;
+        
+        sf::Vector2f size;
+        if (j2.contains("Abs width"))
+            size.x += j2["Abs width"].get<float>();
+        if (j2.contains("Abs height"))
+            size.y += j2["Abs height"].get<float>();
+        if (j2.contains("Rel width"))
+            size.x += j2["Rel width"].get<float>() * screensize.x;
+        if (j2.contains("Rel height"))
+            size.y += j2["Rel height"].get<float>() * screensize.y;
 
-        sf::Vector2f size(j2.value("Abs width", 0), j2.value("Abs height", 0));
-        size.x += j2.value("Rel width", 0) * screensize.x;
-        size.y += j2.value("Rel height", 0) * screensize.y;
         size = save_aspect_ratio(size, texsize);
 
         IntRect posrect(coords.x, coords.y, size.x, size.y);
         
-        sf::Vector2f origin(j2.value("Origin abs x", 0), j2.value("Origin abs y", 0));
-        origin.x += j2.value("Origin rel x", 0) * size.x;
-        origin.y += j2.value("Origin rel y", 0) * size.y;
+        sf::Vector2f origin;
+        if (j2.contains("Origin abs x"))
+            origin.x += j2["Origin abs x"].get<float>();
+        if (j2.contains("Origin abs y"))
+            origin.x += j2["Origin abs y"].get<float>();
+        if (j2.contains("Origin rel x"))
+            origin.x += j2["Origin rel x"].get<float>() * texsize.x;
+        if (j2.contains("Origin rel y"))
+            origin.x += j2["Origin rel y"].get<float>() * texsize.y;
+
+        // loading_logger->trace(
+        //     "Loaded ui element pos {:.0f}x{:.0f}, size {:.0f}x{:.0f}, origin {:.0f}x{:.0f}",
+        //     coords.x, coords.y, size.x, size.y, origin.x, origin.y
+        // );
 
         std::shared_ptr<Animation> spritesheet = std::make_shared<Animation>();
         spritesheet->addSpriteSheet(back);
@@ -85,8 +109,10 @@ void Scene::load_config(std::string config_path)
             else
                 back_pressed = back;
 
+            sf::Vector2f texsize_pressed(back_pressed->getSize());
+
             spritesheet->addSpriteSheet(back_pressed);
-            spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize)), 1);
+            spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize_pressed)), 1);
 
             std::function<void()> callback;
             std::string callback_name = j2["callback"]["name"];
@@ -109,15 +135,14 @@ void Scene::load_config(std::string config_path)
             }
 
             std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, this, spritesheet, callback);
-            
             button->setOrigin(origin);
 
+            Interface->addElement(button);
+
             loading_logger->trace(
-                "Added button to scene with name {}, coords {}x{} and origin {}x{}",
+                "Added button to scene with name {}, coords {:.0f}x{:.0f} and origin {:.0f}x{:.0f}",
                 element_name, coords.x, coords.y, origin.x, origin.y
             );
-
-            Interface->addElement(button);
         }
     }
 }

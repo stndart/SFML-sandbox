@@ -70,8 +70,13 @@ public:
     bool has_out_block(int direction) const;
 
     // overriding Transformable methods
-    void setPosition(const Vector2f &pos);
-    void setPosition(float x, float y);
+    virtual void move(const Vector2f &offset);
+    virtual void rotate(float angle);
+    virtual void scale(const Vector2f &factor);
+    virtual void setPosition(const Vector2f &position);
+    virtual void setPosition(float x, float y);
+    virtual void setScale(const Vector2f &factors);
+    virtual void setScale(float factorX, float factorY);
 
     // overriding Drawable methods
     virtual void draw(RenderTarget& target, RenderStates states) const override;

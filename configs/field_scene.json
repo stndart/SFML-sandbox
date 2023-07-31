@@ -1,5 +1,5 @@
 {
-    "background": "main_menu_background",
+    "background": "field_background",
     "UI elements" : [
         {
             "type": "button",
@@ -9,7 +9,7 @@
                 "name": "close window"
             },
             "Rel x": 1,
-            "Rel y": 1,
+            "Rel y": 0,
             "Rel height": 0.1,
             "Origin rel x": 1,
             "Origin rel y": 0

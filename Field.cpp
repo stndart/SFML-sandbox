@@ -565,6 +565,49 @@ void Field::save_field(int loc_id)
     ofs.close();
 }
 
+// overriding Transformable methods
+void Field::move(const Vector2f &offset)
+{
+    Transformable::move(offset);
+    background.move(offset);
+}
+
+void Field::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    background.rotate(angle);
+}
+
+void Field::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    background.scale(factor);
+}
+
+void Field::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+    background.setPosition(position);
+}
+
+void Field::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    background.setPosition(x, y);
+}
+
+void Field::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    background.setScale(factors);
+}
+
+void Field::setScale(float factorX, float factorY)
+{
+    Transformable::setScale(factorX, factorY);
+    background.setScale(factorX, factorY);
+}
+
 void Field::update(Time deltaTime)
 {
     // update cell texture and child objects coords

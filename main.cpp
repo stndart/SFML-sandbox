@@ -73,7 +73,7 @@ int main()
 
         loading_logger->set_level(spdlog::level::debug);
         input_logger->set_level(spdlog::level::info);
-        map_events_logger->set_level(spdlog::level::trace);
+        map_events_logger->set_level(spdlog::level::debug);
         graphics_logger->set_level(spdlog::level::info);
 
         loading_logger->flush_on(spdlog::level::trace);

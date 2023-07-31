@@ -81,7 +81,7 @@ void ResourceLoader::load_textures()
     }
 
     categories = j["categories"];
-    loading_logger->debug("Loaded {} categories from config.json", categories.size());
+    loading_logger->debug("Loaded {} categories from {}", categories.size(), path_to_config);
 
     for (std::string category : categories)
     {

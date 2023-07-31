@@ -164,16 +164,46 @@ bool Cell::has_out_block(int direction) const
 }
 
 // overriding Transformable methods
-void Cell::setPosition(const Vector2f &pos)
+void Cell::move(const Vector2f &offset)
 {
-    Transformable::setPosition(pos);
-    sprite.setPosition(pos);
+    Transformable::move(offset);
+    sprite.move(offset);
+}
+
+void Cell::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    sprite.rotate(angle);
+}
+
+void Cell::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    sprite.scale(factor);
+}
+
+void Cell::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+    sprite.setPosition(position);
 }
 
 void Cell::setPosition(float x, float y)
 {
     Transformable::setPosition(x, y);
     sprite.setPosition(x, y);
+}
+
+void Cell::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    sprite.setScale(factors);
+}
+
+void Cell::setScale(float factorX, float factorY)
+{
+    Transformable::setScale(factorX, factorY);
+    sprite.setScale(factorX, factorY);
 }
 
 void Cell::draw(RenderTarget& target, RenderStates states) const

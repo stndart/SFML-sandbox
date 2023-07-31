@@ -17,6 +17,7 @@ class UI_element : public sf::Drawable, public sf::Transformable
     protected:
         // sprite position and rectangle to hover checks
         sf::IntRect Frame_scale;
+
         // spritesheet with textures
         std::shared_ptr<Animation> background_animation;
         // index of current frame in the spritesheet
@@ -65,9 +66,15 @@ class UI_element : public sf::Drawable, public sf::Transformable
 
         // overriding Transformable methods
         virtual void move(const Vector2f &offset);
+        virtual void scale(const Vector2f &factor);
         FloatRect getLocalBounds() const;
         FloatRect getGlobalBounds() const;
         virtual void setPosition(const Vector2f &position);
+        virtual void setPosition(float x, float y);
+        virtual void setOrigin(const Vector2f &origin);
+        virtual void setOrigin(float x, float y);
+        virtual void setScale(const Vector2f &factors);
+        virtual void setScale(float factorX, float factorY);
 
         // overriding Drawable methods
         virtual void draw(RenderTarget& target, RenderStates states) const override;

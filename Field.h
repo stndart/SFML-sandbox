@@ -119,6 +119,15 @@ public:
     // save field and cells in json file
     void save_field(int loc_id);
 
+    // overriding Transformable methods
+    virtual void move(const Vector2f &offset);
+    virtual void rotate(float angle);
+    virtual void scale(const Vector2f &factor);
+    virtual void setPosition(const Vector2f &position);
+    virtual void setPosition(float x, float y);
+    virtual void setScale(const Vector2f &factors);
+    virtual void setScale(float factorX, float factorY);
+
     // overriding Drawable methods
     virtual void update(Time deltaTime);
     virtual void draw(RenderTarget& target, RenderStates states) const override;

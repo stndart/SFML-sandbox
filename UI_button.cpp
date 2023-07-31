@@ -5,7 +5,7 @@
 // label with texture
 UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, bool is_clickable) : UI_element(name, UIFrame, parent)
 {
-    loading_logger->trace("UI_button:UI_button {} #1, UIFRame +{}+{}, {}x{}", name,
+    loading_logger->trace("UI_button:UI_texture {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
     displayed = true;
 
@@ -23,7 +23,7 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::
 {
     displayed = true;
 
-    loading_logger->trace("UI_button:UI_button {} #2, UIFRame +{}+{}, {}x{}", name,
+    loading_logger->trace("UI_button:UI_label {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
@@ -36,7 +36,7 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::
     if (ncallback)
         add_callback(ncallback);
 
-    loading_logger->trace("UI_button:UI_button {} #3, UIFRame +{}+{}, {}x{}", name,
+    loading_logger->trace("UI_button:UI_button {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
