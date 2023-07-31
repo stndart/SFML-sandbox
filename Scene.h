@@ -5,18 +5,22 @@
 #include <deque>
 #include <map>
 #include <functional>
+#include <fstream>
 
 #include "AnimatedSprite.h"
 #include "UI_window.h"
 #include "extra_algorithms.h"
 #include "Callbacks.h"
+#include "Animation.h"
 
 #include <spdlog/spdlog.h>
+#include <nlohmann/json.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 class SceneController;
+class ResourceLoader;
 
 using namespace sf;
 
@@ -34,10 +38,16 @@ private:
     Time timer;
 
 protected:
+    // pointer to resource manager
+    std::shared_ptr<ResourceLoader> resource_manager;
+
+    // screen size in pixels. Passed in constructor
+    sf::Vector2u screensize;
+
     // list of sprites
-    std::vector<AnimatedSprite*> sprites;
+    std::vector<std::shared_ptr<AnimatedSprite> > sprites;
     // list of sprites that belong to framebuffer
-    std::vector<AnimatedSprite*> sprites_to_framebuffer;
+    std::vector<std::shared_ptr<AnimatedSprite> > sprites_to_framebuffer;
     // framebuffer, to which all <sprites> are rendered (for example, with no-blend mode)
     sf::RenderTexture framebuffer;
 
@@ -47,10 +57,10 @@ protected:
     // set of all drawables sorted by z-index to draw in framebuffer
     std::set <std::pair<int, Drawable*> > sorted_drawables_to_framebuffer;
 
-    Texture* background;
-    Vertex m_vertices[4];
+    // draws background
+    sf::Sprite background;
     // Object of user interface. Drawable
-    UI_window* Interface;
+    std::shared_ptr<UI_window> Interface;
 
     SceneController* scene_controller;
 
@@ -64,23 +74,31 @@ protected:
 public:
     std::string name;
 
-    Scene(std::string name, Vector2u screensize);
+    Scene(std::string name, Vector2u screensize, std::shared_ptr<ResourceLoader> resload);
+
+    // returns type name ("Scene" for this class)
+    virtual std::string get_type();
+
+    // returns config object to be saved externally
+    virtual nlohmann::json get_config();
+    // loads interface and other info from config
+    virtual void load_config(std::string config_path);
 
     // sets scene controller to invoke callbacks of switching scenes
     void set_scene_controller(SceneController& sc);
     SceneController& get_scene_controller() const;
 
     // adding elements to certain lists
-    void addTexture(Texture* texture, IntRect rect);
-    void addSprite(AnimatedSprite* sprite, int z_index=1, bool to_frame_buffer=false);
+    void addTexture(std::shared_ptr<Texture> texture, IntRect rect);
+    void addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index=1, bool to_frame_buffer=false);
     /// TEMP
     // deletes all sprites either from framebuffer or not
     void delete_sprites(bool from_frame_buffer=false);
 
     // add button with callback and return its pointer
-    std::shared_ptr<UI_button> addButton(std::string name, Texture* texture_default, Texture* texture_released, IntRect pos_frame,
+    std::shared_ptr<UI_button> addButton(std::string name, std::shared_ptr<Texture> texture_default, std::shared_ptr<Texture> texture_released, IntRect pos_frame,
                                          std::string origin = "center", std::function<void()> callback = std::function<void()>{nullptr});
-    std::shared_ptr<UI_button> addButton(std::string name, Texture* texture_default, Texture* texture_released, int pos_x, int pos_y,
+    std::shared_ptr<UI_button> addButton(std::string name, std::shared_ptr<Texture> texture_default, std::shared_ptr<Texture> texture_released, int pos_x, int pos_y,
                                          std::string origin = "center", std::function<void()> callback = std::function<void()>{nullptr});
 
     void addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements);
@@ -111,9 +129,5 @@ public:
     virtual void update(Time deltaTime);
     virtual void draw(RenderTarget& target, RenderStates states) const override;
 };
-
-/// TEMP
-// MyFirstScene constructor
-std::shared_ptr<Scene> new_menu_scene(Texture* bg, Texture* new_button, Texture* new_button_pressed, Vector2u screen_dimensions);
 
 #endif // SCENE_INCLUDE

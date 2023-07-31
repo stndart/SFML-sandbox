@@ -1,12 +1,12 @@
 #include "Cell_object.h"
 
-Cell_object::Cell_object(std::string name, Texture* texture, IntRect rect) : type_name(name), depth_level(1)
+Cell_object::Cell_object(std::string name, std::shared_ptr<Texture> texture, IntRect rect) : type_name(name), depth_level(1)
 {
     sprite.setTexture(*texture);
     sprite.setTextureRect(rect);
 }
 
-Cell_object::Cell_object(std::string name, Texture* texture) : type_name(name), depth_level(1)
+Cell_object::Cell_object(std::string name, std::shared_ptr<Texture> texture) : type_name(name), depth_level(1)
 {
     Vector2u texsize = texture->getSize();
     IntRect rect(0, 0, texsize.x, texsize.y);
@@ -15,7 +15,7 @@ Cell_object::Cell_object(std::string name, Texture* texture) : type_name(name), 
 }
 
 // change object texture and name
-void Cell_object::change_texture(std::string name, Texture* texture)
+void Cell_object::change_texture(std::string name, std::shared_ptr<Texture> texture)
 {
     type_name = name;
     sprite.setTexture(*texture);

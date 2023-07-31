@@ -1,9 +1,15 @@
 #include "Scene_editor.h"
 
-Scene_editor::Scene_editor(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_blocks) : Scene_Field(name, screensize, field_blocks),
+Scene_editor::Scene_editor(std::string name, sf::Vector2u screensize, std::shared_ptr<ResourceLoader> resload) : Scene_Field(name, screensize, resload),
 s_input(""), input_focus(false)
 {
     // None
+}
+
+// returns type name ("Scene_editor" for this class)
+std::string Scene_editor::get_type()
+{
+    return "Scene_editor";
 }
 
 // evaluate command line command
@@ -27,7 +33,7 @@ void Scene_editor::command(std::string data)
 
     // switch by first command word
 
-    if (current_field != -1)
+    if (current_field != -1 && fields[current_field])
     {
         if (s[0] == "save_map")
         {
@@ -47,8 +53,8 @@ void Scene_editor::command(std::string data)
                 int y = -1;
                 if (s[2] == "~" && s[3] == "~")
                 {
-                    x = field[current_field]->player_0->x_cell_coord;
-                    y = field[current_field]->player_0->y_cell_coord;
+                    x = fields[current_field]->player_0->x_cell_coord;
+                    y = fields[current_field]->player_0->y_cell_coord;
                 }
                 else
                 {
@@ -60,12 +66,7 @@ void Scene_editor::command(std::string data)
                     s_input = "out of field's range";
                     return;
                 }
-                if (field_tex_map->find(s[4]) == field_tex_map->end())
-                {
-                    s_input = "can't find the texture";
-                    return;
-                }
-                field[current_field]->add_object_to_cell(x, y, s[4], (*field_tex_map)[s[4]]);
+                fields[current_field]->add_object_to_cell(x, y, s[4], resource_manager->getObjectTexture(s[4]));
             }
             else
             {
@@ -87,8 +88,8 @@ void Scene_editor::command(std::string data)
                 int y = -1;
                 if (s[2] == "~" && s[3] == "~")
                 {
-                    x = field[current_field]->player_0->x_cell_coord;
-                    y = field[current_field]->player_0->y_cell_coord;
+                    x = fields[current_field]->player_0->x_cell_coord;
+                    y = fields[current_field]->player_0->y_cell_coord;
                 }
                 else
                 {
@@ -100,12 +101,7 @@ void Scene_editor::command(std::string data)
                     s_input = "out of field's range";
                     return;
                 }
-                if (field_tex_map->find(s[4]) == field_tex_map->end())
-                {
-                    s_input = "can't find the texture";
-                    return;
-                }
-                field[current_field]->change_cell_texture(x, y, s[4], (*field_tex_map)[s[4]]);
+                fields[current_field]->change_cell_texture(x, y, s[4], resource_manager->getCellTexture(s[4]));
             }
             else
             {
@@ -125,9 +121,9 @@ void Scene_editor::save_map()
 {
     loading_logger->info("Saving scene_editor map");
 
-    for (unsigned int i = 0; i < field_N; i++)
+    for (unsigned int i = 0; i < fields.size(); i++)
     {
-        field[i]->save_field(i);
+        fields[i]->save_field(i);
     }
 }
 
@@ -152,34 +148,34 @@ void Scene_editor::update(Event& event, std::string& command_main)
     // if keyboard press and command line deactivated
     if (event.type == sf::Event::KeyPressed && !input_focus)
     {
-        if (current_field != -1)
+        if (current_field != -1 && fields[current_field])
         {
             // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
             switch (event.key.code)
             {
             case sf::Keyboard::W:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(3);
-                //field[current_field]->move_player(3);
+                    fields[current_field]->set_player_movement_direction(3);
+                //fields[current_field]->move_player(3);
                 break;
             case sf::Keyboard::D:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(0);
-                //field[current_field]->move_player(0);
+                    fields[current_field]->set_player_movement_direction(0);
+                //fields[current_field]->move_player(0);
                 break;
             case sf::Keyboard::S:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(1);
-                //field[current_field]->move_player(1);
+                    fields[current_field]->set_player_movement_direction(1);
+                //fields[current_field]->move_player(1);
                 break;
             case sf::Keyboard::A:
                 if (!controls_blocked)
-                    field[current_field]->set_player_movement_direction(2);
-                //field[current_field]->move_player(2);
+                    fields[current_field]->set_player_movement_direction(2);
+                //fields[current_field]->move_player(2);
                 break;
             case sf::Keyboard::Space:
                 if (!controls_blocked)
-                    field[current_field]->action((*field_tex_map)["stump"]);
+                    fields[current_field]->action(resource_manager->getObjectTexture("stump"));
                 break;
             default:
                 // if key is not set in contols, check dynamic bindings
@@ -191,25 +187,25 @@ void Scene_editor::update(Event& event, std::string& command_main)
     }
     else if (event.type == sf::Event::KeyReleased && !input_focus)
     {
-        if (current_field != -1)
+        if (current_field != -1 && fields[current_field])
         {
             switch (event.key.code)
             {
             case sf::Keyboard::W:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(3);
+                    fields[current_field]->release_player_movement_direction(3);
                 break;
             case sf::Keyboard::D:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(0);
+                    fields[current_field]->release_player_movement_direction(0);
                 break;
             case sf::Keyboard::S:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(1);
+                    fields[current_field]->release_player_movement_direction(1);
                 break;
             case sf::Keyboard::A:
                 if (!controls_blocked)
-                    field[current_field]->release_player_movement_direction(2);
+                    fields[current_field]->release_player_movement_direction(2);
                 break;
             default:
                 break;
@@ -277,11 +273,9 @@ void Scene_editor::update(Time deltaTime)
     Scene_Field::update(deltaTime);
 
 /**
-    ����� � ����� ������� ���� ������� ��� ������
-
-    int a = field[current_field]->player_0->x_cell_coord;
-    int b = field[current_field]->player_0->y_cell_coord;
-    s_input = field[current_field]->get_cellType_by_coord(a, b);
+    int a = fields[current_field]->player_0->x_cell_coord;
+    int b = fields[current_field]->player_0->y_cell_coord;
+    s_input = fields[current_field]->get_cellType_by_coord(a, b);
 **/
 }
 

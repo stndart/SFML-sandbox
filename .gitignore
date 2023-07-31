@@ -44,6 +44,7 @@ imgui.ini
 *.depend
 *.layout
 *.cscope_file_list
+*.cache
 
 !**/CMakeLists.txt
 test/CMakeLists.txt

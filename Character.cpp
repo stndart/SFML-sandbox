@@ -16,7 +16,7 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character(string name, Texture *texture_default, IntRect texrect, FloatRect posrect) :
+Character::Character(string name, std::shared_ptr<Texture> texture_default, IntRect texrect, FloatRect posrect) :
 moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
 current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
 movement_started(false), next_movement_planned(false), next_animation_dir(-1),
@@ -26,7 +26,7 @@ name(name)
     map_events_logger = spdlog::get("map_events");
     graphics_logger = spdlog::get("graphics");
 
-    base_sprite = new AnimatedSprite(name, texture_default, texrect, posrect);
+    base_sprite = std::make_shared<AnimatedSprite>(name, texture_default, texrect, posrect);
     moving_sprite = base_sprite;
     setPosition(posrect.getPosition());
 
@@ -53,7 +53,7 @@ name(name)
     animations = nanimations;
     set_facing_direction(0);
 
-    base_sprite = new AnimatedSprite(name, animations[idle_animation], posrect);
+    base_sprite = std::make_shared<AnimatedSprite>(name, animations[idle_animation], posrect);
     moving_sprite = base_sprite;
 
     /// MAGIC CONSTANT!
@@ -533,7 +533,7 @@ void Character::next_movement_start()
 
         graphics_logger->debug("Creating VisualEffect with offset {}", offset.asSeconds());
 
-        VisualEffect* VE = new VisualEffect(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
+        std::shared_ptr<VisualEffect> VE = std::make_shared<VisualEffect>(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
         // Sync legs animation with VisualEffect start
         VE->sprite->play(am.j.frame_to, offset);
 
@@ -562,7 +562,6 @@ void Character::stop_movement_by_force()
     {
         graphics_logger->debug("Deleting VisualEffect by force");
 
-        delete moving_sprite;
         moving_sprite = base_sprite;
 
         moving = false;
@@ -667,7 +666,6 @@ void Character::update(Time deltaTime)
     {
         graphics_logger->debug("Deleting VisualEffect");
 
-        delete moving_sprite;
         moving_sprite = base_sprite;
 
         moving = false;

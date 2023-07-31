@@ -1,0 +1,29 @@
+{
+    "background": "field_background",
+    "UI elements" : [
+        {
+            "type": "button",
+            "texture": "escape",
+            "texture_pressed": "escape_pushed",
+            "callback": {
+                "name": "change scene",
+                "scene to": "main_menu"
+            },
+            "Rel x": 1,
+            "Rel y": 0,
+            "Rel height": 0.1,
+            "Origin rel x": 1,
+            "Origin rel y": 0
+        }
+    ],
+    "fields": [
+        {
+            "id": 0,
+            "location id": 0
+        },
+        {
+            "id": 1,
+            "location id": 2
+        }
+    ]
+}

@@ -1,124 +1,149 @@
 
 #include "ResourceLoader.h"
 
-ResourceLoader::ResourceLoader()
+ResourceLoader::ResourceLoader(std::string path_to_config, bool lazy) : path_to_config(path_to_config), lazy(lazy)
 {
     // Reaching out to global "loading" logger by name
     loading_logger = spdlog::get("loading");
+
+    notexture = std::make_shared<Texture>();
+    notexture->create(100, 100);
+
+    if (!lazy)
+        load_textures();
 }
 
-void ResourceLoader::load_main_menu_textures()
+// loads subfolder contents to map
+void ResourceLoader::load_from_subfolder(std::string folder_path, std::map<std::string, std::shared_ptr<Texture> >& load_to, bool repeated)
 {
     int tex_counter = 0;
-    if (!menu_texture.loadFromFile("Images/menu.jpg"))
+    for (auto& p : std::filesystem::directory_iterator(folder_path))
     {
-        loading_logger->critical("Failed to load texture");
-        throw;
-    }
-    tex_counter++;
+        std::string path = static_cast<std::filesystem::path>(p).generic_string();
 
-    if (!new_button_texture.loadFromFile("Images/new_game_button.png"))
-    {
-        loading_logger->critical("Failed to load texture");
-        throw;
-    }
-    tex_counter++;
+        std::shared_ptr<Texture> cur_texture = std::make_shared<Texture>();
+        cur_texture->setRepeated(repeated);
+        if (!cur_texture->loadFromFile(path))
+        {
+            loading_logger->warn("Failed to load texture {}", path);
+        }
+        else
+        {
+            tex_counter++;
+            std::string name = re_name(path);
+            load_to.insert({name, cur_texture});
 
-    if (!new_button_pushed_texture.loadFromFile("Images/new_game_button_pushed.png"))
-    {
-        loading_logger->critical("Failed to load texture");
-        throw;
+            loading_logger->trace("Loaded texture from {} to {} under name {}", folder_path, path, name);
+        }
     }
-    tex_counter++;
-
-    if (!player_texture.loadFromFile("Images/player.png"))
-    {
-        loading_logger->critical("Failed to load texture");
-        throw;
-    }
-    tex_counter++;
-
-    if (!field_bg_texture.loadFromFile("Images/field_bg.jpg"))
-    {
-        loading_logger->critical("Failed to load texture");
-        throw;
-    }
-    tex_counter++;
-
     loading_logger->info("Loaded {} textures", tex_counter);
 }
 
-void ResourceLoader::load_ui_textures(std::string inputPath)
+// load specific texture to category
+void ResourceLoader::load_texture_by_name(std::string texname, std::string category)
 {
-    int tex_counter = 0;
-    for (auto& p : std::filesystem::directory_iterator(inputPath))
-    {
-        std::filesystem::path path;
-        path = p;
-        std::string tempStr;
-        tempStr = path.generic_string();
+    std::ifstream f(path_to_config);
+    nlohmann::json j = nlohmann::json::parse(f);
 
-        Texture* cur_texture = new Texture;
-        if (!cur_texture->loadFromFile(tempStr))
+    for (std::string folder : j[category])
+    {
+        std::string pattern = folder + texname + ".*";
+        for (std::filesystem::path fpath : glob::glob(pattern))
         {
-            loading_logger->critical("Failed to load texture");
-            throw;
+            std::string path = fpath.generic_string();
+
+            std::shared_ptr<Texture> cur_texture = std::make_shared<Texture>();
+            cur_texture->setRepeated((category == "Cell") ? false : true);
+            if (!cur_texture->loadFromFile(path))
+            {
+                loading_logger->warn("Failed to load texture {}", path);
+            }
+            else
+            {
+                textures[category].insert({texname, cur_texture});
+                loading_logger->trace("Loaded texture from {} to {} under name {}", folder, path, texname);
+            }
         }
-        tex_counter++;
-        std::string name = re_name(tempStr);
-        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-        UI_block.insert({name, cur_texture});
     }
-    loading_logger->info("Loaded {} textures for UI", tex_counter);
 }
 
-void ResourceLoader::load_cell_textures(std::string inputPath)
+// loads all sections of textures, with paths specified in config
+void ResourceLoader::load_textures()
 {
-    int tex_counter = 0;
-    for (auto& p : std::filesystem::directory_iterator(inputPath))
-    {
-        std::filesystem::path path;
-        path = p;
-        std::string tempStr;
-        tempStr = path.generic_string();
+    std::ifstream f(path_to_config);
+    nlohmann::json j = nlohmann::json::parse(f);
 
-        Texture* cur_texture = new Texture;
-        cur_texture->setRepeated(true);
-        if (!cur_texture->loadFromFile(tempStr))
-        {
-            loading_logger->critical("Failed to load texture");
-            throw;
-        }
-        tex_counter++;
-        std::string name = re_name(tempStr);
-        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-        field_tex_map.insert({name, cur_texture});
+    std::string notexture_path = j["default"].get<std::string>();
+    notexture = std::make_shared<Texture>();
+    if (!notexture->loadFromFile(notexture_path))
+    {
+        loading_logger->error("Failed to load default texture {}", notexture_path);
     }
-    loading_logger->info("Loaded {} textures for cells", tex_counter);
+
+    categories = j["categories"];
+    loading_logger->debug("Loaded {} categories from {}", categories.size(), path_to_config);
+
+    for (std::string category : categories)
+    {
+        loading_logger->debug("Loading category {}", category);
+        for (std::string folder : j[category])
+        {
+            loading_logger->debug("Loading folder {}", folder);
+            load_from_subfolder(folder, textures[category], (category == "Cell") ? true : false);
+        }
+    }
 }
 
-void ResourceLoader::load_cell_object_textures(std::string inputPath)
+// gets texture by name. By default name is texture filename without .extension
+// returns default no-texture.png if not found
+std::shared_ptr<Texture> ResourceLoader::getTexture(std::string texname, std::string category)
 {
-    int tex_counter = 0;
-    for (auto& p : std::filesystem::directory_iterator(inputPath))
+    if (textures.count(category) == 0)
     {
-        std::filesystem::path path;
-        path = p;
-        std::string tempStr;
-        tempStr = path.generic_string();
-
-        Texture* cur_texture = new Texture;
-        if (!cur_texture->loadFromFile(tempStr))
-        {
-            loading_logger->critical("Failed to load texture");
-            throw;
-        }
-        tex_counter++;
-        std::string name = re_name(tempStr);
-        loading_logger->trace("{}: {}, {}", inputPath, tempStr, name);
-        field_tex_map.insert({name, cur_texture});
+        loading_logger->warn("Trying to get texture {} of unknown category {}", texname, category);
+        return notexture;
     }
-    loading_logger->info("Loaded {} textures for cell objects", tex_counter);
+    else
+    {
+        if (textures[category].count(texname) == 0)
+        {
+            if (!lazy)
+            {
+                loading_logger->warn("Trying to get unknown texture {} of category {}", texname, category);
+                return notexture;
+            }
+            else
+            {
+                load_texture_by_name(texname, category);
+                if (textures[category].count(texname) == 0)
+                    return notexture;
+                else
+                    return textures[category][texname];
+            }
+        }
+        else
+        {
+            return textures[category][texname];
+        }
+    }
 }
 
+std::shared_ptr<Texture> ResourceLoader::getUITexture(std::string texname)
+{
+    return getTexture(texname, "UI");
+}
 
+std::shared_ptr<Texture> ResourceLoader::getCellTexture(std::string texname)
+{
+    return getTexture(texname, "Cell");
+}
+
+std::shared_ptr<Texture> ResourceLoader::getObjectTexture(std::string texname)
+{
+    return getTexture(texname, "Cell object");
+}
+
+std::shared_ptr<Texture> ResourceLoader::getCharacterTexture(std::string texname)
+{
+    return getTexture(texname, "Character");
+}

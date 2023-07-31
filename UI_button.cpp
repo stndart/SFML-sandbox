@@ -1,10 +1,11 @@
 #include "UI_button.h"
+
 #include "Scene.h"
 
 // label with texture
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* button_spritesheet, bool is_clickable) : UI_element(name, UIFrame, parent)
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, bool is_clickable) : UI_element(name, UIFrame, parent)
 {
-    loading_logger->trace("UI_button:UI_button {} #1, UIFRame +{}+{}, {}x{}", name,
+    loading_logger->trace("UI_button:UI_texture {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
     displayed = true;
 
@@ -17,17 +18,17 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Anima
 }
 
 // label with text
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, Animation* button_spritesheet) :
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, std::shared_ptr<Animation> button_spritesheet) :
     UI_element(name, UIFrame, parent, button_spritesheet), clickable(false), pressed(false), ignore_controls_blocking(false), text(ntext)
 {
     displayed = true;
 
-    loading_logger->trace("UI_button:UI_button {} #2, UIFRame +{}+{}, {}x{}", name,
+    loading_logger->trace("UI_button:UI_label {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
 // button with callback
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* button_spritesheet, std::function<void()> ncallback) :
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, std::function<void()> ncallback) :
     UI_element(name, UIFrame, parent, button_spritesheet), clickable(true), pressed(false), ignore_controls_blocking(false), text("")
 {
     displayed = true;
@@ -35,7 +36,7 @@ UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, Anima
     if (ncallback)
         add_callback(ncallback);
 
-    loading_logger->trace("UI_button:UI_button {} #3, UIFRame +{}+{}, {}x{}", name,
+    loading_logger->trace("UI_button:UI_button {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
@@ -96,7 +97,7 @@ void UI_button::push_click(sf::Vector2f cursor, bool controls_blocked)
 
     // button logic: changes texture, when <pressed> is changed
     // by default: 1 - pressed button, 0 - unpressed
-    if (background && clickable)
+    if (background_animation && clickable)
         set_current_frame(1);
 }
 
@@ -112,7 +113,7 @@ void UI_button::release_click(sf::Vector2f cursor, bool controls_blocked, bool s
     {
         // changes texture, when <pressed> is changed
         // by default: 1 - pressed button, 0 - unpressed
-        if (background)
+        if (background_animation)
             set_current_frame(0);
 
         // if controls are blocked and this button is not immune

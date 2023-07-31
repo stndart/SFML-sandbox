@@ -1,8 +1,9 @@
 #include "Field.h"
+#include "Player.h"
 
-bool isdrawed = false;
-
-Field::Field(std::string name, Vector2u screenDimensions) : background(NULL), field_screen_size(screenDimensions), name(name), player_0(NULL)
+Field::Field(std::string name, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload) :
+    field_screen_size(screenDimensions), resource_manager(resload),
+    name(name), player_0(std::shared_ptr<Player>(nullptr))
 {
     // Reaching out to global "loading" logger and "map_events" logger by names
     map_events_logger = spdlog::get("map_events");
@@ -21,7 +22,7 @@ Field::Field(std::string name, Vector2u screenDimensions) : background(NULL), fi
     cells_changed = false;
 }
 
-Field::Field(std::string name, Texture* bg_texture, Vector2u screenDimensions) : Field(name, screenDimensions)
+Field::Field(std::string name, std::shared_ptr<Texture> bg_texture, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload) : Field(name, screenDimensions, resload)
 {
     /// MAGIC NUMBERS!
     addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
@@ -81,17 +82,16 @@ FloatRect Field::get_valid_view_center_rect(bool has_border)
 }
 
 // update background with texture, View size with rect, m_vertices with rect as well
-void Field::addTexture(Texture* texture, IntRect rect)
+void Field::addTexture(std::shared_ptr<Texture> texture, IntRect rect)
 {
-    background = texture;
-
-    cutout_texture_to_frame(m_vertices, rect);
+    background.setTexture(*texture);
+    background.setTextureRect(rect);
 
     current_view.setSize(rect.width, rect.height);
 }
 
 // add cell by indexes [x, y] with texture
-void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
+void Field::addCell(std::shared_ptr<Texture> texture, unsigned int x, unsigned int y)
 {
     // if cell_tex_size is (0, 0), then ask certain texture of her size
     Vector2u temp_cell_tex_size = cell_tex_size;
@@ -101,7 +101,7 @@ void Field::addCell(Texture* texture, unsigned int x, unsigned int y)
     IntRect cell_tex_coords = IntRect(temp_cell_tex_size.x * x, temp_cell_tex_size.y * y,
                                       temp_cell_tex_size.x, temp_cell_tex_size.y);
 
-    cells[x][y] = new Cell("new_cell", texture, cell_tex_coords);
+    cells[x][y] = std::make_shared<Cell>("new_cell", texture, cell_tex_coords);
     cells_changed = true;
 }
 
@@ -126,7 +126,7 @@ std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
 }
 
 // create player at cell [pos.x, pos.y] with texture
-void Field::addPlayer(Texture* player_texture, Vector2i pos)
+void Field::addPlayer(std::shared_ptr<Texture> player_texture, Vector2i pos)
 {
     if (pos == Vector2i(-1, -1))
         pos = default_player_pos;
@@ -160,7 +160,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     if (pos == Vector2i(-1, -1))
         pos = default_player_pos;
 
-    Texture* p_tex = new Texture;
+    std::shared_ptr<Texture> p_tex = std::make_shared<Texture>();
     if (!p_tex->loadFromFile("Images/Flametail/default.png"))
     {
         loading_logger->error("Failed to load texture");
@@ -232,8 +232,7 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
     map_events_logger->trace("Field: added 4 animations to player");
 
     // fit sprite into cell (horizontally)
-    /// MAGIC NUMBERS!
-    player_0->setScale(Vector2f(120.f / frame_size.x, 120.f / frame_size.x));
+    player_0->setScale(Vector2f(cell_length_x / frame_size.x, cell_length_x / frame_size.x));
 
     if (pos.x == -1)
     {
@@ -245,6 +244,8 @@ void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos
         player_0->x_cell_coord = pos.x;
         player_0->y_cell_coord = pos.y;
     }
+
+    loading_logger->info("Loaded player at cell {}x{}", player_0->x_cell_coord, player_0->y_cell_coord);
 }
 
 // places player onto this field by coords
@@ -271,6 +272,10 @@ void Field::teleport_to(Vector2i coords, std::shared_ptr<Player> player)
         player_0->y_cell_coord = coords.y;
 
         place_characters();
+    }
+    else
+    {
+        map_events_logger->warn("Teleport to {}x{}, but no player passed to {}", coords.x, coords.y, name);
     }
 }
 
@@ -347,7 +352,7 @@ void Field::release_player_movement_direction(int direction)
 
 // invoke an action on cell where player stands, with texture (temp)
 // currently changes <tree> to <stump>
-void Field::action(Texture* texture)
+void Field::action(std::shared_ptr<Texture> texture)
 {
     if (player_0 && player_0->get_current_field() == this)
     {
@@ -355,7 +360,7 @@ void Field::action(Texture* texture)
         int cell_y = player_0->y_cell_coord;
         map_events_logger->debug("Calling action on cell {}x{}", cell_x, cell_y);
 
-        Cell* target_cell = cells[cell_x][cell_y];
+        std::shared_ptr<Cell> target_cell = cells[cell_x][cell_y];
         if (target_cell->hasObject("tree"))
         {
             target_cell->action_change("tree", texture);
@@ -374,14 +379,14 @@ void Field::action(Texture* texture)
 }
 
 // adds placeable object to cell by coords, name and with texture
-void Field::add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture)
+void Field::add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture)
 {
     cells[cell_x][cell_y]->addObject(type_name, texture, 1);
     cells_changed = true;
 }
 
 // change cell by coordinates tile name and texture
-void Field::change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture)
+void Field::change_cell_texture(int cell_x, int cell_y, std::string name, std::shared_ptr<Texture> texture)
 {
     cells[cell_x][cell_y]->change_texture(name, texture);
     cells_changed = true;
@@ -444,7 +449,7 @@ Vector2f Field::getCellSize() const
 
 // load field and cells from json file <Locations/loc_%loc_id%>
 // field_block provides textures for cells by names (instead of resources manager)
-void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id)
+void Field::load_field(int loc_id)
 {
     // construct and log path string
     std::string path = "Locations/loc_";
@@ -482,11 +487,11 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
             // if cell_tex_size is (0, 0), then ask certain texture of her size
             Vector2u temp_cell_tex_size = cell_tex_size;
             if (temp_cell_tex_size.x == 0 || temp_cell_tex_size.y == 0)
-                temp_cell_tex_size = field_block[cell_type]->getSize();
+                temp_cell_tex_size = resource_manager->getCellTexture(cell_type)->getSize();
 
             IntRect cell_tex_coords = IntRect(temp_cell_tex_size.x * x, temp_cell_tex_size.y * y,
                                               temp_cell_tex_size.x, temp_cell_tex_size.y);
-            cells[x][y] = new Cell(cell_type, field_block[cell_type], cell_tex_coords);
+            cells[x][y] = std::make_shared<Cell>(cell_type, resource_manager->getCellTexture(cell_type), cell_tex_coords);
 
             cells[x][y]->displayed = Location["map"][x][y].value("displayed", true);
             
@@ -511,9 +516,12 @@ void Field::load_field(std::map <std::string, Texture*> &field_block, int loc_id
                         int object_depth_level = Location["big_objects"][x][y][0]["depth_level"].get<int>();
                         float displayed_width = Location["big_objects"][x][y][0].value("displayed_width", 0);
                         float displayed_height = Location["big_objects"][x][y][0].value("displayed_height", 0);
-                        Vector2f object_displayed_size = save_aspect_ratio(Vector2f(displayed_width, displayed_height), Vector2f(field_block[object_type]->getSize()));
+                        Vector2f object_displayed_size = save_aspect_ratio(
+                            Vector2f(displayed_width, displayed_height),
+                            Vector2f(resource_manager->getObjectTexture(object_type)->getSize())
+                        );
 
-                        cells[x][y]->addObject(object_type, field_block[object_type], object_displayed_size,  object_depth_level);
+                        cells[x][y]->addObject(object_type, resource_manager->getObjectTexture(object_type), object_displayed_size, object_depth_level);
                         
                         if (Location["big_objects"][x][y][0]["origin"].is_object())
                         {
@@ -570,6 +578,49 @@ void Field::save_field(int loc_id)
     ofs.close();
 }
 
+// overriding Transformable methods
+void Field::move(const Vector2f &offset)
+{
+    Transformable::move(offset);
+    background.move(offset);
+}
+
+void Field::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    background.rotate(angle);
+}
+
+void Field::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    background.scale(factor);
+}
+
+void Field::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+    background.setPosition(position);
+}
+
+void Field::setPosition(float x, float y)
+{
+    Transformable::setPosition(x, y);
+    background.setPosition(x, y);
+}
+
+void Field::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    background.setScale(factors);
+}
+
+void Field::setScale(float factorX, float factorY)
+{
+    Transformable::setScale(factorX, factorY);
+    background.setScale(factorX, factorY);
+}
+
 void Field::update(Time deltaTime)
 {
     // update cell texture and child objects coords
@@ -613,11 +664,9 @@ void Field::update(Time deltaTime)
 void Field::draw(RenderTarget& target, RenderStates states) const
 {
     // draw background below everything
-    if (background)
+    if (background.getTexture())
     {
-        states.transform *= getTransform();
-        states.texture = background;
-        target.draw(m_vertices, 4, Quads, states);
+        target.draw(background, states);
     }
     
     // save previous view not to destroy UI etc.
@@ -669,28 +718,4 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
     // restore saved View
     target.setView(previous_view);
-}
-
-// MyFirstFieldConstructor (to be removed)
-Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width, Texture* cell_texture, Texture* player_texture, Vector2u screen_dimensions)
-{
-    Field* field = new Field("Main field", screen_dimensions);
-    field->addTexture(bg, IntRect(0, 0, 1920, 1080));
-    field->setScale((float)screen_dimensions.x / 1920, (float)screen_dimensions.y / 1080);
-
-    field->field_resize(cell_length, cell_width);
-
-    for (unsigned int x = 0; x < cell_length; x++)
-    {
-        for (unsigned int y = 0; y < cell_width; y++)
-        {
-
-            field->addCell(cell_texture, x, y);
-        }
-    }
-
-    field->addPlayer(player_texture, Vector2i(cell_length / 2, cell_width / 2));
-    field->place_characters();
-
-    return field;
 }

@@ -14,6 +14,7 @@
 #include "Cell.h"
 #include "Player.h"
 #include "extra_algorithms.h"
+#include "ResourceLoader.h"
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -25,12 +26,11 @@ using namespace sf;
 class Field : public Drawable, public Transformable
 {
 private:
-    // texture corners on background texture
-    Vertex m_vertices[4];
-    Texture* background;
+    // to draw background
+    sf::Sprite background;
 
     // 2d vector of cells
-    std::vector<std::vector<Cell*> > cells;
+    std::vector<std::vector<std::shared_ptr<Cell> > > cells;
 
     // size of field onscreen. Used to update view position
     Vector2u field_screen_size;
@@ -55,6 +55,8 @@ private:
     // If view center is located outside this rect, field borders become visible
     FloatRect get_valid_view_center_rect(bool has_border = true);
 
+    std::shared_ptr<ResourceLoader> resource_manager;
+
     std::shared_ptr<spdlog::logger> map_events_logger, loading_logger;
 
 public:
@@ -63,22 +65,21 @@ public:
     // player that is controlled by user. It is the only player. Controls are bound to it
     std::shared_ptr<Player> player_0;
 
-    Field(std::string name, Vector2u screenDimensions);
-    Field(std::string name, Texture* bg_texture, Vector2u screenDimensions);
+    Field(std::string name, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload);
+    Field(std::string name, std::shared_ptr<Texture> bg_texture, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload);
 
     // update background with texture, View size with rect, m_vertices with rect as well
-    void addTexture(Texture* texture, IntRect rect);
+    void addTexture(std::shared_ptr<Texture> texture, IntRect rect);
     // add cell by indexes [x, y] with texture
-    void addCell(Texture* texture, unsigned int x, unsigned int y);
+    void addCell(std::shared_ptr<Texture> texture, unsigned int x, unsigned int y);
 
     // change field size and reshape cells 2d vector
-    /// как оно работает если размер уменьшить - я хз
-    void field_resize(unsigned int length, unsigned int width);         /// CHECK
+    void field_resize(unsigned int length, unsigned int width);
     // return cell_type (name of the cell)
     std::string get_cellType_by_coord(unsigned int x, unsigned int y);
 
     // create player at cell [cell_x, cell_y] with texture
-    void addPlayer(Texture* player_texture, Vector2i pos = Vector2i(-1, -1));
+    void addPlayer(std::shared_ptr<Texture> player_texture, Vector2i pos = Vector2i(-1, -1));
     // create player at cell [cell_x, cell_y] with animation given by list [idle_animation, movement_0]
     void addPlayer(std::vector<std::string> animation_filenames, Vector2i pos = Vector2i(-1, -1), Vector2u frame_size = Vector2u(530, 530));
 
@@ -97,11 +98,11 @@ public:
 
     // invoke an action on cell where player stands, with texture (temp)
     // currently changes <tree> to <stump>
-    void action(Texture* texture);
+    void action(std::shared_ptr<Texture> texture);
     // adds placeable object to cell by coords, name and with texture
-    void add_object_to_cell(int cell_x, int cell_y, std::string type_name, Texture* texture);
+    void add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture);
     // change cell by coordinates tile name and texture
-    void change_cell_texture(int cell_x, int cell_y, std::string name, Texture* texture);
+    void change_cell_texture(int cell_x, int cell_y, std::string name, std::shared_ptr<Texture> texture);
 
     // update all movables screen coordinates as well as View
     void place_characters();
@@ -114,9 +115,18 @@ public:
 
     // load field and cells from json file <Locations/loc_%loc_id%>
     // field_block provides textures for cells by names (instead of resources manager)
-    void load_field(std::map <std::string, Texture*> &field_block, int loc_id);
+    void load_field(int loc_id);
     // save field and cells in json file
     void save_field(int loc_id);
+
+    // overriding Transformable methods
+    virtual void move(const Vector2f &offset);
+    virtual void rotate(float angle);
+    virtual void scale(const Vector2f &factor);
+    virtual void setPosition(const Vector2f &position);
+    virtual void setPosition(float x, float y);
+    virtual void setScale(const Vector2f &factors);
+    virtual void setScale(float factorX, float factorY);
 
     // overriding Drawable methods
     virtual void update(Time deltaTime);
@@ -128,9 +138,5 @@ public:
         return cells[x][y]->mapsize();
     }
 };
-
-// MyFirstFieldConstructor (to be removed)
-Field* new_field(Texture* bg, unsigned int cell_length, unsigned int cell_width,
-                 Texture* cell_texture, Texture* player_texture, Vector2u screen_dimensions);
 
 #endif // FIELD_INCLUDE

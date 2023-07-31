@@ -45,7 +45,7 @@ State curstate(State start, State finish, Time duration, Time now)
     return mid;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset, int z_ind, sf::BlendMode blend_mode) :
+VisualEffect::VisualEffect(std::shared_ptr<AnimatedSprite> sprite, Preset p, Time offset, int z_ind, sf::BlendMode blend_mode) :
     AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), sprite->getPosition(), Vector2f(0, 0), z_ind, blend_mode),
     sprite(sprite)
 {
@@ -86,7 +86,7 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Preset p, Time offset, int z_
     now = start;
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, State start, State finish, int z_ind, sf::BlendMode blend_mode) :
+VisualEffect::VisualEffect(std::shared_ptr<AnimatedSprite> sprite, Time offset, Time m_duration, State start, State finish, int z_ind, sf::BlendMode blend_mode) :
     AnimatedSprite("default VEffect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), sprite->getPosition(), Vector2f(0, 0), z_ind, blend_mode),
     start(start), finish(finish), sprite(sprite)
 {
@@ -97,7 +97,7 @@ VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration,
     graphics_logger->debug("{} VE is now owned by {} ASprite", name, sprite->name);
 }
 
-VisualEffect::VisualEffect(AnimatedSprite* sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos, int z_ind, sf::BlendMode blend_mode) :
+VisualEffect::VisualEffect(std::shared_ptr<AnimatedSprite> sprite, Time offset, Time m_duration, Vector2f start_pos, Vector2f finish_pos, int z_ind, sf::BlendMode blend_mode) :
     AnimatedSprite("default motion effect", std::make_unique<RectangleShape>(Vector2f(sprite->getGlobalBounds().getSize())), sprite->getPosition(), Vector2f(0, 0), z_ind, blend_mode),
     sprite(sprite)
 {

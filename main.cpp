@@ -73,7 +73,7 @@ int main()
 
         loading_logger->set_level(spdlog::level::debug);
         input_logger->set_level(spdlog::level::info);
-        map_events_logger->set_level(spdlog::level::trace);
+        map_events_logger->set_level(spdlog::level::debug);
         graphics_logger->set_level(spdlog::level::info);
 
         loading_logger->flush_on(spdlog::level::trace);
@@ -118,110 +118,20 @@ int main()
         return 1;
     }
 
-    ResourceLoader resload;
+    // load all textures, since lazy=off
+    std::shared_ptr<ResourceLoader> resload = std::make_shared<ResourceLoader>();
 
-    // load main_menu textures
-    resload.load_main_menu_textures();
-    // load ui textures
-    resload.load_ui_textures();
-    // load cells textures
-    resload.load_cell_textures();
-    // load cell objects textures
-    resload.load_cell_object_textures();
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-///----------------------------------------= UI_elements =-----------------------------------------------
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    vector<shared_ptr<UI_element> > main_ui_elements;
-    {
-        IntRect m1;
-        m1.left = 0;
-        m1.top = 0;
-        Vector2u v1 = resload.UI_block["horizontal_column"]->getSize();
-        m1.width = v1.x;
-        m1.height = v1.y;
-        Animation tAn(resload.UI_block["horizontal_column"]);
-        tAn.addFrame(m1, 0);
-        //shared_ptr<UI_button> element1("horizontal", m1, &tAn);
-        //main_ui_elements.push_back(element1);
-
-        IntRect m2;
-        m2.left = 0;
-        m2.top = 1060;
-        Vector2u v2 = resload.UI_block["horizontal_column"]->getSize();
-        m2.width = v2.x;
-        m2.height = v2.y;
-        //shared_ptr<UI_button> element2("horizontal", m2, &tAn);
-        //main_ui_elements.push_back(element2);
-
-        IntRect m3;
-        m3.left = 0;
-        m3.top = 0;
-        Vector2u v3 = resload.UI_block["vertical_column"]->getSize();
-        m3.width = v3.x;
-        m3.height = v3.y;
-        Animation tAn2(resload.UI_block["vertical_column"]);
-        tAn2.addFrame(m3, 0);
-        //shared_ptr<UI_button> element3("vertical", m3, &tAn2);
-        //main_ui_elements.push_back(element3);
-
-        IntRect m4;
-        m4.left = 1900;
-        m4.top = 0;
-        Vector2u v4 = resload.UI_block["vertical_column"]->getSize();
-        m4.width = v4.x;
-        m4.height = v4.y;
-        //shared_ptr<UI_button> element4("vertical", m4, &tAn2);
-        //main_ui_elements.push_back(element4);
-
-//////////////////////////////////////////////////////////////////
-
-        IntRect mb1(1820, 0, 0, 0);
-        Vector2u vb1 = resload.UI_block["ESCAPE"]->getSize();
-        mb1.width = vb1.x;
-        mb1.height = vb1.y;
-
-        Animation tAnb;
-        tAnb.addSpriteSheet(resload.UI_block["ESCAPE"]);
-        tAnb.addFrame(mb1, 0);
-        tAnb.addSpriteSheet(resload.UI_block["ESCAPE_pushed"]);
-        tAnb.addFrame(mb1, 1);
-        //shared_ptr<UI_button> elementb1("main_menu_button", mb1, &tAnb);
-        //main_ui_elements.push_back(elementb1);
-    }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*******************************************************************************************************/
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // load textures finished
+    loading_logger->info("Resource manager texture load complete");
 
     // initialize main timer (to measure fps, schedule events, etc.)
     Clock frameClock;
 
-    // Create main menu scene. Scene is drawable and calls all subsequent draws for children drawable elements
-    // We pass texture pointers: to be removed, scene must load all necessary textures via resourceloader through config json
-    shared_ptr<Scene> main_menu = new_menu_scene(&resload.menu_texture, &resload.new_button_texture, &resload.new_button_pushed_texture, screenDimensions);
-    // Add button with text to desired position. Textures are passed via name->texture* map "UI_block"
-    main_menu->addButton(
-        "ESCAPE",
-        resload.UI_block["ESCAPE"], resload.UI_block["ESCAPE_pushed"],
-        1820, 0, "top left",
-        create_window_closed_callback(window)
-    );
+    std::shared_ptr<SceneController> scene_controller = std::make_shared<SceneController>(window, resload);
+    scene_controller->load_config();
+    loading_logger->info("SceneController loading scenes complete");
 
-    // Create field scene. At first it is inactive. Name and textures are passed
-    shared_ptr<Scene_Field> field_scene = std::make_shared<Scene_Field>(std::string("field_scene"), screenDimensions, &resload.field_tex_map);
-
-    // Create editor scene. At first it is inactive. Scenes are swapped with callbacks to SceneController
-    shared_ptr<Scene_editor> editor_scene = std::make_shared<Scene_editor>(std::string("editor_scene"), screenDimensions, &resload.field_tex_map);
-
-    // Set default scene. It is displayed first
-    SceneController scene_controller;
-    scene_controller.add_scene("main_menu", main_menu);
-    scene_controller.add_scene("Scene_editor", editor_scene);
-    scene_controller.add_scene("Scene_field", field_scene);
+    // Field editor scene. At first it is inactive.
+    shared_ptr<Scene_editor> editor_scene = std::dynamic_pointer_cast<Scene_editor>(scene_controller->get_scene("editor_scene"));
 
     // current ready animations
     // each animation are loaded x4, because no resourceloader
@@ -233,50 +143,13 @@ int main()
         "Images/Flametail/movement_2.png"
     };
 
-    // Create field with map#1. Despite it being inactive, we load map and player
-    Field* field_0 = new Field("field_scene 0", &resload.field_bg_texture, screenDimensions);
-    field_0->load_field(resload.field_tex_map, 0);
     // Create first and only player.
     // Player knows, where he stands, and the field also
-    field_0->addPlayer(player_animation_fnames);
-    shared_ptr<Player> player_0 = field_0->player_0;
+    editor_scene->get_field(0)->addPlayer(player_animation_fnames);
+    editor_scene->get_field(1)->player_0 = editor_scene->get_field(0)->player_0;
+    editor_scene->get_field(0)->teleport_to();
 
-    // place_characters sets position of all dynamic sprites on field and updates view position (player in center)
-    field_0->place_characters();
-    field_scene->add_field(field_0, 0);
-
-    // Create field with map#2.
-    Field* field_1 = new Field("field_scene 1", &resload.field_bg_texture, screenDimensions);
-    field_1->load_field(resload.field_tex_map, 2);
-    field_1->player_0 = player_0;
-    field_scene->add_field(field_1, 1);
-
-    // Create field with map#1 in editor scene
-    Field* field_3 = new Field("editor_scene 0", &resload.field_bg_texture, screenDimensions);
-    field_3->load_field(resload.field_tex_map, 0);
-    field_3->player_0 = player_0;
-    editor_scene->add_field(field_3, 0);
-
-    // because whould be the first displayed field
-    player_0->set_current_field(field_3);
-
-    // Create field with map#2 in editor scene
-    Field* field_4 = new Field("editor_scene 1", &resload.field_bg_texture, screenDimensions);
-    field_4->load_field(resload.field_tex_map, 2);
-    field_4->player_0 = player_0;
-    editor_scene->add_field(field_4, 1);
-    
-    // return to main menu button
-    editor_scene->addButton(
-        "main_menu",
-        resload.UI_block["ESCAPE"], resload.UI_block["ESCAPE_pushed"],
-        1820, 0, "top left",
-        create_change_scene_callback(editor_scene, "main_menu")
-    );
-
-    editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(editor_scene));
-
-    editor_scene->addUI_element(main_ui_elements);
+    editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(*editor_scene));
 
     loading_logger->info("Loaded fields");
 
@@ -285,7 +158,7 @@ int main()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Well, because we start with main menu
-    scene_controller.set_current_scene("main_menu");
+    scene_controller->set_current_scene("main_menu");
 
     loading_logger->info("Starting main loop");
 
@@ -294,7 +167,7 @@ int main()
     {
         // Handle events loop
         Event event;
-        Scene* cur_scene = scene_controller.get_current_scene();
+        std::shared_ptr<Scene> cur_scene = scene_controller->get_current_scene();
 
         while (window->pollEvent(event))
         {

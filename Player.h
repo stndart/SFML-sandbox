@@ -56,7 +56,7 @@ public:
 
 public:
     Player(std::string name);
-    Player(std::string name, Texture* texture, FloatRect posrect);
+    Player(std::string name, std::shared_ptr<Texture> texture, FloatRect posrect);
 
     // current_field pointer setter/getter
     void set_current_field(Field* nfield);

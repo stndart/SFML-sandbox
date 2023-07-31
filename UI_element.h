@@ -10,17 +10,20 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 
+class Scene;
+
 class UI_element : public sf::Drawable, public sf::Transformable
 {
     protected:
         // sprite position and rectangle to hover checks
         sf::IntRect Frame_scale;
+
         // spritesheet with textures
-        Animation* background;
-        // coordinates of frame on spritesheet
-        Vertex m_vertices[4];
+        std::shared_ptr<Animation> background_animation;
         // index of current frame in the spritesheet
         int cur_frame;
+        // sprite to draw textures
+        sf::Sprite background;
 
         // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)
         bool focus;
@@ -38,16 +41,16 @@ class UI_element : public sf::Drawable, public sf::Transformable
         int z_index;
 
         UI_element(std::string name, sf::IntRect UIFrame, Scene* parent);
-        UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, Animation* spritesheet);
+        UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> spritesheet);
 
         // Frame_scale setter/getter
         void setFrame(sf::IntRect new_frame_scale);
         sf::IntRect getFrame() const;
         // Animation setter
-        void setAnimation(Animation* spritesheet);
+        void setAnimation(std::shared_ptr<Animation> spritesheet);
         // current frame setter/getter
         void set_current_frame(int new_frame);
-        sf::Texture* getTexture() const;
+        std::shared_ptr<sf::Texture> getTexture() const;
         const sf::IntRect& getTextureFrame() const;
         // focus setter/getter
         void set_focus(bool new_focus);
@@ -63,9 +66,15 @@ class UI_element : public sf::Drawable, public sf::Transformable
 
         // overriding Transformable methods
         virtual void move(const Vector2f &offset);
+        virtual void scale(const Vector2f &factor);
         FloatRect getLocalBounds() const;
         FloatRect getGlobalBounds() const;
         virtual void setPosition(const Vector2f &position);
+        virtual void setPosition(float x, float y);
+        virtual void setOrigin(const Vector2f &origin);
+        virtual void setOrigin(float x, float y);
+        virtual void setScale(const Vector2f &factors);
+        virtual void setScale(float factorX, float factorY);
 
         // overriding Drawable methods
         virtual void draw(RenderTarget& target, RenderStates states) const override;

@@ -17,11 +17,11 @@ public:
     // z-coordinate
     int depth_level;
 
-    Cell_object(std::string name, Texture* texture);
-    Cell_object(std::string name, Texture* texture, IntRect rect);
+    Cell_object(std::string name, std::shared_ptr<Texture> texture);
+    Cell_object(std::string name, std::shared_ptr<Texture> texture, IntRect rect);
 
     // change object texture and name
-    void change_texture(std::string name, Texture* texture);
+    void change_texture(std::string name, std::shared_ptr<Texture> texture);
     // change m_vertices
     void addTexCoords(IntRect rect);
     // set display size

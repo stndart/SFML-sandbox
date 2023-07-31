@@ -4,7 +4,6 @@
 #include <string>
 #include <cassert>
 
-#include "Field.h"
 #include "Scene_Field.h"
 
 #include <SFML/Graphics/Text.hpp>
@@ -23,7 +22,10 @@ class Scene_editor : public Scene_Field
         void save_map();
 
     public:
-        Scene_editor(std::string name, sf::Vector2u screensize, std::map <std::string, Texture*> *field_tex_map);
+        Scene_editor(std::string name, sf::Vector2u screensize, std::shared_ptr<ResourceLoader> resload);
+
+        // returns type name ("Scene_editor" for this class)
+        std::string get_type() override;
 
         // overriding Drawable methods
         void update(Event& event, std::string& command_main) override;
@@ -31,8 +33,4 @@ class Scene_editor : public Scene_Field
         void draw(RenderTarget& target, RenderStates states) const override;
 };
 
-/// TEMP
-// MyFirstSceneEditor constructor
-Scene_editor new_editor_scene(Texture* bg, unsigned int length, unsigned int width, std::map <std::string, Texture*> *field_blocks,
-                            Texture* player_texture, Vector2u screen_dimensions, int num);
 #endif // SCENE_EDITOR_H_INCLUDED

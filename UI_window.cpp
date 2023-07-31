@@ -100,6 +100,6 @@ void UI_window::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     for (auto g : elements)
     {
-        target.draw(*g.second);
+        target.draw(*g.second, states);
     }
 }

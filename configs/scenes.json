@@ -1,0 +1,16 @@
+{
+    "default scene config path": "./configs/main_menu.json",
+    "scenes":
+    [
+        {
+            "name": "main_menu",
+            "type": "Scene",
+            "config": "./configs/main_menu.json"
+        },
+        {
+            "name": "editor_scene",
+            "type": "Scene_editor",
+            "config": "./configs/field_scene.json"
+        }
+    ]
+}

@@ -5,20 +5,15 @@ Animation::Animation()
     // Reaching out to global "loading" logger and "graphics" logger by names
     loading_logger = spdlog::get("loading");
     graphics_logger = spdlog::get("graphics");
-
-    m_frames = std::vector<IntRect>(0);
-    textures = std::vector<Texture*>(0);
-    texture_index = std::vector<int>(0);
-    joints = std::vector<Joint>(0);
 }
 
-Animation::Animation(Texture* texture) : Animation()
+Animation::Animation(std::shared_ptr<Texture> texture) : Animation()
 {
     setSpriteSheet(texture, 0);
 }
 
 // set spritesheet #i with texture by link
-void Animation::setSpriteSheet(Texture* texture, std::size_t i)
+void Animation::setSpriteSheet(std::shared_ptr<Texture> texture, std::size_t i)
 {
     if (i > textures.size())
         throw;
@@ -30,14 +25,14 @@ void Animation::setSpriteSheet(Texture* texture, std::size_t i)
 }
 
 // append spritesheet with texture by link
-int Animation::addSpriteSheet(Texture* texture)
+int Animation::addSpriteSheet(std::shared_ptr<Texture> texture)
 {
     textures.push_back(texture);
     return textures.size() - 1;
 }
 
 // get spritesheet by index
-Texture* Animation::getSpriteSheet(int i)
+std::shared_ptr<Texture> Animation::getSpriteSheet(int i)
 {
     return textures[texture_index[i]];
 }
@@ -201,7 +196,7 @@ const IntRect& Animation::getFrame(std::size_t n) const
 }
 
 // return spritesheet of n-th frame
-Texture* Animation::getTexture(std::size_t n) const
+std::shared_ptr<Texture> Animation::getTexture(std::size_t n) const
 {
     return textures[texture_index[n]];
 }
@@ -227,7 +222,7 @@ void Animation::load_from_file(std::string animation_filename, Vector2u frame_si
         N = 40;
     std::string fname = animation_filename;
 
-    Texture* ssheet = new Texture;
+    std::shared_ptr<Texture> ssheet = std::make_shared<Texture>();
     if (!ssheet->loadFromFile(fname))
     {
         loading_logger->error("Failed to load animation texture");

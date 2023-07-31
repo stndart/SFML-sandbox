@@ -6,7 +6,7 @@ Cell::Cell(std::string name) : blocking(0), type_name(name), displayed(true)
     map_events_logger = spdlog::get("map_events");
 }
 
-Cell::Cell(std::string name, Texture* texture, IntRect texRect) : Cell::Cell(name)
+Cell::Cell(std::string name, std::shared_ptr<Texture> texture, IntRect texRect) : Cell::Cell(name)
 {
     map_events_logger = spdlog::get("map_events");
 
@@ -20,7 +20,7 @@ Cell::Cell(std::string name, Texture* texture, IntRect texRect) : Cell::Cell(nam
 }
 
 // change tile texture and name
-void Cell::change_texture(std::string name, Texture* texture)
+void Cell::change_texture(std::string name, std::shared_ptr<Texture> texture)
 {
     type_name = name;
     sprite.setTexture(*texture);
@@ -44,11 +44,11 @@ bool Cell::hasObject(std::string name)
 }
 
 // add object with name and z-coordinate
-Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, IntRect tex_rect, int depth_level)
+std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<Texture> texture, Vector2f display_size, IntRect tex_rect, int depth_level)
 {
     map_events_logger->trace("Adding object \"{}\" to cell with z-level {}", name, depth_level);
 
-    Cell_object* new_object = new Cell_object(name, texture);
+    std::shared_ptr<Cell_object> new_object = std::make_shared<Cell_object>(name, texture);
 
     new_object->addTexCoords(tex_rect);
     new_object->setDisplaySize(display_size);
@@ -59,19 +59,19 @@ Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f displa
     return new_object;
 }
 
-Cell_object* Cell::addObject(std::string name, Texture* texture, Vector2f display_size, int depth_level)
+std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<Texture> texture, Vector2f display_size, int depth_level)
 {
     IntRect tex_rect(Vector2i(0, 0), Vector2i(texture->getSize()));
     return addObject(name, texture, display_size, tex_rect, depth_level);
 }
 
-Cell_object* Cell::addObject(std::string name, Texture* texture, IntRect tex_rect, int depth_level)
+std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<Texture> texture, IntRect tex_rect, int depth_level)
 {
     Vector2f display_size(texture->getSize());
     return addObject(name, texture, display_size, tex_rect, depth_level);
 }
 
-Cell_object* Cell::addObject(std::string name, Texture* texture, int depth_level)
+std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<Texture> texture, int depth_level)
 {
     IntRect tex_rect(Vector2i(0, 0), Vector2i(texture->getSize()));
     Vector2f display_size(texture->getSize());
@@ -88,7 +88,7 @@ void Cell::removeObject(std::string name)
 }
 
 // invoke action by name. texture - temporary variable, used for creating <stump>
-void Cell::action_change(std::string name, Texture* texture)
+void Cell::action_change(std::string name, std::shared_ptr<Texture> texture)
 {
     map_events_logger->debug("Action change on cell with action name {}", name);
 
@@ -164,16 +164,46 @@ bool Cell::has_out_block(int direction) const
 }
 
 // overriding Transformable methods
-void Cell::setPosition(const Vector2f &pos)
+void Cell::move(const Vector2f &offset)
 {
-    Transformable::setPosition(pos);
-    sprite.setPosition(pos);
+    Transformable::move(offset);
+    sprite.move(offset);
+}
+
+void Cell::rotate(float angle)
+{
+    Transformable::rotate(angle);
+    sprite.rotate(angle);
+}
+
+void Cell::scale(const Vector2f &factor)
+{
+    Transformable::scale(factor);
+    sprite.scale(factor);
+}
+
+void Cell::setPosition(const Vector2f &position)
+{
+    Transformable::setPosition(position);
+    sprite.setPosition(position);
 }
 
 void Cell::setPosition(float x, float y)
 {
     Transformable::setPosition(x, y);
     sprite.setPosition(x, y);
+}
+
+void Cell::setScale(const Vector2f &factors)
+{
+    Transformable::setScale(factors);
+    sprite.setScale(factors);
+}
+
+void Cell::setScale(float factorX, float factorY)
+{
+    Transformable::setScale(factorX, factorY);
+    sprite.setScale(factorX, factorY);
 }
 
 void Cell::draw(RenderTarget& target, RenderStates states) const
