@@ -1,0 +1,145 @@
+{
+    "default sprite": "default",
+    "default animation prefix": "idle_animation",
+    "frame time": 0.2,
+    "animations": [
+        {
+            "name": "idle_animation_0",
+            "frame count": 36,
+            "frame size": [530, 530],
+            "joints": [
+                {
+                    "from": -1,
+                    "animation": "idle_animation_0",
+                    "to": 1
+                },
+                {
+                    "from": 5,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 15,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 25,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 35,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 5,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": 15,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": 25,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": 35,
+                    "animation": "movement_2",
+                    "to": 1
+                }
+            ]
+        },
+        {
+            "name": "idle_animation_2",
+            "frame count": 36,
+            "frame size": [530, 530],
+            "joints": [
+                {
+                    "from": -1,
+                    "animation": "idle_animation_2",
+                    "to": 1
+                },
+                {
+                    "from": 5,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 15,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 25,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 35,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": 5,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": 15,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": 25,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": 35,
+                    "animation": "movement_2",
+                    "to": 1
+                }
+            ]
+        },
+        {
+            "name": "movement_0",
+            "frame count": 40,
+            "frame size": [530, 530],
+            "joints": [
+                {
+                    "from": -1,
+                    "animation": "movement_0",
+                    "to": 1
+                },
+                {
+                    "from": -1,
+                    "animation": "idle_animation_0",
+                    "to": 1
+                }
+            ]
+        },
+        {
+            "name": "movement_2",
+            "frame count": 40,
+            "frame size": [530, 530],
+            "joints": [
+                {
+                    "from": -1,
+                    "animation": "movement_2",
+                    "to": 1
+                },
+                {
+                    "from": -1,
+                    "animation": "idle_animation_2",
+                    "to": 1
+                }
+            ]
+        }
+    ]
+}

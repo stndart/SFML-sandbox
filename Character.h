@@ -14,6 +14,7 @@
 #include "extra_algorithms.h"
 
 #include <spdlog/spdlog.h>
+#include <nlohmann/json.hpp>
 #include <SFML/System/Time.hpp>
 
 using namespace std;
@@ -52,40 +53,42 @@ string get_idle_animation_s(int direction);
 // get default name of movement animation with direction
 string get_movement_animation_s(int direction);
 
+class ResourceLoader;
+
 class Character : public Drawable, public Transformable
 {
 private:
     // flag if VE (VisualEffect) is active
-    bool moving;
+    bool moving = false;
     // flag if smooth movement is enabled, otherwise Character teleports from one cell to another
     /// TODO (DEPRECATED) - not implemented
-    bool moving_enabled;
+    bool moving_enabled = true;
     // flag if has valid animation
-    bool animated;
+    bool animated = false;
     // flag if VE (VisualEffect) is started. Resets after call eponymous func
-    bool is_order_completed;
+    bool is_order_completed = false;
     // flag ignoring joints (default: off)
-    bool ignore_joints;
+    bool ignore_joints = false;
 
     // current animation name
-    string current_animation;
+    string current_animation = "";
     // animation name ends with facing direction: "movement_0"
-    int facing_direction; // standard 0 - right, 1 - down, 2 - left, 3 - up
+    int facing_direction = 0; // standard 0 - right, 1 - down, 2 - left, 3 - up
     // direction and shift of current VE (VisualEffect)
-    int moving_direction;
-    Vector2f moving_shift;
+    int moving_direction = 0;
+    Vector2f moving_shift = Vector2f(0, 0);
     // flag if Player needs to update self coordinates. Resets once checked
-    bool movement_started;
+    bool movement_started = false;
     // flag if next movement is scheduled
-    bool next_movement_planned;
+    bool next_movement_planned = false;
 
     // scheduled movement parameters
     deque<AnimMovement> next_animations;
     // next animation direction (main one, transitions skipped). -1 if not scheduled.
-    int next_animation_dir;
+    int next_animation_dir = -1;
 
     // stores animations by name
-    map<string, std::shared_ptr<Animation> > animations;
+    map<string, shared_ptr<Animation> > animations;
     // maps animation by name with follow up animations
     map<string, set<string> > animation_subsequent;
     // maps animation by name with preceding animations
@@ -99,14 +102,19 @@ private:
     // implements BFS
     deque<Joint> find_next_joint(string animation_name) const;
 
-    std::shared_ptr<spdlog::logger> map_events_logger, graphics_logger;
+    // to store self size since AnimatedSprite doesn't have that
+    Vector2f framesize;
+
+    shared_ptr<ResourceLoader> resource_manager;
+
+    shared_ptr<spdlog::logger> loading_logger, map_events_logger, graphics_logger;
 
 public:
     string name;
 
-    std::shared_ptr<AnimatedSprite> base_sprite;
+    shared_ptr<AnimatedSprite> base_sprite;
 
-    std::shared_ptr<AnimatedSprite> moving_sprite;
+    shared_ptr<AnimatedSprite> moving_sprite;
     // default animation by name
     string idle_animation;
 
@@ -127,11 +135,18 @@ public:
     void set_ignore_joints(bool ignore);
 
 public:
-    Character(string name, std::shared_ptr<Texture> texture_default, IntRect texrect, FloatRect posrect);
-    Character(string name, map<string, std::shared_ptr<Animation> > animations, FloatRect posrect);
+    Character(string name, shared_ptr<ResourceLoader> resload);
+    Character(string name, shared_ptr<ResourceLoader> resload, shared_ptr<Texture> texture_default, IntRect texrect, FloatRect posrect);
+
+    // reloads all animations according to config
+    void load_config(string path_to_config = "configs/characters/default_character.json");
+    // saves all scenes to config
+    void save_config(string path_to_config);
+    // gets current frame size
+    Vector2f get_frame_size() const;
 
     // add animation to map by name
-    void add_animation(string animation_name, std::shared_ptr<Animation> p_animation);
+    void add_animation(string animation_name, shared_ptr<Animation> p_animation);
     // set current animation by name with time offset
     void set_animation(string animation_name, Time offset = seconds(0), int frame_start = 0, int frame_stop_after = -1);
     // set current animation to idle with current direction. (<offset> uses last animation lag, for smoother transition)
@@ -167,6 +182,7 @@ public:
     void scale(const Vector2f &factor);
     FloatRect getLocalBounds() const;
     FloatRect getGlobalBounds() const;
+    // override get methods since moving_sprite can move on its own
     virtual const Vector2f& getPosition() const;
     virtual float getRotation() const;
     virtual const Vector2f& getScale() const;

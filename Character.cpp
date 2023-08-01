@@ -1,5 +1,7 @@
 #include "Character.h"
 
+#include "ResourceLoader.h"
+
 // get default name of idle animation with direction
 string get_idle_animation_s(int direction)
 {
@@ -16,48 +18,95 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character(string name, std::shared_ptr<Texture> texture_default, IntRect texrect, FloatRect posrect) :
-moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
-current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
-movement_started(false), next_movement_planned(false), next_animation_dir(-1),
-name(name)
+Character::Character(string name, shared_ptr<ResourceLoader> resload) : name(name)
 {
     // Reaching out to global "map_events" logger and "graphics" logger by names
     map_events_logger = spdlog::get("map_events");
     graphics_logger = spdlog::get("graphics");
+    loading_logger = spdlog::get("loading");
 
-    base_sprite = std::make_shared<AnimatedSprite>(name, texture_default, texrect, posrect);
-    moving_sprite = base_sprite;
-    setPosition(posrect.getPosition());
-
-    /// MAGIC CONSTANT!
-    base_sprite->setFrameTime(seconds(0.01));
-
-    set_facing_direction(0);
-
-    animations[idle_animation] = std::make_shared<Animation>();
-    int spritesheet_index = animations[idle_animation]->addSpriteSheet(texture_default);
-    animations[idle_animation]->addFrame(texrect, spritesheet_index);
+    resource_manager = resload;
 }
 
-Character::Character(string name, map<string, std::shared_ptr<Animation> > nanimations, FloatRect posrect) :
-moving(false), moving_enabled(true), animated(false), is_order_completed(false), ignore_joints(false),
-current_animation(""), facing_direction(0), moving_direction(0), moving_shift(Vector2f(0, 0)),
-movement_started(false), next_movement_planned(false), next_animation_dir(-1),
-name(name)
+Character::Character(string name, shared_ptr<ResourceLoader> resload, shared_ptr<Texture> texture_default, IntRect texrect, FloatRect posrect) : Character(name, resload)
 {
-    // Reaching out to global "map_events" logger and "graphics" logger by names
-    map_events_logger = spdlog::get("map_events");
-    graphics_logger = spdlog::get("graphics");
+    moving_sprite = base_sprite = make_shared<AnimatedSprite>(
+        name, texture_default, texrect, posrect
+    );
+}
 
-    animations = nanimations;
-    set_facing_direction(0);
+// reloads all animations according to config (and adds them to resource manager if not present)
+void Character::load_config(string path_to_config)
+{
+    ifstream f(path_to_config);
+    nlohmann::json j = nlohmann::json::parse(f);
 
-    base_sprite = std::make_shared<AnimatedSprite>(name, animations[idle_animation], posrect);
-    moving_sprite = base_sprite;
+    framesize = Vector2f(0, 0);
 
-    /// MAGIC CONSTANT!
-    base_sprite->setFrameTime(seconds(0.01));
+    if (j.contains("animations"))
+    {
+        int anim_counter = 0;
+        for (nlohmann::json j2 : j["animations"])
+        {
+            string animation_name = j2.at("name").get<string>();
+            shared_ptr<Animation> new_animation = resource_manager->getAnimation(animation_name);
+            if (!new_animation)
+            {
+                new_animation = make_shared<Animation>();
+                Vector2i config_frame_size(j2.at("frame size")[0].get<int>(), j2.at("frame size")[1].get<int>());
+                int config_frame_count = j2.at("frame count").get<int>();
+
+                new_animation->load_from_texture(resource_manager, animation_name, config_frame_size, config_frame_count);
+
+                for (nlohmann::json j3 : j2.at("joints"))
+                {
+                    int from = j3.at("from").get<int>();
+                    int to = j3.at("to").get<int>();
+                    string animation_to = j3.at("animation").get<string>();
+
+                    new_animation->add_joint(from, animation_to, to);
+                }
+
+                resource_manager->addAnimation(animation_name, new_animation);
+                anim_counter++;
+            }
+            
+            if (framesize == Vector2f(0, 0))
+            {
+                framesize.x = new_animation->getFrame(0).width;
+                framesize.y = new_animation->getFrame(0).height;
+            }
+            add_animation(animation_name, new_animation);
+        }
+
+        loading_logger->info("Loaded {} animations and {} animations are found preloaded", anim_counter, j["animations"].size() - anim_counter);
+
+        loading_logger->info("Loaded animation with framesize {}x{}", framesize.x, framesize.y);
+    }
+
+    if (framesize == Vector2f(0, 0))
+    {
+        std::shared_ptr<Texture> default_sprite = resource_manager->getCharacterTexture(j["default sprite"]);
+        framesize.x = default_sprite->getSize().x;
+        framesize.y = default_sprite->getSize().y;
+    }
+
+    moving_sprite = base_sprite = make_shared<AnimatedSprite>(
+        name, resource_manager,
+        j["default sprite"].get<string>(), seconds(j["frame time"].get<float>()), FloatRect(Vector2f(0, 0), framesize)
+    );
+}
+
+// saves all scenes to config
+void Character::save_config(string path_to_config)
+{
+    // a
+}
+
+// gets frame size that was set up in constructor as size of first frame of Animation
+Vector2f Character::get_frame_size() const
+{
+    return framesize;
 }
 
 string Character::get_animation_name_by_shift(Vector2f shift, int direction, string animation_name) const
@@ -69,7 +118,7 @@ string Character::get_animation_name_by_shift(Vector2f shift, int direction, str
         else
             direction = facing_direction;
     }
-    graphics_logger->trace("Get animation name with direction {} while facing {}", direction, facing_direction );
+    graphics_logger->trace("Get animation name with direction {} while facing {}", direction, facing_direction);
 
     string anim = animation_name;
     if (animation_name.length() == 0)
@@ -109,7 +158,7 @@ void Character::set_facing_direction(int new_direction)
         idle_animation = get_idle_animation_s(0);
 
     /// WHY? (temporarily switched off, since i don't know why it is here)
-    //update(seconds(0));
+    // update(seconds(0));
 }
 
 int Character::get_facing_direction() const
@@ -163,7 +212,7 @@ Joint Character::last_joint(string animation_name) const
         transitions.push_back(animation_name);
     set_intersection(set_subsequent.begin(), set_subsequent.end(),
                      set_previous.begin(), set_previous.end(),
-                     std::back_inserter(transitions));
+                     back_inserter(transitions));
 
     return animations.at(current_animation)->get_last_joint((int)base_sprite->getFrame(), transitions);
 }
@@ -223,7 +272,7 @@ deque<Joint> Character::find_next_joint(string animation_name) const
     ParentJoint parent;
     // we can't end bfs just checking current animation
     bool first_cycle = true;
-    while(visited.size() > 0)
+    while (visited.size() > 0)
     {
         j = visited.front();
         visited.pop_front();
@@ -270,7 +319,7 @@ deque<Joint> Character::find_next_joint(string animation_name) const
             // time from beginning of animation to joint
             duration = j_next.frame - frame_to;
             // now we find new place to insert joint
-            std::size_t i = 0;
+            size_t i = 0;
             for (; i < visited_frame.size(); ++i)
                 if (frame + duration < visited_frame[i])
                     break;
@@ -302,7 +351,7 @@ deque<Joint> Character::find_next_joint(string animation_name) const
 }
 
 // add animation to map by name
-void Character::add_animation(string animation_name, std::shared_ptr<Animation> p_animation)
+void Character::add_animation(string animation_name, shared_ptr<Animation> p_animation)
 {
     animations[animation_name] = p_animation;
     for (Joint j : p_animation->get_joints())
@@ -433,14 +482,14 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
         string s = "";
         for (Joint j : next_joints)
         {
-            s += " {F: " + std::to_string(j.frame) + ", A: " + j.anim_to + "}";
+            s += " {F: " + to_string(j.frame) + ", A: " + j.anim_to + "}";
         }
         graphics_logger->debug(s);
     }
 
     // otherwise, construct queue
     next_animations.clear();
-    std::size_t i = 0;
+    size_t i = 0;
     Joint j;
     for (; i < next_joints.size() - 1; ++i)
     {
@@ -533,7 +582,7 @@ void Character::next_movement_start()
 
         graphics_logger->debug("Creating VisualEffect with offset {}", offset.asSeconds());
 
-        std::shared_ptr<VisualEffect> VE = std::make_shared<VisualEffect>(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
+        shared_ptr<VisualEffect> VE = make_shared<VisualEffect>(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
         // Sync legs animation with VisualEffect start
         VE->sprite->play(am.j.frame_to, offset);
 
@@ -579,7 +628,6 @@ void Character::stop_animation_by_force()
     // the rest is up to update
 }
 
-
 void Character::move(const Vector2f &offset)
 {
     Transformable::move(offset);
@@ -608,7 +656,7 @@ FloatRect Character::getGlobalBounds() const
     return moving_sprite->getGlobalBounds();
 }
 
-const Vector2f& Character::getPosition() const
+const Vector2f &Character::getPosition() const
 {
     return moving_sprite->getPosition();
 }
@@ -618,7 +666,7 @@ float Character::getRotation() const
     return moving_sprite->getRotation();
 }
 
-const Vector2f& Character::getScale() const
+const Vector2f &Character::getScale() const
 {
     return moving_sprite->getScale();
 }
@@ -681,7 +729,7 @@ void Character::update(Time deltaTime)
             bool no_VE_correct_start = !next_animations.front().has_VE && moving && next_animations.front().VE_allowed;
             if (!moving || has_VE_correct_start || no_VE_correct_start)
             {
-                graphics_logger->trace("Character::update; Moving? {}; b==m? {}", moving, (base_sprite==moving_sprite));
+                graphics_logger->trace("Character::update; Moving? {}; b==m? {}", moving, (base_sprite == moving_sprite));
 
                 next_movement_start();
             }
@@ -699,7 +747,7 @@ void Character::update(Time deltaTime)
     moving_sprite->update(deltaTime);
 }
 
-void Character::draw(RenderTarget& target, RenderStates states) const
+void Character::draw(RenderTarget &target, RenderStates states) const
 {
     target.draw(*moving_sprite);
 }

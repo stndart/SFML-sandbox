@@ -1,13 +1,16 @@
 #include "AnimatedSprite.h"
 
+#include "ResourceLoader.h"
+
 // creates ASrite with given shape and position. Shape can have texture with texcoords set
 // shape is unchangeable after initialization
 // accepts origin as well. Default it top-left
-AnimatedSprite::AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin, int z_ind, sf::BlendMode blend_mode) : m_position(pos),
-m_frameTime(seconds(0)), m_currentFrame(0), frame_stop_after(-1), m_isLooped(false), m_isReversed(false), m_isReversible(false),
-parent_shape(std::move(shape)), sprite_blend_mode(blend_mode),
-m_currentTime(seconds(0)), m_isPaused(true), passed_after_stop(seconds(0)),
-name(name), z_index(z_ind)
+AnimatedSprite::AnimatedSprite(
+    std::string name, std::unique_ptr<Shape> shape,
+    Vector2f pos, Vector2f origin, int z_ind, sf::BlendMode blend_mode) :
+    m_position(pos),
+    parent_shape(std::move(shape)), sprite_blend_mode(blend_mode),
+    name(name), z_index(z_ind)
 {
     // Reaching out to global "loading" logger and "graphics" logger by names
     loading_logger = spdlog::get("loading");
@@ -31,8 +34,10 @@ AnimatedSprite::AnimatedSprite(std::string name, std::shared_ptr<Texture> textur
 }
 
 // creates ASprite with given animation and parameters (frametime, paused, looped, reversible)
-AnimatedSprite::AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, FloatRect posrect, Vector2f origin,
-               Time frameTime, bool looped, bool reversible, int z_ind, sf::BlendMode blend_mode) :
+AnimatedSprite::AnimatedSprite(
+    std::string name, std::shared_ptr<Animation> animation, Time frameTime,
+    FloatRect posrect, Vector2f origin,
+    bool looped, bool reversible, int z_ind, sf::BlendMode blend_mode) :
     AnimatedSprite(name, std::unique_ptr<Shape>(new RectangleShape(posrect.getSize())), posrect.getPosition(), origin, z_ind, blend_mode)
 {
     if (animation->getSize() == 0)
@@ -48,6 +53,38 @@ AnimatedSprite::AnimatedSprite(std::string name, std::shared_ptr<Animation> anim
 
     // set to 0th frame and reset time
     setFrame(0, true);
+}
+
+// creates ASprite with animation/texture name at position and size. Texture loads by <animation_name> if there is no such animation, but there is texture
+AnimatedSprite::AnimatedSprite(
+        std::string name, std::shared_ptr<ResourceLoader> resload,
+        std::string animation_name, Time frameTime,
+        FloatRect posrect, Vector2f origin,
+        int z_ind) :
+    AnimatedSprite(name, std::make_unique<RectangleShape>(posrect.getSize()), posrect.getPosition(), origin, z_ind)
+{
+    m_frameTime = frameTime;
+
+    std::shared_ptr<Animation> animation = resload->getAnimation(animation_name);
+    if (animation && animation->getSize() > 0)
+    {
+        m_animation = animation;
+        setFrame(0, true);
+    }
+    else
+    {
+        std::shared_ptr<Texture> texture = resload->getCharacterTexture(animation_name);
+        if (texture)
+        {
+            m_animation = std::make_shared<Animation>(texture);
+            m_animation->addFrame(IntRect(Vector2i(0, 0), Vector2i(posrect.getSize())));
+            setFrame(0, true);
+        }
+        else
+        {
+            loading_logger->error("Trying to create AnimatedSprite {} with no animation/texture {}", name, animation_name);
+        }
+    }
 }
 
 // Load animation, spritesheet and set current frame to 0

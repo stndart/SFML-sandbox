@@ -71,7 +71,7 @@ int main()
         map_events_logger = std::make_shared<spdlog::logger>("map_events", sink_list.begin(), sink_list.end());
         graphics_logger = std::make_shared<spdlog::logger>("graphics", sink_list.begin(), sink_list.end());
 
-        loading_logger->set_level(spdlog::level::debug);
+        loading_logger->set_level(spdlog::level::trace);
         input_logger->set_level(spdlog::level::info);
         map_events_logger->set_level(spdlog::level::debug);
         graphics_logger->set_level(spdlog::level::info);
@@ -133,20 +133,15 @@ int main()
     // Field editor scene. At first it is inactive.
     shared_ptr<Scene_editor> editor_scene = std::dynamic_pointer_cast<Scene_editor>(scene_controller->get_scene("editor_scene"));
 
-    // current ready animations
-    // each animation are loaded x4, because no resourceloader
-    vector<string> player_animation_fnames =
-    {
-        "Images/Flametail/idle_animation_0.png",
-        "Images/Flametail/idle_animation_2.png",
-        "Images/Flametail/movement_0.png",
-        "Images/Flametail/movement_2.png"
-    };
-
     // Create first and only player.
-    // Player knows, where he stands, and the field also
-    editor_scene->get_field(0)->addPlayer(player_animation_fnames);
-    editor_scene->get_field(1)->player_0 = editor_scene->get_field(0)->player_0;
+    std::shared_ptr<Player> player = std::make_shared<Player>("Player_0");
+    std::unique_ptr<Character> Flametail = std::make_unique<Character>("Flametail", resload);
+    Flametail->load_config("configs/characters/flametail.json");
+    Flametail->load_config();
+    player->setCharacter(std::move(Flametail));
+
+    editor_scene->get_field(0)->player_0 = player;
+    editor_scene->get_field(1)->player_0 = player;
     editor_scene->get_field(0)->teleport_to();
 
     editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(*editor_scene));
@@ -215,6 +210,8 @@ int main()
         window->display();
 
     }
+
+    loading_logger->info("Main cycle finished, shutting down");
 
     return 0;
 }

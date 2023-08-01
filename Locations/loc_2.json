@@ -7,32 +7,48 @@
 				{
 					"depth_level" : 1,
 					"type" : "house_wooden_wall_inside",
-					"origin": [0, 60],
-					"displayed_width": 1080
+					"origin": {
+						"Rel y": 0.5
+					},
+					"displayed_size": {
+						"Rel x": 9
+					}
 				}
 			],
 			[
 				{
 					"depth_level" : 1,
 					"type" : "house_inner_wall_left",
-					"origin": [0, 120],
-					"displayed_width": 120
+					"origin": {
+						"Rel y": 1
+					},
+					"displayed_size": {
+						"Rel x": 1
+					}
 				}
 			],
 			[
 				{
 					"depth_level" : 1,
 					"type" : "house_inner_wall_left",
-					"origin": [0, 120],
-					"displayed_width": 120
+					"origin": {
+						"Rel y": 1
+					},
+					"displayed_size": {
+						"Rel x": 1
+					}
 				}
 			],
 			[
 				{
 					"depth_level" : 1,
 					"type" : "house_inner_wall_left",
-					"origin": [0, 120],
-					"displayed_width": 120
+					"origin": {
+						"Rel y": 1
+					},
+					"displayed_size": {
+						"Rel x": 1
+					}
 				}
 			],
 			null
@@ -70,7 +86,12 @@
 					"type" : "table",
 					"in_blocking" : [false, true, false, false],
 					"out_blocking" : [false, false, false, true],
-					"displayed_height": 120
+					"origin": {
+						"Rel x": 0
+					},
+					"displayed_size": {
+						"Rel x": 2
+					}
 				}
 			],
 			null,
@@ -108,24 +129,36 @@
 				{
 					"depth_level" : 1,
 					"type" : "house_inner_wall_right",
-					"origin": [0, 120],
-					"displayed_width": 120
+					"origin": {
+						"Rel y": 1
+					},
+					"displayed_size": {
+						"Rel x": 1
+					}
 				}
 			],
 			[
 				{
 					"depth_level" : 1,
 					"type" : "house_inner_wall_right",
-					"origin": [0, 120],
-					"displayed_width": 120
+					"origin": {
+						"Rel y": 1
+					},
+					"displayed_size": {
+						"Rel x": 1
+					}
 				}
 			],
 			[
 				{
 					"depth_level" : 1,
 					"type" : "house_inner_wall_right",
-					"origin": [0, 120],
-					"displayed_width": 120
+					"origin": {
+						"Rel y": 1
+					},
+					"displayed_size": {
+						"Rel x": 1
+					}
 				}
 			],
 			null

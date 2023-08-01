@@ -22,6 +22,8 @@
 
 using namespace sf;
 
+class Animation;
+
 class ResourceLoader
 {
 private:
@@ -39,6 +41,9 @@ private:
 
     // map of callbacks by name
     std::map<std::string, std::function<void()> > callbacks;
+
+    // map of animations by name. Animations loaded by Characters, but stored here, so they don't load twice
+    std::map<std::string, std::shared_ptr<Animation> > animations;
 
     // loads subfolder contents to map
     void load_from_subfolder(std::string folder_path, std::map<std::string, std::shared_ptr<Texture> >&  load_to, bool repeated = false);
@@ -61,6 +66,10 @@ public:
     std::shared_ptr<Texture> getCharacterTexture(std::string texname);
 
     std::shared_ptr<Texture> getTexture(std::string texname, std::string category);
+
+    // gets animation by name.
+    std::shared_ptr<Animation> getAnimation(std::string aniname);
+    void addAnimation(std::string aniname, std::shared_ptr<Animation> anim);
 };
 
 #endif // RESOURCE_LOADER_H

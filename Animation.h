@@ -10,6 +10,8 @@
 
 using namespace sf;
 
+class ResourceLoader;
+
 struct Joint
 {
     int frame;
@@ -77,11 +79,9 @@ public:
     std::shared_ptr<Texture> getTexture(std::size_t n) const;
     // return spritesheet index of n frame
     int getTextureIndex(std::size_t n) const;
-
-    /// TEMP (as no resource manager implemented)
-    // loads spritesheets and frames from filename
-    // frames are loaded from spritesheet automatically, row by row
-    void load_from_file(std::string animation_filename, Vector2u framesize);
+    
+    // loads animation from spritesheet with specified frame size and number
+    void load_from_texture(std::shared_ptr<ResourceLoader> resload, std::string name, Vector2i frame_size, int frame_count);
 };
 
 #endif // ANIMATION_INCLUDE

@@ -1,5 +1,7 @@
 #include "Animation.h"
 
+#include "ResourceLoader.h"
+
 Animation::Animation()
 {
     // Reaching out to global "loading" logger and "graphics" logger by names
@@ -207,45 +209,26 @@ int Animation::getTextureIndex(std::size_t n) const
     return texture_index[n];
 }
 
-/// TEMP (as no resource manager implemented)
-// loads spritesheets and frames from list by filenames [idle_animation, movement_0]
-// frames are loaded from spritesheet automatically, row by row
-void Animation::load_from_file(std::string animation_filename, Vector2u frame_size)
+// loads animation from spritesheet with specified frame size and number
+void Animation::load_from_texture(std::shared_ptr<ResourceLoader> resload, std::string name, Vector2i frame_size, int frame_count)
 {
-    // get animation_filename, frame_size, N from json
-    ///TEMP!!!
-    int N;
-    // if <animation_filename> starts with ".../idle_animation"
-    if (animation_filename.rfind("Images/Flametail/idle_animation", 0) == 0)
-        N = 36;
-    else
-        N = 40;
-    std::string fname = animation_filename;
+    std::shared_ptr<Texture> sheet = resload->getCharacterTexture(name);
 
-    std::shared_ptr<Texture> ssheet = std::make_shared<Texture>();
-    if (!ssheet->loadFromFile(fname))
-    {
-        loading_logger->error("Failed to load animation texture");
-        throw;
-    }
-    Vector2u sheet_size = ssheet->getSize();
+    Vector2u sheet_size = sheet->getSize();
     int Nx = sheet_size.x / frame_size.x;
     int Ny = sheet_size.y / frame_size.y;
-    /// TEMP
-    if (Nx == 1)
-        N = 1;
 
-    if (Nx * Ny < N)
+    if (Nx * Ny < frame_count)
     {
         loading_logger->error("Spritesheet contains less frames than requested\n");
-        loading_logger->error("In spritesheet row: {}, requested: {}", Nx, N);
+        loading_logger->error("In spritesheet row: {}, requested: {}", Nx, frame_count);
         loading_logger->error("Sritesheet size {}x{}", sheet_size.x, sheet_size.y);
         loading_logger->error("Frame size {}x{}", frame_size.x, frame_size.y);
-        throw;
+        return;
     }
 
-    addSpriteSheet(ssheet);
-    for (int i = 0; i < N; ++i)
+    addSpriteSheet(sheet);
+    for (int i = 0; i < frame_count; ++i)
     {
         int x = frame_size.x * (i % Nx);
         int y = frame_size.y * (int)(i / Nx);

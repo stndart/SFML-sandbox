@@ -19,6 +19,8 @@
 
 using namespace sf;
 
+class ResourceLoader;
+
 // AnimatedSprite (referred as ASprite hereafter) is a drawable sprite
 // ASprite has a Shape (rectangle, circle or polygonal), that can be filled with a color with alpha-channel and/or with texture.
 // Color blending with underlying drawable objects by default works with alpha-channel (BlendAlpha), but works with any other BlendMode as well (no blending, adding/multiplying colors)
@@ -28,7 +30,6 @@ using namespace sf;
 
 class AnimatedSprite : public Drawable, public Transformable
 {
-
 private:
     // coordinates of ASprite
     Vector2f m_position;
@@ -36,15 +37,15 @@ private:
     // pointer to spritesheet
     std::shared_ptr<Animation> m_animation;
     // one frame time length
-    Time m_frameTime;
+    Time m_frameTime = seconds(0);
     // current frame index
-    std::size_t m_currentFrame;
+    std::size_t m_currentFrame = 0;
     // index of frame to stop after (by default -1, i.e. don't stop)
-    int frame_stop_after;
+    int frame_stop_after = -1;
 
-    bool m_isLooped;
-    bool m_isReversed;
-    bool m_isReversible;
+    bool m_isLooped = false;
+    bool m_isReversed = false;
+    bool m_isReversible = false;
 
     // shape over which texture (or color) may be put
     std::unique_ptr<Shape> parent_shape;
@@ -57,13 +58,13 @@ private:
 
 protected:
     // Inner time counter. Used to switch between frames
-    Time m_currentTime;
+    Time m_currentTime = seconds(0);
     // equals !isPlaying
-    bool m_isPaused;
+    bool m_isPaused = true;
     // Total animation duration
     Time duration;
     // Total time passed since pause
-    Time passed_after_stop;
+    Time passed_after_stop = seconds(0);
 
     // Smart pointers to logger handlers
     std::shared_ptr<spdlog::logger> loading_logger, graphics_logger;
@@ -80,8 +81,14 @@ public:
     // creates ASprite with rectangular shape of <posrect> size and position and <texrect> texture coordinates
     AnimatedSprite(std::string name, std::shared_ptr<Texture> texture, IntRect texrect, FloatRect posrect, Vector2f origin = Vector2f(0, 0), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
     // creates ASprite with given animation and parameters (frametime, paused, looped, reversible)
-    AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, FloatRect posrect, Vector2f origin = Vector2f(0, 0),
-                   Time frameTime = seconds(0.2f), bool looped = true, bool reversible = false, int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
+    AnimatedSprite(std::string name, std::shared_ptr<Animation> animation, Time frameTime, FloatRect posrect, Vector2f origin = Vector2f(0, 0),
+                   bool looped = true, bool reversible = false, int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
+    // creates ASprite with animation/texture name at position and size. Texture loads by <animation_name> if there is no such animation, but there is texture
+    AnimatedSprite(
+        std::string name, std::shared_ptr<ResourceLoader> resload,
+        std::string animation_name, Time frameTime,
+        FloatRect posrect, Vector2f origin = Vector2f(0, 0),
+        int z_ind = 0);
 
     // Animation parameters setters/getters
     // for external uses after VisualEffect inheritance

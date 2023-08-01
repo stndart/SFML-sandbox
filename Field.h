@@ -78,12 +78,10 @@ public:
     // return cell_type (name of the cell)
     std::string get_cellType_by_coord(unsigned int x, unsigned int y);
 
-    // create player at cell [cell_x, cell_y] with texture
-    void addPlayer(std::shared_ptr<Texture> player_texture, Vector2i pos = Vector2i(-1, -1));
-    // create player at cell [cell_x, cell_y] with animation given by list [idle_animation, movement_0]
-    void addPlayer(std::vector<std::string> animation_filenames, Vector2i pos = Vector2i(-1, -1), Vector2u frame_size = Vector2u(530, 530));
+    // add player at cell [cell_x, cell_y]
+    void addPlayer(std::shared_ptr<Player> player, Vector2i pos = Vector2i(-1, -1));
 
-    // places player onto this field by coords
+    // places player onto this field by coords and changes its scale to fit into cell
     void teleport_to(std::shared_ptr<Player> player = std::shared_ptr<Player>(nullptr));
     void teleport_to(Vector2i coords, std::shared_ptr<Player> player = std::shared_ptr<Player>(nullptr));
 

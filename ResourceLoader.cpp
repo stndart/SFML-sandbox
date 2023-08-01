@@ -147,3 +147,14 @@ std::shared_ptr<Texture> ResourceLoader::getCharacterTexture(std::string texname
 {
     return getTexture(texname, "Character");
 }
+
+// gets animation by name.
+std::shared_ptr<Animation> ResourceLoader::getAnimation(std::string aniname)
+{
+    return animations[aniname];
+}
+
+void ResourceLoader::addAnimation(std::string aniname, std::shared_ptr<Animation> anim)
+{
+    animations[aniname] = anim;
+}
