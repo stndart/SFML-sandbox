@@ -80,8 +80,7 @@ void Character::load_config(string path_to_config)
         }
 
         loading_logger->info("Loaded {} animations and {} animations are found preloaded", anim_counter, j["animations"].size() - anim_counter);
-
-        loading_logger->info("Loaded animation with framesize {}x{}", framesize.x, framesize.y);
+        loading_logger->info("Loaded character framesize (by first frame of first animation) is {}x{}", framesize.x, framesize.y);
     }
 
     if (framesize == Vector2f(0, 0))
@@ -264,7 +263,7 @@ deque<Joint> Character::find_next_joint(string animation_name) const
     visited_frame.push_back((int)base_sprite->getFrame());
     visited_parent[make_pair(current_animation, -1)] = ParentJoint{"root", 0, visited.back()};
     // don't update min_frame_to here, bc current animation doesn't count
-    graphics_logger->trace("+ adding start for <0, {}:>", current_animation, (int)base_sprite->getFrame());
+    // graphics_logger->trace("+ adding start for <0, {}:>", current_animation, (int)base_sprite->getFrame());
 
     // now we perform bfs
     int frame;
@@ -284,18 +283,18 @@ deque<Joint> Character::find_next_joint(string animation_name) const
         visited_frame.pop_front();
         int duration;
 
-        graphics_logger->trace("bfs: current anim: {}, frame: {}", anim, frame);
+        // graphics_logger->trace("bfs: current anim: {}, frame: {}", anim, frame);
 
         // if we found the path to target animation then update min
         if (anim == animation_name && !first_cycle)
         {
             // restore path from "root"
-            graphics_logger->trace("searching parent for <{}:{}>", anim, frame_to);
+            // graphics_logger->trace("searching parent for <{}:{}>", anim, frame_to);
 
             parent = visited_parent[make_pair(anim, frame_to)];
             while (parent.anim != "root")
             {
-                graphics_logger->trace("parent <\"{}\":{}>", parent.anim, parent.frame);
+                // graphics_logger->trace("parent <\"{}\":{}>", parent.anim, parent.frame);
 
                 min_call_stack.push_front(parent.j);
                 if (visited_parent.count(make_pair(parent.anim, parent.frame)) == 0)
@@ -336,17 +335,17 @@ deque<Joint> Character::find_next_joint(string animation_name) const
 
                 visited_parent[make_pair(j_next.anim_to, j_next.frame_to)] = ParentJoint{anim, ft, j_next};
 
-                graphics_logger->trace("+ adding parent for <{}, {}:{}> with <{}:{}>", j_next.frame, j_next.anim_to, j_next.frame_to, anim, ft);
-                graphics_logger->trace("so, parent for <{}:{}> is <{}:{}>", j_next.anim_to, j_next.frame_to,
-                                       visited_parent[make_pair(j_next.anim_to, j_next.frame_to)].anim,
-                                       visited_parent[make_pair(j_next.anim_to, j_next.frame_to)].frame);
+                // graphics_logger->trace("+ adding parent for <{}, {}:{}> with <{}:{}>", j_next.frame, j_next.anim_to, j_next.frame_to, anim, ft);
+                // graphics_logger->trace("so, parent for <{}:{}> is <{}:{}>", j_next.anim_to, j_next.frame_to,
+                //                        visited_parent[make_pair(j_next.anim_to, j_next.frame_to)].anim,
+                //                        visited_parent[make_pair(j_next.anim_to, j_next.frame_to)].frame);
             }
         }
 
         first_cycle = false;
     }
 
-    graphics_logger->trace("found minimum frame with call stack of size {}", min_call_stack.size());
+    graphics_logger->trace("found nearest frame with frame-trace of size {}", min_call_stack.size());
     return min_call_stack;
 }
 
@@ -473,7 +472,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
     {
         next_joints = find_next_joint(animation_name);
 
-        graphics_logger->debug("Character::plan_movement found queue of {}", next_joints.size());
+        graphics_logger->trace("Character::plan_movement found queue of {}", next_joints.size());
 
         // if no path to target animation_name found, then break
         if (next_joints.size() == 0)
@@ -484,7 +483,7 @@ void Character::plan_movement(Vector2f shift, int direction, string animation_na
         {
             s += " {F: " + to_string(j.frame) + ", A: " + j.anim_to + "}";
         }
-        graphics_logger->debug(s);
+        graphics_logger->trace(s);
     }
 
     // otherwise, construct queue
@@ -729,7 +728,7 @@ void Character::update(Time deltaTime)
             bool no_VE_correct_start = !next_animations.front().has_VE && moving && next_animations.front().VE_allowed;
             if (!moving || has_VE_correct_start || no_VE_correct_start)
             {
-                graphics_logger->trace("Character::update; Moving? {}; b==m? {}", moving, (base_sprite == moving_sprite));
+                graphics_logger->trace("Character::update - planning next movemeng. Moving? {}; base sprite is moving sprite? {}", moving, (base_sprite == moving_sprite));
 
                 next_movement_start();
             }

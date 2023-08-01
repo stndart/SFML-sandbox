@@ -43,7 +43,7 @@ void Scene_Field::load_config(std::string config_path)
     }
 }
 
-// change field by index
+// set field by index. If no field is current, set current to index
 void Scene_Field::add_field(std::shared_ptr<Field> field_to_add, int num)
 {
     loading_logger->trace("Add field #{} to scene", num);

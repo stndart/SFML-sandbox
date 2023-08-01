@@ -33,7 +33,7 @@ public:
     // loads interface and other info from config
     void load_config(std::string config_path) override;
 
-    // change field by index
+    // set field by index. If no field is current, set current to index
     void add_field(std::shared_ptr<Field> field_to_add, int num);
     // swap to field by index. If index is -1, then switch cyclically
     void change_current_field(int num=-1);

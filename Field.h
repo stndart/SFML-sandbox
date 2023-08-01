@@ -98,7 +98,7 @@ public:
     // currently changes <tree> to <stump>
     void action(std::shared_ptr<Texture> texture);
     // adds placeable object to cell by coords, name and with texture
-    void add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture);
+    void add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture, int z_level = 1);
     // change cell by coordinates tile name and texture
     void change_cell_texture(int cell_x, int cell_y, std::string name, std::shared_ptr<Texture> texture);
 

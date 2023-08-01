@@ -279,9 +279,11 @@ void Field::action(std::shared_ptr<Texture> texture)
 }
 
 // adds placeable object to cell by coords, name and with texture
-void Field::add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture)
+void Field::add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture, int z_level)
 {
-    cells[cell_x][cell_y]->addObject(type_name, texture, 1);
+    map_events_logger->trace("Adding object \"{}\" to cell {} at {}x{} with z-level {}", type_name, cells[cell_x][cell_y]->type_name, cell_x, cell_y, z_level);
+
+    cells[cell_x][cell_y]->addObject(type_name, texture, z_level);
     cells_changed = true;
 }
 
@@ -432,13 +434,15 @@ void Field::load_field(int loc_id)
                             displayed_size.y += Location["big_objects"][x][y][i]["displayed_size"].value<float>("Rel y", 0) * cell_length_y;
                         }
 
-                        loading_logger->info("Creating object with size {}x{} and origin {}x{}", displayed_size.x, displayed_size.y, origin.x, origin.y);
-
                         Vector2f object_displayed_size = save_aspect_ratio(
                             displayed_size,
                             Vector2f(resource_manager->getObjectTexture(object_type)->getSize())
                         );
 
+                        map_events_logger->trace(
+                            "Loading object \"{}\" to cell {} at {}x{} with z-level {} from config",
+                            object_type, cells[x][y]->type_name, x, y, object_depth_level);
+                        
                         cells[x][y]->addObject(object_type, resource_manager->getObjectTexture(object_type), object_displayed_size, object_depth_level);
                         cells[x][y]->setOrigin(origin);
                         
@@ -452,8 +456,6 @@ void Field::load_field(int loc_id)
                             for (int dir = 0; dir < 4; dir++)
                                 cells[x][y]->update_out_block(dir, out_blocking.at(dir).get<bool>());
                         }
-
-                        loading_logger->trace("Added object {} to cell {} at {}x{}", object_type, cell_type, x, y);
                     }
                 }
             }

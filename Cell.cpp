@@ -46,8 +46,6 @@ bool Cell::hasObject(std::string name)
 // add object with name and z-coordinate
 std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<Texture> texture, Vector2f display_size, IntRect tex_rect, int depth_level)
 {
-    map_events_logger->trace("Adding object \"{}\" to cell with z-level {}", name, depth_level);
-
     std::shared_ptr<Cell_object> new_object = std::make_shared<Cell_object>(name, texture);
 
     new_object->addTexCoords(tex_rect);
