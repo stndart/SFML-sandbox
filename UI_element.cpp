@@ -11,8 +11,6 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     loading_logger = spdlog::get("loading");
     input_logger = spdlog::get("input");
 
-    loading_logger->trace("UI_element {}", name);
-
     setFrame(UIFrame);
 }
 

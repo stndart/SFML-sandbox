@@ -81,11 +81,11 @@ void ResourceLoader::load_textures()
     }
 
     categories = j["categories"];
-    loading_logger->debug("Loaded {} categories from {}", categories.size(), path_to_config);
+    loading_logger->info("Loaded {} categories from {}", categories.size(), path_to_config);
 
     for (std::string category : categories)
     {
-        loading_logger->debug("Loading category {}", category);
+        loading_logger->info("Loading category {}", category);
         for (std::string folder : j[category])
         {
             loading_logger->debug("Loading folder {}", folder);

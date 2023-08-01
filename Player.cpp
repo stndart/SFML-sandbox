@@ -125,8 +125,6 @@ void Player::update(Time deltaTime)
         for (auto r_iter = queued_movement_direction.begin();
              r_iter != queued_movement_direction.end(); r_iter++)
         {
-            map_events_logger->trace("block dir: {}, check: {}, block: {}", r_iter->direction, r_iter->blocking_checked, r_iter->blocked);
-
             if (r_iter->blocking_checked && !r_iter->blocked)
             {
                 mov_dir = r_iter->direction;

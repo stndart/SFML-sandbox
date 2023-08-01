@@ -251,8 +251,6 @@ Time VisualEffect::animation_remaining_time() const
 
 Time VisualEffect::movement_remaining_time() const
 {
-    graphics_logger->trace("movement remains: mcur {}, dur {}", m_currentTime.asMilliseconds(), duration.asMilliseconds());
-
     Time remain = std::max(seconds(0), duration - m_currentTime);
     return std::max(remain, sprite->movement_remaining_time());
 }

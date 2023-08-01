@@ -142,7 +142,7 @@ void Scene::load_config(std::string config_path)
             Interface->addElement(button);
 
             loading_logger->trace(
-                "Added button to scene with name {}, coords {:.0f}x{:.0f} and origin {:.0f}x{:.0f}",
+                "Added button {} to scene with coords {:.0f}x{:.0f} and origin {:.0f}x{:.0f}",
                 element_name, coords.x, coords.y, origin.x, origin.y
             );
         }
