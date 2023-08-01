@@ -412,23 +412,35 @@ void Field::load_field(int loc_id)
                 {
                     if (Location["big_objects"][x][y][i].is_object())
                     {
-                        std::string object_type = Location["big_objects"][x][y][0]["type"].get<string>();
-                        int object_depth_level = Location["big_objects"][x][y][0]["depth_level"].get<int>();
-                        float displayed_width = Location["big_objects"][x][y][0].value("displayed_width", 0);
-                        float displayed_height = Location["big_objects"][x][y][0].value("displayed_height", 0);
+                        std::string object_type = Location["big_objects"][x][y][i]["type"].get<string>();
+                        int object_depth_level = Location["big_objects"][x][y][i]["depth_level"].get<int>();
+
+                        Vector2f origin;
+                        if (Location["big_objects"][x][y][i].contains("origin"))
+                        {
+                            origin.x += Location["big_objects"][x][y][i]["origin"].value<float>("Abs x", 0);
+                            origin.y += Location["big_objects"][x][y][i]["origin"].value<float>("Abs y", 0);
+                            origin.x += Location["big_objects"][x][y][i]["origin"].value<float>("Rel x", 0) * cell_length_x;
+                            origin.y += Location["big_objects"][x][y][i]["origin"].value<float>("Rel y", 0) * cell_length_y;
+                        }
+                        Vector2f displayed_size;
+                        if (Location["big_objects"][x][y][i].contains("displayed_size"))
+                        {
+                            displayed_size.x += Location["big_objects"][x][y][i]["displayed_size"].value<float>("Abs x", 0);
+                            displayed_size.y += Location["big_objects"][x][y][i]["displayed_size"].value<float>("Abs y", 0);
+                            displayed_size.x += Location["big_objects"][x][y][i]["displayed_size"].value<float>("Rel x", 0) * cell_length_x;
+                            displayed_size.y += Location["big_objects"][x][y][i]["displayed_size"].value<float>("Rel y", 0) * cell_length_y;
+                        }
+
+                        loading_logger->info("Creating object with size {}x{} and origin {}x{}", displayed_size.x, displayed_size.y, origin.x, origin.y);
+
                         Vector2f object_displayed_size = save_aspect_ratio(
-                            Vector2f(displayed_width, displayed_height),
+                            displayed_size,
                             Vector2f(resource_manager->getObjectTexture(object_type)->getSize())
                         );
 
                         cells[x][y]->addObject(object_type, resource_manager->getObjectTexture(object_type), object_displayed_size, object_depth_level);
-                        
-                        if (Location["big_objects"][x][y][0]["origin"].is_object())
-                        {
-                            float origin_x = Location["big_objects"][x][y][0]["origin"].at(0).get<float>();
-                            float origin_y = Location["big_objects"][x][y][0]["origin"].at(1).get<float>();
-                            cells[x][y]->setOrigin(origin_x, origin_y);
-                        }
+                        cells[x][y]->setOrigin(origin);
                         
                         // load blocking info from json
                         nlohmann::json in_blocking = Location["big_objects"][x][y][0]["in_blocking"];
