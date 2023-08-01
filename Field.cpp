@@ -126,113 +126,9 @@ std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
 }
 
 // create player at cell [pos.x, pos.y] with texture
-void Field::addPlayer(std::shared_ptr<Texture> player_texture, Vector2i pos)
+void Field::addPlayer(std::shared_ptr<Player> player, Vector2i pos)
 {
-    if (pos == Vector2i(-1, -1))
-        pos = default_player_pos;
-
-    player_0 = std::make_shared<Player>("default_player", player_texture, FloatRect(0, 0, 120, 120));
-    player_0->set_current_field(this);
-
-    // create default animation with some magic constants (to be resolved with addition of resources manager)
-    std::shared_ptr<Animation> idle_animation = std::make_shared<Animation>();
-    idle_animation->addSpriteSheet(player_texture);
-    /// MAGIC NUMBERS!
-    idle_animation->addFrame(IntRect(0, 0, 120, 120), 0);
-    idle_animation->addFrame(IntRect(120, 0, 120, 120), 0);
-    player_0->add_animation("idle_animation", idle_animation);
-
-    if (pos.x == -1)
-    {
-        player_0->x_cell_coord = default_player_pos.x;
-        player_0->y_cell_coord = default_player_pos.y;
-    }
-    else
-    {
-        player_0->x_cell_coord = pos.x;
-        player_0->y_cell_coord = pos.y;
-    }
-}
-
-// create player at cell [pos.x, pos.y] with animations files: [idle, movement_0]
-void Field::addPlayer(std::vector<std::string> animation_filenames, Vector2i pos, Vector2u frame_size)
-{
-    if (pos == Vector2i(-1, -1))
-        pos = default_player_pos;
-
-    std::shared_ptr<Texture> p_tex = std::make_shared<Texture>();
-    if (!p_tex->loadFromFile("Images/Flametail/default.png"))
-    {
-        loading_logger->error("Failed to load texture");
-        throw;
-    }
-    /// TODO: change to no-default-texture-player
-    player_0 = std::make_shared<Player>("animated_player", p_tex, FloatRect(0, 0, frame_size.x, frame_size.y));
-    player_0->set_current_field(this);
-    map_events_logger->trace("Created player");
-
-    // create default animation with some magic constants (to be resolved with addition of resources manager)
-    std::shared_ptr<Animation> idle_animation_0 = make_shared<Animation>();
-    idle_animation_0->load_from_file(animation_filenames[0], frame_size);
-    idle_animation_0->add_joint(-1, "idle_animation_0", 1);
-
-    idle_animation_0->add_joint(5,  "movement_0", 1);
-    idle_animation_0->add_joint(10, "movement_0", 1);
-    idle_animation_0->add_joint(15, "movement_0", 1);
-    idle_animation_0->add_joint(20, "movement_0", 1);
-    idle_animation_0->add_joint(25, "movement_0", 1);
-    idle_animation_0->add_joint(30, "movement_0", 1);
-    idle_animation_0->add_joint(35, "movement_0", 1);
-
-    idle_animation_0->add_joint(5,  "movement_2", 1);
-    idle_animation_0->add_joint(10, "movement_2", 1);
-    idle_animation_0->add_joint(15, "movement_2", 1);
-    idle_animation_0->add_joint(20, "movement_2", 1);
-    idle_animation_0->add_joint(25, "movement_2", 1);
-    idle_animation_0->add_joint(30, "movement_2", 1);
-    idle_animation_0->add_joint(35, "movement_2", 1);
-
-    std::shared_ptr<Animation> idle_animation_2 = make_shared<Animation>();
-    idle_animation_2->load_from_file(animation_filenames[1], frame_size);
-    idle_animation_2->add_joint(-1, "idle_animation_2", 1);
-
-    idle_animation_2->add_joint(5,  "movement_0", 1);
-    idle_animation_2->add_joint(10, "movement_0", 1);
-    idle_animation_2->add_joint(15, "movement_0", 1);
-    idle_animation_2->add_joint(20, "movement_0", 1);
-    idle_animation_2->add_joint(25, "movement_0", 1);
-    idle_animation_2->add_joint(30, "movement_0", 1);
-    idle_animation_2->add_joint(35, "movement_0", 1);
-
-    idle_animation_2->add_joint(5,  "movement_2", 1);
-    idle_animation_2->add_joint(10, "movement_2", 1);
-    idle_animation_2->add_joint(15, "movement_2", 1);
-    idle_animation_2->add_joint(20, "movement_2", 1);
-    idle_animation_2->add_joint(25, "movement_2", 1);
-    idle_animation_2->add_joint(30, "movement_2", 1);
-    idle_animation_2->add_joint(35, "movement_2", 1);
-
-    std::shared_ptr<Animation> movement_0 = make_shared<Animation>();
-    movement_0->load_from_file(animation_filenames[2], frame_size);
-    movement_0->add_joint(-1, "movement_0", 1);
-    movement_0->add_joint(-1, "idle_animation_0", 1);
-
-    std::shared_ptr<Animation> movement_2 = make_shared<Animation>();
-    movement_2->load_from_file(animation_filenames[3], frame_size);
-    movement_2->add_joint(-1, "movement_2", 1);
-    movement_2->add_joint(-1, "idle_animation_2", 1);
-
-    map_events_logger->trace("Field: created 4 animations, joints joined");
-
-    player_0->add_animation("idle_animation_0", idle_animation_0);
-    player_0->add_animation("idle_animation_2", idle_animation_2);
-    player_0->add_animation("movement_0", movement_0);
-    player_0->add_animation("movement_2", movement_2);
-
-    map_events_logger->trace("Field: added 4 animations to player");
-
-    // fit sprite into cell (horizontally)
-    player_0->setScale(Vector2f(cell_length_x / frame_size.x, cell_length_x / frame_size.x));
+    player_0 = player;
 
     if (pos.x == -1)
     {
@@ -270,6 +166,10 @@ void Field::teleport_to(Vector2i coords, std::shared_ptr<Player> player)
 
         player_0->x_cell_coord = coords.x;
         player_0->y_cell_coord = coords.y;
+
+        // fit sprite into cell (horizontally)
+        Vector2f player_frame_size = player_0->getCharacter().get_frame_size();
+        player_0->setScale(Vector2f(cell_length_x / player_frame_size.x, cell_length_x / player_frame_size.y));
 
         place_characters();
     }
@@ -311,7 +211,7 @@ void Field::move_player(int direction)
             return;
 
         // If player is moving - don't give new movement
-        if (player_0->is_moving())
+        if (player_0->getCharacter().is_moving())
             return;
 
         // Instantly change cells_coords

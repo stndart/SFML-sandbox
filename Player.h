@@ -40,7 +40,7 @@ private:
     std::shared_ptr<spdlog::logger> map_events_logger;
 
     // to update blocking correctly
-    Field* current_field;
+    Field* current_field = NULL;
 
 public:
     std::string name;
@@ -48,21 +48,22 @@ public:
     deque<Movement> queued_movement_direction;
 
     // cell coords
-    unsigned int x_cell_coord, y_cell_coord;
+    unsigned int x_cell_coord = 0, y_cell_coord = 0;
     // screen coords
-    double x_cell_movement_coord, y_cell_movement_coord;
+    double x_cell_movement_coord = 0, y_cell_movement_coord = 0;
     // smooth movement flag
-    bool movement_animation; /// NOT IMPLEMENTED (look Character::moving_enabled)
+    bool movement_animation = true; /// NOT IMPLEMENTED (look Character::moving_enabled)
 
 public:
     Player(std::string name);
-    Player(std::string name, std::shared_ptr<Texture> texture, FloatRect posrect);
 
     // current_field pointer setter/getter
     void set_current_field(Field* nfield);
     Field* get_current_field() const;
 
-    bool is_moving() const;
+    // getter and setter for Character
+    Character& getCharacter();
+    void setCharacter(std::unique_ptr<Character> new_character);
 
     // push back direction to queue
     void add_movement_direction(Vector2f shift, int direction);
@@ -84,11 +85,6 @@ public:
     // overriding Drawable methods
     void update(Time deltaTime);
     void draw(RenderTarget& target, RenderStates states) const override;
-
-    /// TEMP
-    // interface to sprite methods
-    void add_animation(string animation_name, std::shared_ptr<Animation> p_animation);
-    void set_animation(string animation_name);
 };
 
 #endif // PLAYER_H

@@ -59,6 +59,8 @@ void Scene::load_config(std::string config_path)
         sf::Vector2f texsize(back->getSize());
 
         sf::Vector2f coords;
+
+        // i didn't know .value<float>(key, 0) exists
         if (j2.contains("Abs x"))
             coords.x += j2["Abs x"].get<float>();
         if (j2.contains("Abs y"))
