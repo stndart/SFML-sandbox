@@ -1,7 +1,7 @@
 {
     "default sprite": "default",
     "default animation prefix": "idle_animation",
-    "frame time": 0.2,
+    "frame time": 0.01,
     "animations": [
         {
             "name": "idle_animation_0",

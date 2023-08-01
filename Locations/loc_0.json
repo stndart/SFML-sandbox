@@ -231,7 +231,12 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "portal"
+				}
+			],
 			null,
 			null,
 			null,

@@ -35,6 +35,12 @@ void Cell_object::setDisplaySize(Vector2f display_size)
     setScale(new_scale);
 }
 
+// used to remember cell coordinates and scale
+void Cell_object::set_parent_transform(sf::Transform parent_transform)
+{
+    parent_cell_transform = parent_transform;
+}
+
 // overriding Transformable methods
 void Cell_object::move(const Vector2f &offset)
 {
@@ -83,6 +89,7 @@ void Cell_object::draw(RenderTarget& target, RenderStates states) const
 {
     if (sprite.getTexture())
     {
+        states.transform *= parent_cell_transform;
         target.draw(sprite, states);
     }
 }

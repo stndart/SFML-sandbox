@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include <algorithm>
 
 #include <cassert>
 

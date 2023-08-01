@@ -271,7 +271,17 @@ void Field::action(std::shared_ptr<Texture> texture)
         }
         else if (target_cell->hasObject("portal"))
         {
+            Vector2i new_coords(player_0->x_cell_coord, player_0->y_cell_coord);
+            // move by +3+3
+            new_coords.x -= 3;
+            new_coords.y += 10;
+            // boundary check
+            new_coords.x = std::min((int)cells.size() - 1, new_coords.x);
+            new_coords.y = std::min((int)cells[0].size() - 1, new_coords.y);
+            new_coords.x = std::max(0, new_coords.x);
+            new_coords.y = std::max(0, new_coords.y);
 
+            teleport_to(new_coords);
         }
 
         cells_changed = true;
@@ -588,39 +598,27 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     // we only draw in field View
     target.setView(current_view);
 
-    // center cell in view
-    int center_cell_x = current_view.getCenter().x / cell_length_x;
-    int center_cell_y = current_view.getCenter().y / cell_length_y;
-
-    /// MAGIC NUMBERS!
-    /// Что за магические 5 и 8?
-    /// Это (1080/120) / 2 и (1920/120) / 2, т.е. центр.
-
-    // not to draw anything "behind the scenes"
-    for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
+    // store and sort all cell_objects by z-index
+    std::map<int, std::vector<std::shared_ptr<Drawable> > > cell_objects;
+    for (int i = 0; i < cells.size(); ++i)
     {
-        for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
+        for (int j = 0; j < cells[i].size(); ++j)
         {
-            // borders check
-            if (i < 0 || i >= (int)cells.size())
-                continue;
-            if (j < 0 || j >= (int)cells[i].size())
-                continue;
-
             cells[i][j]->draw(target, states);
+            for (auto& [obj_name, obj] : cells[i][j]->get_objects())
+            {
+                obj->set_parent_transform(cells[i][j]->getTransform());
+                cell_objects[obj->depth_level].push_back(obj);
+            }
         }
     }
-    for (int i = center_cell_x - 9; i < center_cell_x + 9; ++i)
-    {
-        for (int j = center_cell_y - 6; j < center_cell_y + 6; ++j)
-        {
-            // borders check
-            if (i < 0 || i >= (int)cells.size())
-                continue;
-            if (j < 0 || j >= (int)cells[i].size())
-                continue;
 
-            cells[i][j]->draw_objects(target, states);
+    // Draw sorted cell objects
+    for (auto& [z_index, objects_vector] : cell_objects)
+    {
+        for (auto obj : objects_vector)
+        {
+            target.draw(*obj, states);
         }
     }
 
