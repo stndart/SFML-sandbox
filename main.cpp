@@ -118,8 +118,8 @@ int main()
         return 1;
     }
 
-    // load all textures, since lazy=off
-    std::shared_ptr<ResourceLoader> resload = std::make_shared<ResourceLoader>();
+    // resource manager (lazy_ram, lazy_gpu)
+    std::shared_ptr<ResourceLoader> resload = std::make_shared<ResourceLoader>(true, true);
 
     loading_logger->info("Resource manager texture load complete");
 
@@ -137,7 +137,6 @@ int main()
     std::shared_ptr<Player> player = std::make_shared<Player>("Player_0");
     std::unique_ptr<Character> Flametail = std::make_unique<Character>("Flametail", resload);
     Flametail->load_config("configs/characters/flametail.json");
-    Flametail->load_config();
     player->setCharacter(std::move(Flametail));
 
     editor_scene->get_field(0)->player_0 = player;
