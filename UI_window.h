@@ -44,6 +44,8 @@ class UI_window : public UI_element
 
         // overriding Drawable methods
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        // before drawing send child elements to sort by z-index
+        void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
 };
 
 #endif // UI_WINDOW_H

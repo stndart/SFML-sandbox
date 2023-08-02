@@ -66,7 +66,7 @@ void Scene_Field::change_current_field(int num)
     map_events_logger->trace("Changing current field to {}", num);
 
     // unload current field from drawables index
-    sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
+    // sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
 
     current_field = num;
 
@@ -76,7 +76,7 @@ void Scene_Field::change_current_field(int num)
     }
 
     // load new current field to drawables index
-    sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
+    // sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
 
     fields[num]->teleport_to();
 }
@@ -222,5 +222,16 @@ void Scene_Field::update(Time deltaTime)
     if (current_field != -1 && fields[current_field])
     {
         fields[current_field]->update(deltaTime);
+    }
+}
+
+// clears and sorts all drawables by z-index
+void Scene_Field::sort_drawables()
+{
+    Scene::sort_drawables();
+
+    if (current_field != -1 && fields[current_field])
+    {
+        fields[current_field]->draw_to_zmap_with_view(views, sorted_drawables[FIELD_Z_INDEX]);
     }
 }

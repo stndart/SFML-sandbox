@@ -44,18 +44,20 @@ protected:
     // screen size in pixels. Passed in constructor
     sf::Vector2u screensize;
 
-    // list of sprites
-    std::vector<std::shared_ptr<AnimatedSprite> > sprites;
-    // list of sprites that belong to framebuffer
-    std::vector<std::shared_ptr<AnimatedSprite> > sprites_to_framebuffer;
-    // framebuffer, to which all <sprites> are rendered (for example, with no-blend mode)
-    sf::RenderTexture framebuffer;
+    // list of sprites (effects, usually)
+    std::set<std::shared_ptr<AnimatedSprite> > sprites;
+    // framebuffers, used to split drawing different parts of game. Mapped to their render order
+    std::map<int, sf::RenderTexture> framebuffers;
+    // list of views, used to draw field and field objects (cells, etc.) independently
+    std::vector<sf::View> views;
+    // default view that is set for screen effects
+    sf::View default_view;
 
-    // set of all animated objects sorted by z-index.
-    // Z-index of Field is typically 0, z-index of UI is typically 10
-    std::set <std::pair<int, Drawable*> > sorted_drawables;
-    // set of all drawables sorted by z-index to draw in framebuffer
-    std::set <std::pair<int, Drawable*> > sorted_drawables_to_framebuffer;
+    // All animated objects sorted by z-index.
+    // first index is number of a framebuffer, second is view index, third index is z-index, fourth iterable is set of weak pointers
+    // Scene is typically drawn on [1]th framebuffer, while UI is on [3]rd
+    // sorted_drawables are cleared and refilled each frame
+    std::map<int, std::map<int, std::map<int, std::vector<const Drawable*> > > > sorted_drawables;
 
     // draws background
     sf::Sprite background;
@@ -67,6 +69,7 @@ protected:
     // flag if WASD blocked
     bool controls_blocked;
 
+    // list of key bindings
     std::map<sf::Keyboard::Key, std::vector<std::pair<std::function<void()>, sf::Time> > > bound_callbacks;
 
     std::shared_ptr<spdlog::logger> loading_logger, input_logger;
@@ -88,20 +91,19 @@ public:
     void set_scene_controller(SceneController& sc);
     SceneController& get_scene_controller() const;
 
-    // adding elements to certain lists
-    void addTexture(std::shared_ptr<Texture> texture, IntRect rect);
-    void addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index=1, bool to_frame_buffer=false);
+    // sets default view to match whole screen
+    void set_view(sf::View new_view);
+
+    // changing background texture
+    void setBackground(std::shared_ptr<Texture> texture, IntRect rect);
+    // adding sprite to specified framebuffer with specified z-index
+    void addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index=1, int framebuffer = 2);
+    // adds an ui element to <Interface> and registers it as drawable in <sorted_drawables>
+    void add_UI_element(std::shared_ptr<UI_element> new_ui_element);
     /// TEMP
-    // deletes all sprites either from framebuffer or not
-    void delete_sprites(bool from_frame_buffer=false);
+    // clears sprites list
+    void delete_sprites();
 
-    // add button with callback and return its pointer
-    std::shared_ptr<UI_button> addButton(std::string name, std::shared_ptr<Texture> texture_default, std::shared_ptr<Texture> texture_released, IntRect pos_frame,
-                                         std::string origin = "center", std::function<void()> callback = std::function<void()>{nullptr});
-    std::shared_ptr<UI_button> addButton(std::string name, std::shared_ptr<Texture> texture_default, std::shared_ptr<Texture> texture_released, int pos_x, int pos_y,
-                                         std::string origin = "center", std::function<void()> callback = std::function<void()>{nullptr});
-
-    void addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements);
     // transfer mouse event to hovered interface part
     // if mouse doesn't hover over UI - return false
     bool UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main);
@@ -122,7 +124,9 @@ public:
     // evaluate all callbacks bount to key
     void evaluate_bound_callbacks(sf::Keyboard::Key keycode);
 
-    // draw all framebuffers (because <draw> is const)
+    // clears and sorts all drawables by z-index
+    virtual void sort_drawables();
+    // draws all framebuffers to textures (because <draw> is const)
     virtual void draw_buffers();
     // overriding Drawable methods
     virtual void update(Event& event, std::string& command_main);

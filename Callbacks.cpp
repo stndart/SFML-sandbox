@@ -125,7 +125,7 @@ std::function<void()> create_light_circle_centered(Scene_Field& scene,
 std::function<void()> clear_scene_sprites(Scene& scene)
 {
     std::function<void()> callback = [&scene] {
-        scene.delete_sprites(true);
+        scene.delete_sprites();
     };
     return callback;
 }

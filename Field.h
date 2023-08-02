@@ -26,6 +26,8 @@ using namespace sf;
 
 class Field : public Drawable, public Transformable
 {
+    static int CELL_Z_INDEX;
+
 private:
     // to draw background
     sf::Sprite background;
@@ -130,6 +132,9 @@ public:
     // overriding Drawable methods
     virtual void update(Time deltaTime);
     virtual void draw(RenderTarget& target, RenderStates states) const override;
+    // before drawing send itself to sort by z-index
+    // first index is view, second is view
+    virtual void draw_to_zmap_with_view(std::vector<View> &views, std::map<int, std::map<int, std::vector<const Drawable*> > > &zmap) const;
 
     ///TEMP
     int mapsize(int x, int y)

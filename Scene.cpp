@@ -18,13 +18,7 @@ Scene::Scene(std::string name, Vector2u screensize, std::shared_ptr<ResourceLoad
     Interface = std::make_shared<UI_window>("Interface", UIFrame, this);
 
     // add to drawables index
-    sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface.get()));
-
-    if (!framebuffer.create(screensize.x, screensize.y))
-    {
-        loading_logger->critical("Couldn't construct framebuffer");
-        throw;
-    }
+    // sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface.get()));
 }
 
 // returns type name ("Scene" for this class)
@@ -47,7 +41,7 @@ void Scene::load_config(std::string config_path)
     nlohmann::json j = nlohmann::json::parse(f);
 
     std::string background_texture = j["background"];
-    addTexture(resource_manager->getUITexture(background_texture), sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(screensize)));
+    setBackground(resource_manager->getUITexture(background_texture), sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(screensize)));
 
     // create and place buttons
     for (nlohmann::json j2 : j["UI elements"])
@@ -166,60 +160,40 @@ SceneController& Scene::get_scene_controller() const
     return *scene_controller;
 }
 
+// sets default view to match whole screen
+void Scene::set_view(sf::View new_view)
+{
+    default_view = new_view;
+}
+
 // change texture and update background from it
-void Scene::addTexture(std::shared_ptr<Texture> texture, IntRect rect)
+void Scene::setBackground(std::shared_ptr<Texture> texture, IntRect rect)
 {
     background.setTexture(*texture);
     background.setTextureRect(rect);
 }
 
-void Scene::addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index, bool to_frame_buffer)
+void Scene::addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index, int frame_buffer)
 {
-    loading_logger->trace("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, (int)to_frame_buffer);
+    loading_logger->trace("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, frame_buffer);
 
-    if (!to_frame_buffer)
-    {
-        sprites.push_back(sprite);
-        sprite->z_index = z_index;
-        sorted_drawables.insert(make_pair(z_index, sprite.get()));
-    }
-    else
-    {
-        sprites_to_framebuffer.push_back(sprite);
-        sprite->z_index = z_index;
-        sorted_drawables_to_framebuffer.insert(make_pair(z_index, sprite.get()));
-    }
+    sprites.insert(sprite);
+    sprite->z_index = z_index;
 }
 
-// deletes all sprites either from framebuffer or not
-void Scene::delete_sprites(bool from_frame_buffer)
+void Scene::add_UI_element(std::shared_ptr<UI_element> new_ui_element)
 {
-    if (!from_frame_buffer)
-    {
-        for (auto s : sprites)
-        {
-            sorted_drawables.erase(make_pair(s->z_index, s.get()));
-        }
-        sprites.clear();
-    }
-    else
-    {
-        for (auto s : sprites_to_framebuffer)
-        {
-            sorted_drawables_to_framebuffer.erase(make_pair(s->z_index, s.get()));
-        }
-        sprites_to_framebuffer.clear();
-    }
+    loading_logger->debug("Added ui element {} to scene", new_ui_element->name);
+
+    // save new element in UI tree
+    Interface->addElement(new_ui_element);
 }
 
-void Scene::addUI_element(std::vector<std::shared_ptr<UI_element> > &new_ui_elements)
+/// TEMP
+// clears sprites list
+void Scene::delete_sprites()
 {
-    loading_logger->debug("Added ui elements[{}] to scene", new_ui_elements.size());
-
-    for (auto g : new_ui_elements)
-    {
-        Interface->addElement(g);
-    }
+    sprites.clear();
 }
 
 // transfer mouse event to hovered interface part
@@ -369,30 +343,60 @@ void Scene::update(Time deltaTime)
     {
         s->update(deltaTime);
     }
-    for (auto s : sprites_to_framebuffer)
-    {
-        s->update(deltaTime);
-    }
+}
+
+void Scene::sort_drawables()
+{
+    // now sorted_drawables[%][0] is for default view
+    views.push_back(default_view);
+    // ask each Drawable source to add their Drawables into map
+    // for trash sprites
+    for (auto sprite : sprites)
+        sorted_drawables[2][0][sprite->z_index].push_back(sprite.get());
+    // for interface elements
+    Interface->draw_to_zmap(sorted_drawables[UI_Z_INDEX][0]);
 }
 
 // draw all framebuffers (because <draw> is const)
 void Scene::draw_buffers()
 {
-    RenderStates states;
-    framebuffer.clear(sf::Color::Transparent);
-
-    auto p = sorted_drawables_to_framebuffer.begin();
-    for (; p != sorted_drawables_to_framebuffer.end(); ++p)
+    // firstly clear all framebuffers and delete views
+    views.clear();
+    for (auto& [fb_index, fb] : framebuffers)
     {
-        if (p->first > UI_Z_INDEX)
-            break;
-
-        // if valid drawable, then draw it
-        if (p->second)
-            framebuffer.draw(*p->second);
+        fb.clear(sf::Color::Transparent);
     }
-
-    framebuffer.display();
+    // then clear sorted_drawbles
+    for (auto& [fb_index, z_index_map] : sorted_drawables)
+        for (auto& [z_index, draw_list] : z_index_map)
+            draw_list.clear();
+    // then add each drawable to sorted_drawables
+    sort_drawables();
+    // now add sorted drawables to appropriate framebuffers
+    for (auto& [fb_index, z_index_map] : sorted_drawables)
+    {
+        // if framebuffer with given index doesn't exist
+        if (!framebuffers.contains(fb_index))
+        {
+            if (!framebuffers[fb_index].create(screensize.x, screensize.y))
+            {
+                loading_logger->critical("Couldn't construct framebuffer");
+                throw;
+            }
+        }
+        for (auto& [view_index, view_list] : z_index_map)
+        {
+            framebuffers[fb_index].setView(views[view_index]);
+            for (auto& [z_index, draw_list] : view_list)
+                for (auto sprite : draw_list)
+                    framebuffers[fb_index].draw(*sprite);
+        }
+    }
+    // now render all framebuffers
+    for (auto& [fb_index, fb] : framebuffers)
+    {
+        fb.display();
+    }
 }
 
 void Scene::draw(RenderTarget& target, RenderStates states) const
@@ -403,18 +407,10 @@ void Scene::draw(RenderTarget& target, RenderStates states) const
         target.draw(background, states);
     }
 
-    auto p = sorted_drawables.begin();
-    for (; p != sorted_drawables.end(); ++p)
+    // cycle through framebuffers and draw each
+    for (auto& [fb_index, fb] : framebuffers)
     {
-        //break; /// dont draw field
-        if (p->first > UI_Z_INDEX)
-            break;
-
-        // if valid drawable, then draw it
-        if (p->second)
-            target.draw(*p->second);
+        sf::Sprite fb_sprite(fb.getTexture());
+        target.draw(fb_sprite, states);
     }
-
-    sf::Sprite framebuffer_sprite(framebuffer.getTexture());
-    target.draw(framebuffer_sprite, states);
 }

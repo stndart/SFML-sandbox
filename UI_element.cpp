@@ -230,3 +230,9 @@ void UI_element::draw(RenderTarget& target, RenderStates states) const
         target.draw(background, states);
     }
 }
+
+// before drawing send itself to sort by z-index
+void UI_element::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
+{
+    zmap[z_index].push_back(this);
+}

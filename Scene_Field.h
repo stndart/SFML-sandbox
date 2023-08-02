@@ -55,6 +55,8 @@ public:
     void set_player_movement_direction(int direction);
     void release_player_movement_direction(int direction);
 
+    // clears and sorts all drawables by z-index
+    void sort_drawables() override;
     // overriding Drawable methods
     void update(Event& event, std::string& command_main) override;
     void update(Time deltaTime) override;

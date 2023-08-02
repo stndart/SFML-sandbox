@@ -1,6 +1,8 @@
 #include "Field.h"
 #include "Player.h"
 
+int Field::CELL_Z_INDEX = 0;
+
 Field::Field(std::string name, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload) :
     field_screen_size(screenDimensions), resource_manager(resload),
     name(name), player_0(std::shared_ptr<Player>(nullptr))
@@ -592,6 +594,8 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     {
         target.draw(background, states);
     }
+
+    return;
     
     // save previous view not to destroy UI etc.
     View previous_view = target.getView();
@@ -630,4 +634,30 @@ void Field::draw(RenderTarget& target, RenderStates states) const
 
     // restore saved View
     target.setView(previous_view);
+}
+
+// before drawing send itself to sort by z-index
+void Field::draw_to_zmap_with_view(std::vector<View> &views, std::map<int, std::map<int, std::vector<const Drawable*> > > &zmap) const
+{
+    int view_index = views.size();
+    views.push_back(current_view);
+
+    // sort all cells and cell_objects by z-index
+    for (int i = 0; i < cells.size(); ++i)
+    {
+        for (int j = 0; j < cells[i].size(); ++j)
+        {
+            zmap[view_index][CELL_Z_INDEX].push_back(cells[i][j].get());
+            for (auto& [obj_name, obj] : cells[i][j]->get_objects())
+            {
+                obj->set_parent_transform(cells[i][j]->getTransform());
+                zmap[view_index][obj->depth_level].push_back(obj.get());
+            }
+        }
+    }
+    if (player_0 && player_0->get_current_field() == this)
+    {
+        zmap[view_index][player_0->getCharacter().moving_sprite->z_index].push_back(player_0.get());
+    }
+    
 }
