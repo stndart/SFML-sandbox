@@ -103,3 +103,10 @@ void UI_window::draw(sf::RenderTarget& target, sf::RenderStates states) const
         target.draw(*g.second, states);
     }
 }
+
+// before drawing send child elements to sort by z-index
+void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
+{
+    for (auto& [z_index, element] : elements)
+        element->draw_to_zmap(zmap);
+}

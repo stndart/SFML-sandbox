@@ -231,14 +231,19 @@
 			null,
 			null,
 			null,
-			null,
+			[
+				{
+					"depth_level" : 1,
+					"type" : "portal"
+				}
+			],
 			null,
 			null,
 			null,
 			null,
 			[
 				{
-					"depth_level" : 1,
+					"depth_level" : 3,
 					"type" : "tree"
 				}
 			],
@@ -257,7 +262,7 @@
 			null,
 			[
 				{
-					"depth_level" : 1,
+					"depth_level" : 3,
 					"type" : "tree"
 				}
 			],
@@ -289,7 +294,7 @@
 			null,
 			[
 				{
-					"depth_level" : 1,
+					"depth_level" : 3,
 					"type" : "tree"
 				}
 			],
@@ -369,19 +374,19 @@
 			null,
 			[
 				{
-					"depth_level" : 1,
+					"depth_level" : 3,
 					"type" : "tree"
 				}
 			],
 			[
 				{
-					"depth_level" : 1,
+					"depth_level" : 3,
 					"type" : "tree"
 				}
 			],
 			[
 				{
-					"depth_level" : 1,
+					"depth_level" : 3,
 					"type" : "tree"
 				}
 			],

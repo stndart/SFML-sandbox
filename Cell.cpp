@@ -37,10 +37,15 @@ void Cell::set_position_recursive(double x, double y)
 }
 
 // is object in object map by name
-bool Cell::hasObject(std::string name)
+bool Cell::hasObject(std::string name) const
 {
-    auto obj = objects.find(name);
-    return obj != objects.end();
+    return objects.contains(name);
+}
+
+// get objects map
+std::map<std::string, std::shared_ptr<Cell_object> >& Cell::get_objects()
+{
+    return objects;
 }
 
 // add object with name and z-coordinate
@@ -52,7 +57,13 @@ std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<T
     new_object->setDisplaySize(display_size);
 
     new_object->depth_level = depth_level;
-    /// TODO: обработать, если objects[name] уже существует
+
+    if (objects.contains(name))
+    {
+        map_events_logger->error("Object {} already exists in cell", name);
+        throw;
+    }
+
     objects[name] = new_object;
     return new_object;
 }
@@ -75,7 +86,6 @@ std::shared_ptr<Cell_object> Cell::addObject(std::string name, std::shared_ptr<T
     Vector2f display_size(texture->getSize());
     return addObject(name, texture, display_size, tex_rect, depth_level);
 }
-
 
 // remove object from map by name
 void Cell::removeObject(std::string name)
@@ -101,7 +111,7 @@ void Cell::action_change(std::string name, std::shared_ptr<Texture> texture)
 }
 
 // save cell and child objects to json
-void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, nlohmann::json& Location)
+void Cell::save_cell(unsigned int cell_x, unsigned int cell_y, nlohmann::json &Location)
 {
     Location["map"][cell_x][cell_y]["type"] = type_name;
     if (objects.size() == 0)
@@ -204,7 +214,7 @@ void Cell::setScale(float factorX, float factorY)
     sprite.setScale(factorX, factorY);
 }
 
-void Cell::draw(RenderTarget& target, RenderStates states) const
+void Cell::draw(RenderTarget &target, RenderStates states) const
 {
     if (sprite.getTexture() && displayed)
     {
@@ -212,17 +222,7 @@ void Cell::draw(RenderTarget& target, RenderStates states) const
     }
 }
 
-void Cell::draw_objects(RenderTarget& target, RenderStates states) const
-{
-    states.transform *= getTransform();
-    for (auto obj : objects)
-    {
-        obj.second->draw(target, states);
-    }
-}
-
 int Cell::mapsize() const
 {
     return objects.size();
 }
-

@@ -200,6 +200,7 @@ int main()
         window->clear();
         if (cur_scene)
         {
+            cur_scene->set_view(window->getView());
             cur_scene->draw_buffers();
             window->draw(*cur_scene);
         }

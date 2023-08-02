@@ -581,7 +581,7 @@ void Character::next_movement_start()
 
         graphics_logger->debug("Creating VisualEffect with offset {}", offset.asSeconds());
 
-        shared_ptr<VisualEffect> VE = make_shared<VisualEffect>(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift);
+        shared_ptr<VisualEffect> VE = make_shared<VisualEffect>(base_sprite, offset, am.VE_duration, am.VE_start, am.VE_start + am.VE_shift, base_sprite->z_index);
         // Sync legs animation with VisualEffect start
         VE->sprite->play(am.j.frame_to, offset);
 

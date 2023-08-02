@@ -76,7 +76,7 @@ public:
 
     // creates ASrite with given shape and position. Shape can have texture with texcoords set
     // shape is unchangeable after initialization
-    // accepts origin as well. Default it top-left
+    // accepts origin as well. Default is top-left
     AnimatedSprite(std::string name, std::unique_ptr<Shape> shape, Vector2f pos, Vector2f origin = Vector2f(0, 0), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
     // creates ASprite with rectangular shape of <posrect> size and position and <texrect> texture coordinates
     AnimatedSprite(std::string name, std::shared_ptr<Texture> texture, IntRect texrect, FloatRect posrect, Vector2f origin = Vector2f(0, 0), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendAlpha);
@@ -88,7 +88,7 @@ public:
         std::string name, std::shared_ptr<ResourceLoader> resload,
         std::string animation_name, Time frameTime,
         FloatRect posrect, Vector2f origin = Vector2f(0, 0),
-        int z_ind = 0);
+        int z_ind = 2);
 
     // Animation parameters setters/getters
     // for external uses after VisualEffect inheritance

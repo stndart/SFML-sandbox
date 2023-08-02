@@ -46,7 +46,11 @@ public:
     // set position to Cell and all child objects
     void set_position_recursive(double x, double y);
     // is object in object map by name
-    bool hasObject(std::string name);
+    bool hasObject(std::string name) const;
+
+    // get objects map
+    std::map<std::string, std::shared_ptr<Cell_object> >& get_objects();
+
     // add object with name and z-coordinate
     std::shared_ptr<Cell_object> addObject(std::string name, std::shared_ptr<Texture> texture, int depth_level);
     std::shared_ptr<Cell_object> addObject(std::string name, std::shared_ptr<Texture> texture, IntRect tex_rect, int depth_level);
@@ -80,7 +84,6 @@ public:
 
     // overriding Drawable methods
     virtual void draw(RenderTarget& target, RenderStates states) const override;
-    void draw_objects(RenderTarget& target, RenderStates states) const;
 
     /// TEMP
     int mapsize() const;
