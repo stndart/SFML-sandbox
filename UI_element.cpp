@@ -14,6 +14,13 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     setFrame(UIFrame);
 }
 
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> background) : UI_element(name, UIFrame, parent)
+{
+    std::shared_ptr<Animation> back = std::make_shared<Animation>(background);
+    back->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(background->getSize())));
+    setAnimation(back);
+}
+
 UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> spritesheet) : UI_element(name, UIFrame, parent)
 {
     setAnimation(spritesheet);
@@ -128,6 +135,11 @@ void UI_element::release_click(sf::Vector2f cursor, bool controls_blocked, bool 
     input_logger->debug("Element {} popped at {}x{}", name, cursor.x, cursor.y);
 }
 
+// overriding some Sprite methods
+void UI_element::setColor(const Color& color)
+{
+    background.setColor(color);
+}
 
 // overriding Transformable methods
 void UI_element::move(const Vector2f &offset)
@@ -235,4 +247,9 @@ void UI_element::draw(RenderTarget& target, RenderStates states) const
 void UI_element::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
 {
     zmap[z_index].push_back(this);
+}
+
+void UI_element::update(Time deltaTime)
+{
+    // None;
 }

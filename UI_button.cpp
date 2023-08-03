@@ -3,6 +3,19 @@
 #include "Scene.h"
 
 // label with texture
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> button_texture) : UI_element(name, UIFrame, parent, button_texture)
+{
+    loading_logger->trace("UI_button:UI_texture {}, UIFRame +{}+{}, {}x{}", name,
+                          UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
+    displayed = true;
+
+    clickable = false;
+    pressed = false;
+    ignore_controls_blocking = false;
+    text = "";
+}
+
+// label with texture
 UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, bool is_clickable) : UI_element(name, UIFrame, parent)
 {
     loading_logger->trace("UI_button:UI_texture {}, UIFRame +{}+{}, {}x{}", name,

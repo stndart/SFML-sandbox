@@ -73,6 +73,7 @@ public:
     std::shared_ptr<Texture> getCellTexture(std::string texname);
     std::shared_ptr<Texture> getObjectTexture(std::string texname);
     std::shared_ptr<Texture> getCharacterTexture(std::string texname);
+    std::shared_ptr<Texture> getItemTexture(std::string texname);
 
     std::shared_ptr<Texture> getTexture(std::string texname, std::string category, bool repeated = false);
 

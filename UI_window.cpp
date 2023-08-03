@@ -99,3 +99,9 @@ void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap)
     for (auto& [z_index, element] : elements)
         element->draw_to_zmap(zmap);
 }
+
+void UI_window::update(Time deltaTime)
+{
+    for (auto& [z_index, element] : elements)
+        element->update(deltaTime);
+}

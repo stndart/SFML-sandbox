@@ -343,6 +343,8 @@ void Scene::update(Time deltaTime)
     {
         s->update(deltaTime);
     }
+    
+    Interface->update(deltaTime);
 }
 
 // clears and sorts all drawables by z-index

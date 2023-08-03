@@ -23,6 +23,7 @@ class UI_button : public UI_element
     public:
         std::string text;
 
+        UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> button_texture); // label with texture
         UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, bool is_clickable = false); // label with texture
         UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, std::shared_ptr<Animation> button_spritesheet = NULL); // label with text
         UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, std::function<void()> ncallback); // button with callback

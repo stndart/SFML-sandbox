@@ -1,6 +1,6 @@
 #include "Item.h"
 
-Item::Item(std::string name, float weight, float volume, float quality) : name(name), category(""), weight(weight), volume(volume), quality(quality)
+Item::Item(std::string name, float weight, float volume, float quality) : weight(weight), volume(volume), quality(quality), name(name), category("")
 {
     // None
 }
@@ -10,9 +10,9 @@ Item::Item(float weight, float volume, float quality) : Item("", weight, volume,
     // None
 }
 
-Item::Item(std::string name, std::string category, float weight, float volume, float quality) : Item(name, weight, volume, quality)
+Item::Item(std::string name, std::string n_category, float weight, float volume, float quality) : Item(name, weight, volume, quality)
 {
-    category = category;
+    category = n_category;
 }
 
 float Item::getWeight() const

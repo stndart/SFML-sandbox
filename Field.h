@@ -14,6 +14,7 @@
 #include "AnimatedSprite.h"
 #include "Cell.h"
 #include "Player.h"
+#include "Item.h"
 #include "extra_algorithms.h"
 #include "ResourceLoader.h"
 

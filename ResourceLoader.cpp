@@ -204,6 +204,11 @@ std::shared_ptr<Texture> ResourceLoader::getCharacterTexture(std::string texname
     return getTexture(texname, "Character");
 }
 
+std::shared_ptr<Texture> ResourceLoader::getItemTexture(std::string texname)
+{
+    return getTexture(texname, "Item");
+}
+
 // gets animation by name. If not present, returns ptr<Animation>(nullptr)
 std::shared_ptr<Animation> ResourceLoader::getAnimation(std::string aniname)
 {

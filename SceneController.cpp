@@ -24,6 +24,8 @@ void SceneController::load_config(std::string path_to_config)
         std::string scene_type = it.value("type", "Scene");
         std::string scene_name = it["name"];
         std::string scene_config_path = it.value("config", default_scene_config_path);
+        loading_logger->trace("Loading scene \"{}\" of type \"{}\"", scene_name, scene_type);
+
         if (scene_type == "Scene")
         {
             scene_map[scene_name] = std::make_shared<Scene>(scene_name, screensize, resource_manager);
