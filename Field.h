@@ -56,6 +56,7 @@ private:
 
     // FloatRect containing all possible view center coords
     // If view center is located outside this rect, field borders become visible
+    // has_border: if field has border, that should not be displayed
     FloatRect get_valid_view_center_rect(bool has_border = true);
 
     std::shared_ptr<ResourceLoader> resource_manager;
@@ -71,7 +72,7 @@ public:
     Field(std::string name, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload);
     Field(std::string name, std::shared_ptr<Texture> bg_texture, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload);
 
-    // update background with texture, View size with rect, m_vertices with rect as well
+    // update background with texture, View size with rect, and texture rect with rect as well
     void addTexture(std::shared_ptr<Texture> texture, IntRect rect);
     // add cell by indexes [x, y] with texture
     void addCell(std::shared_ptr<Texture> texture, unsigned int x, unsigned int y);
@@ -99,6 +100,8 @@ public:
 
     // invoke an action on cell where player stands, with texture (temp)
     // currently changes <tree> to <stump>
+    // <stump> to nothing
+    // jumps through portal to move by (-3, +10) from it
     void action(std::shared_ptr<Texture> texture);
     // adds placeable object to cell by coords, name and with texture
     void add_object_to_cell(int cell_x, int cell_y, std::string type_name, std::shared_ptr<Texture> texture, int z_level = 1);
@@ -111,11 +114,10 @@ public:
     void update_view_center();
     // get view rectangle
     FloatRect getViewport() const;
-    // get Cell size
+    // get Cell size on screen
     Vector2f getCellSize() const;
 
     // load field and cells from json file <Locations/loc_%loc_id%>
-    // field_block provides textures for cells by names (instead of resources manager)
     void load_field(int loc_id);
     // save field and cells in json file
     void save_field(int loc_id);
@@ -133,7 +135,7 @@ public:
     virtual void update(Time deltaTime);
     virtual void draw(RenderTarget& target, RenderStates states) const override;
     // before drawing send itself to sort by z-index
-    // first index is view, second is view
+    // first index is view, second is z-index
     virtual void draw_to_zmap_with_view(std::vector<View> &views, std::map<int, std::map<int, std::vector<const Drawable*> > > &zmap) const;
 
     ///TEMP

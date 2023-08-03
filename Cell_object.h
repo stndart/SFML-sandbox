@@ -15,7 +15,7 @@ private:
     sf::Transform parent_cell_transform;
 
 public:
-    // object type, eg. <stump>
+    // object type, eg. "stump"
     std::string type_name;
     // z-coordinate
     int depth_level;
@@ -25,7 +25,7 @@ public:
 
     // change object texture and name
     void change_texture(std::string name, std::shared_ptr<sf::Texture> texture);
-    // change m_vertices
+    // change area on texture to display
     void addTexCoords(sf::IntRect rect);
     // set display size
     void setDisplaySize(sf::Vector2f display_size);

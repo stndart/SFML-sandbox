@@ -42,8 +42,6 @@ class UI_window : public UI_element
         // return number of elements
         std::size_t get_elements_size() const;
 
-        // overriding Drawable methods
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
         // before drawing send child elements to sort by z-index
         void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
 };

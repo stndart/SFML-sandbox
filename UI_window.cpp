@@ -93,17 +93,6 @@ std::size_t UI_window::get_elements_size() const
     return elements.size();
 }
 
-// overriding Drawable methods
-void UI_window::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    UI_element::draw(target, states);
-
-    for (auto g : elements)
-    {
-        target.draw(*g.second, states);
-    }
-}
-
 // before drawing send child elements to sort by z-index
 void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
 {

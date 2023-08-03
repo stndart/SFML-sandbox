@@ -26,9 +26,11 @@ Field::Field(std::string name, Vector2u screenDimensions, std::shared_ptr<Resour
 
 Field::Field(std::string name, std::shared_ptr<Texture> bg_texture, Vector2u screenDimensions, std::shared_ptr<ResourceLoader> resload) : Field(name, screenDimensions, resload)
 {
-    /// MAGIC NUMBERS!
-    addTexture(bg_texture, IntRect(0, 0, 1920, 1080));
-    setScale((float)screenDimensions.x / 1920, (float)screenDimensions.y / 1080);
+    IntRect texrect(0, 0, 0, 0);
+    texrect.width = bg_texture->getSize().x;
+    texrect.height = bg_texture->getSize().y;
+    addTexture(bg_texture, texrect);
+    setScale((float)screenDimensions.x / texrect.width, (float)screenDimensions.y / texrect.height);
 }
 
 // returns view center with field boundaries check
@@ -83,7 +85,7 @@ FloatRect Field::get_valid_view_center_rect(bool has_border)
     return valid_view_center;
 }
 
-// update background with texture, View size with rect, m_vertices with rect as well
+    // update background with texture, View size with rect, and texture rect with rect as well
 void Field::addTexture(std::shared_ptr<Texture> texture, IntRect rect)
 {
     background.setTexture(*texture);
@@ -108,8 +110,7 @@ void Field::addCell(std::shared_ptr<Texture> texture, unsigned int x, unsigned i
 }
 
 // change field size and reshape cells 2d vector
-/// как оно работает если размер уменьшить - я хз
-void Field::field_resize(unsigned int length, unsigned int width)         // CHECK
+void Field::field_resize(unsigned int length, unsigned int width)
 {
     map_events_logger->debug("Changed field size to {}x{}", length, width);
 
@@ -127,7 +128,7 @@ std::string Field::get_cellType_by_coord(unsigned int x, unsigned int y)
     return cells[x][y]->type_name;
 }
 
-// create player at cell [pos.x, pos.y] with texture
+// add player at cell [cell_x, cell_y]
 void Field::addPlayer(std::shared_ptr<Player> player, Vector2i pos)
 {
     player_0 = player;
@@ -146,7 +147,7 @@ void Field::addPlayer(std::shared_ptr<Player> player, Vector2i pos)
     loading_logger->info("Loaded player at cell {}x{}", player_0->x_cell_coord, player_0->y_cell_coord);
 }
 
-// places player onto this field by coords
+// places player onto this field by coords and changes its scale to fit into cell
 void Field::teleport_to(std::shared_ptr<Player> player)
 {
     map_events_logger->info("Teleporting player to default position on field {}", name);
@@ -254,6 +255,8 @@ void Field::release_player_movement_direction(int direction)
 
 // invoke an action on cell where player stands, with texture (temp)
 // currently changes <tree> to <stump>
+// <stump> to nothing
+// jumps through portal to move by (-3, +10) from it
 void Field::action(std::shared_ptr<Texture> texture)
 {
     if (player_0 && player_0->get_current_field() == this)
@@ -355,14 +358,13 @@ FloatRect Field::getViewport() const
     return FloatRect(topleft.x, topleft.y, getsize.x, getsize.y);
 }
 
-// get Cell size
+// get Cell size on screen
 Vector2f Field::getCellSize() const
 {
     return Vector2f(cell_length_x, cell_length_y);
 }
 
 // load field and cells from json file <Locations/loc_%loc_id%>
-// field_block provides textures for cells by names (instead of resources manager)
 void Field::load_field(int loc_id)
 {
     // construct and log path string
@@ -594,49 +596,10 @@ void Field::draw(RenderTarget& target, RenderStates states) const
     {
         target.draw(background, states);
     }
-
-    return;
-    
-    // save previous view not to destroy UI etc.
-    View previous_view = target.getView();
-    // we only draw in field View
-    target.setView(current_view);
-
-    // store and sort all cell_objects by z-index
-    std::map<int, std::vector<std::shared_ptr<Drawable> > > cell_objects;
-    for (int i = 0; i < cells.size(); ++i)
-    {
-        for (int j = 0; j < cells[i].size(); ++j)
-        {
-            cells[i][j]->draw(target, states);
-            for (auto& [obj_name, obj] : cells[i][j]->get_objects())
-            {
-                obj->set_parent_transform(cells[i][j]->getTransform());
-                cell_objects[obj->depth_level].push_back(obj);
-            }
-        }
-    }
-
-    // Draw sorted cell objects
-    for (auto& [z_index, objects_vector] : cell_objects)
-    {
-        for (auto obj : objects_vector)
-        {
-            target.draw(*obj, states);
-        }
-    }
-
-    // draw player atop of everythinghas current field? {}", (player_0->get_current_field() == this));
-    if (player_0 && player_0->get_current_field() == this)
-    {
-        player_0->draw(target, states);
-    }
-
-    // restore saved View
-    target.setView(previous_view);
 }
 
 // before drawing send itself to sort by z-index
+// first index is view, second is z-index
 void Field::draw_to_zmap_with_view(std::vector<View> &views, std::map<int, std::map<int, std::vector<const Drawable*> > > &zmap) const
 {
     int view_index = views.size();

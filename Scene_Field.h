@@ -49,6 +49,7 @@ public:
     FloatRect getPlayerLocalBounds() const;
     FloatRect getPlayerGlobalBounds() const;
 
+    // blocks keyboard input
     void block_controls(bool blocked);
 
     // transfer to Field methods

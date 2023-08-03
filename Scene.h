@@ -94,14 +94,14 @@ public:
     // sets default view to match whole screen
     void set_view(sf::View new_view);
 
-    // changing background texture
+    // change background texture
     void setBackground(std::shared_ptr<Texture> texture, IntRect rect);
-    // adding sprite to specified framebuffer with specified z-index
+    // add sprite to specified framebuffer with specified z-index
     void addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index=1, int framebuffer = 2);
-    // adds an ui element to <Interface> and registers it as drawable in <sorted_drawables>
+    // add an ui element to <Interface>
     void add_UI_element(std::shared_ptr<UI_element> new_ui_element);
     /// TEMP
-    // clears sprites list
+    // clear sprites list
     void delete_sprites();
 
     // transfer mouse event to hovered interface part
@@ -117,7 +117,7 @@ public:
 
     // bind callback to keys on the keyboard
     void bind_callback(sf::Keyboard::Key keycode, std::function<void()> callback, Time t = seconds(0.5));
-    // set callbacs array for the key
+    // set callbacks array for the key
     void set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks);
     // deletes all callbacks bound to key
     void reset_bind(sf::Keyboard::Key keycode);

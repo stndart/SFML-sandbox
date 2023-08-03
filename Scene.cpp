@@ -166,13 +166,14 @@ void Scene::set_view(sf::View new_view)
     default_view = new_view;
 }
 
-// change texture and update background from it
+// change background texture
 void Scene::setBackground(std::shared_ptr<Texture> texture, IntRect rect)
 {
     background.setTexture(*texture);
     background.setTextureRect(rect);
 }
 
+// add sprite to specified framebuffer with specified z-index
 void Scene::addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index, int frame_buffer)
 {
     loading_logger->trace("Added sprite \"{}\" with z-index {} to framebuffer {}", sprite->name, z_index, frame_buffer);
@@ -181,6 +182,7 @@ void Scene::addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index, int f
     sprite->z_index = z_index;
 }
 
+// add an ui element to <Interface>
 void Scene::add_UI_element(std::shared_ptr<UI_element> new_ui_element)
 {
     loading_logger->debug("Added ui element {} to scene", new_ui_element->name);
@@ -249,7 +251,7 @@ void Scene::bind_callback(sf::Keyboard::Key keycode, std::function<void()> callb
     bound_callbacks[keycode].push_back(std::make_pair(callback, t));
 }
 
-// set callbacs array for the key
+// set callbacks array for the key
 void Scene::set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks)
 {
     reset_bind(keycode);
@@ -314,8 +316,6 @@ void Scene::update(Event& event, std::string& command_main)
 
 void Scene::update(Time deltaTime)
 {
-//    input_logger->trace("Scene::update callbacks size {}", scheduled_callbacks.size());
-
     // scheduled callbacks logic
     timer += deltaTime;
 
@@ -345,6 +345,7 @@ void Scene::update(Time deltaTime)
     }
 }
 
+// clears and sorts all drawables by z-index
 void Scene::sort_drawables()
 {
     // now sorted_drawables[%][0] is for default view
@@ -357,7 +358,7 @@ void Scene::sort_drawables()
     Interface->draw_to_zmap(sorted_drawables[UI_Z_INDEX][0]);
 }
 
-// draw all framebuffers (because <draw> is const)
+// draws all framebuffers to textures (because <draw> is const)
 void Scene::draw_buffers()
 {
     // firstly clear all framebuffers and delete views

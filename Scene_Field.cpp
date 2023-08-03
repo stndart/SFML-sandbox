@@ -19,7 +19,8 @@ std::string Scene_Field::get_type()
 // returns config object to be saved externally
 nlohmann::json Scene_Field::get_config()
 {
-    //
+    nlohmann::json j;
+    return j;
 }
 
 // loads interface and other info from config
@@ -65,18 +66,12 @@ void Scene_Field::change_current_field(int num)
 
     map_events_logger->trace("Changing current field to {}", num);
 
-    // unload current field from drawables index
-    // sorted_drawables.erase(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
-
     current_field = num;
 
     if (!fields[num]) {
         loading_logger->error("Trying to load null field");
         throw;
     }
-
-    // load new current field to drawables index
-    // sorted_drawables.insert(std::make_pair(FIELD_Z_INDEX, fields[current_field].get()));
 
     fields[num]->teleport_to();
 }
@@ -124,6 +119,7 @@ FloatRect Scene_Field::getPlayerGlobalBounds() const
     return bounds;
 }
 
+// blocks keyboard input
 void Scene_Field::block_controls(bool blocked)
 {
     map_events_logger->debug("Blocked controls {}", blocked);
@@ -136,6 +132,7 @@ void Scene_Field::block_controls(bool blocked)
     }
 }
 
+// transfer to Field methods
 void Scene_Field::set_player_movement_direction(int direction)
 {
     if (current_field != -1 && fields[current_field])

@@ -21,7 +21,7 @@ void Cell_object::change_texture(std::string name, std::shared_ptr<Texture> text
     sprite.setTexture(*texture);
 }
 
-// change m_vertices
+// change area on texture to display
 void Cell_object::addTexCoords(IntRect rect)
 {
     sprite.setTextureRect(rect);
