@@ -4,7 +4,7 @@
         {
             "type": "button",
             "texture": "escape_button",
-            "texture_pressed": "escape_button_pushed",
+            "texture_pressed": "escape-button_pushed",
             "callback": {
                 "name": "change scene",
                 "scene to": "main_menu"

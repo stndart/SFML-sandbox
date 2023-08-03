@@ -17,8 +17,8 @@
         },
         {
             "type": "button",
-            "texture": "escape",
-            "texture_pressed": "escape_pushed",
+            "texture": "escape_button",
+            "texture_pressed": "escape_button_pushed",
             "callback": {
                 "name": "close window"
             },
