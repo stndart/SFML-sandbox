@@ -4,19 +4,31 @@
 #include <set>
 #include <string>
 #include <memory>
+#include <fstream>
 
 #include "UI_element.h"
 #include "UI_button.h"
 
+#include <nlohmann/json.hpp>
+
 class UI_window : public UI_element
 {
 private:
+    // sprite position and rectangle to hover checks
+    sf::IntRect ParentFrame;
+
     // checks if frame (with _, o, x buttons) is displayed
     bool isFramed; /// NOT IMPLEMENTED
     // checks if pushed by mouse
     bool pressed;
     // remember clicked child to invoke release on him later
     std::shared_ptr<UI_element> clicked_child;
+
+    // to control what part of general interface displays. Also used by scrollbars
+    sf::View window_view;
+
+    // pointer to resource manager
+    std::shared_ptr<ResourceLoader> resource_manager;
 
     // logger is inherited and constructed in parent constructor
 
@@ -25,7 +37,15 @@ protected:
     std::set<std::pair<int, std::shared_ptr<UI_element> > > elements;
 
 public:
-    UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, bool is_framed = false);
+    UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed = false);
+
+    // reloads interface and other info from config
+    virtual void load_config(nlohmann::json j);
+
+    // sets displayed for self and child elements
+    virtual void show(bool displayed = true);
+    // gets window element by name (recursive)
+    virtual std::shared_ptr<UI_window> get_subwindow(std::string name);
 
     // push UI_element into list
     void addElement(std::shared_ptr<UI_element> new_element, int z_index = 0);
@@ -48,6 +68,8 @@ public:
     void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
 
     virtual void update(Time deltaTime) override;
+    // override draw to enable window_view
+    void draw(RenderTarget& target, RenderStates states) const override;
 };
 
 #endif // UI_WINDOW_H

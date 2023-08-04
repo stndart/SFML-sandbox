@@ -64,6 +64,9 @@ protected:
     // Object of user interface. Drawable
     std::shared_ptr<UI_window> Interface;
 
+    // returns constructed subwindow of desired type
+    virtual std::shared_ptr<UI_window> subwindow_oftype(std::string name, std::string type);
+
     SceneController* scene_controller;
 
     // flag if WASD blocked
@@ -86,6 +89,9 @@ public:
     virtual nlohmann::json get_config();
     // loads interface and other info from config
     virtual void load_config(std::string config_path);
+    // creates subwindow in Interface by name and loads it's config
+    // if window already exists, shows it
+    void create_subwindow(std::string name, std::string config_path = "configs/dynamic_UI.json");
 
     // sets scene controller to invoke callbacks of switching scenes
     void set_scene_controller(SceneController& sc);

@@ -43,6 +43,7 @@ void UI_element::setFrame(sf::IntRect new_frame_scale)
     new_position.x += getOrigin().x * getScale().x;
     new_position.y += getOrigin().y * getScale().y;
 
+    Frame_scale = new_frame_scale;
     setPosition(new_position);
 }
 

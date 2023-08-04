@@ -15,7 +15,7 @@ Scene::Scene(std::string name, Vector2u screensize, std::shared_ptr<ResourceLoad
 
     // Create new user interface
     IntRect UIFrame(0, 0, screensize.x, screensize.y);
-    Interface = std::make_shared<UI_window>("Interface", UIFrame, this);
+    Interface = std::make_shared<UI_window>("Interface", UIFrame, this, resload);
 
     // add to drawables index
     // sorted_drawables.insert(std::make_pair(UI_Z_INDEX, Interface.get()));
@@ -43,103 +43,49 @@ void Scene::load_config(std::string config_path)
     std::string background_texture = j["background"];
     setBackground(resource_manager->getUITexture(background_texture), sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(screensize)));
 
-    // create and place buttons
-    for (nlohmann::json j2 : j["UI elements"])
+    Interface->load_config(j);
+}
+
+// creates subwindow in Interface by name and loads it's config
+// if window already exists, shows it
+void Scene::create_subwindow(std::string name, std::string config_path)
+{
+    std::shared_ptr<UI_window> subwindow = Interface->get_subwindow(name);
+    if (subwindow)
     {
-        shared_ptr<sf::Texture> back = resource_manager->getUITexture(j2["texture"]);
+        subwindow->show();
+        return;
+    }
 
-        std::string element_name = j2["type"].get<std::string>() + ":" + j2["texture"].get<std::string>();
+    ifstream f(config_path);
+    nlohmann::json j = nlohmann::json::parse(f);
+    nlohmann::json j2;
+    if (j.contains(name))
+        j2 = j.at(name);
+    else
+    {
+        loading_logger->error("Trying to create subwindow of unknown name {}", name);
+        return;
+    }
 
-        sf::Vector2f texsize(back->getSize());
+    loading_logger->debug("j2 contains UI_elements {}", j2.contains("UI_elements"));
 
-        sf::Vector2f coords;
+    std::string subwindow_type = j2.value<std::string>("type", "UI window");
+    subwindow = subwindow_oftype(name, subwindow_type);
+    subwindow->load_config(j2);
+    Interface->addElement(subwindow);
+}
 
-        // i didn't know .value<float>(key, 0) exists
-        if (j2.contains("Abs x"))
-            coords.x += j2["Abs x"].get<float>();
-        if (j2.contains("Abs y"))
-            coords.y += j2["Abs y"].get<float>();
-        if (j2.contains("Rel x"))
-            coords.x += j2["Rel x"].get<float>() * screensize.x;
-        if (j2.contains("Rel y"))
-            coords.y += j2["Rel y"].get<float>() * screensize.y;
-        
-        sf::Vector2f size;
-        if (j2.contains("Abs width"))
-            size.x += j2["Abs width"].get<float>();
-        if (j2.contains("Abs height"))
-            size.y += j2["Abs height"].get<float>();
-        if (j2.contains("Rel width"))
-            size.x += j2["Rel width"].get<float>() * screensize.x;
-        if (j2.contains("Rel height"))
-            size.y += j2["Rel height"].get<float>() * screensize.y;
-
-        size = save_aspect_ratio(size, texsize);
-
-        IntRect posrect(coords.x, coords.y, size.x, size.y);
-        
-        sf::Vector2f origin;
-        if (j2.contains("Origin abs x"))
-            origin.x += j2["Origin abs x"].get<float>();
-        if (j2.contains("Origin abs y"))
-            origin.x += j2["Origin abs y"].get<float>();
-        if (j2.contains("Origin rel x"))
-            origin.x += j2["Origin rel x"].get<float>() * texsize.x;
-        if (j2.contains("Origin rel y"))
-            origin.x += j2["Origin rel y"].get<float>() * texsize.y;
-
-        // loading_logger->trace(
-        //     "Loaded ui element pos {:.0f}x{:.0f}, size {:.0f}x{:.0f}, origin {:.0f}x{:.0f}",
-        //     coords.x, coords.y, size.x, size.y, origin.x, origin.y
-        // );
-
-        std::shared_ptr<Animation> spritesheet = std::make_shared<Animation>();
-        spritesheet->addSpriteSheet(back);
-        spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize)), 0);
-
-        if (j2["type"] == "button")
-        {
-            shared_ptr<sf::Texture> back_pressed;
-            if (j2["texture_pressed"].is_string())
-                back_pressed = resource_manager->getUITexture(j2["texture_pressed"]);
-            else
-                back_pressed = back;
-
-            sf::Vector2f texsize_pressed(back_pressed->getSize());
-
-            spritesheet->addSpriteSheet(back_pressed);
-            spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize_pressed)), 1);
-
-            std::function<void()> callback;
-            std::string callback_name = j2["callback"]["name"];
-            if (callback_name == "change scene")
-            {
-                callback = create_change_scene_callback(*this, j2["callback"]["scene to"].get<std::string>());
-            }
-            else if (callback_name == "change field")
-            {
-                Scene_Field* this_field = dynamic_cast<Scene_Field*>(this);
-                if (this_field == nullptr)
-                {
-                    loading_logger->error("Adding illegal callback to button: {}", j2["callback"]["name"]);
-                }
-                callback = create_change_field_callback(*this_field, j2["callback"]["field to"].get<int>());
-            }
-            else if (callback_name == "close window")
-            {
-                callback = create_window_closed_callback(*(scene_controller->get_current_window()));
-            }
-
-            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, this, spritesheet, callback);
-            button->setOrigin(origin);
-
-            Interface->addElement(button);
-
-            loading_logger->trace(
-                "Added button {} to scene with coords {:.0f}x{:.0f} and origin {:.0f}x{:.0f}",
-                element_name, coords.x, coords.y, origin.x, origin.y
-            );
-        }
+// returns constructed subwindow of desired type
+std::shared_ptr<UI_window> Scene::subwindow_oftype(std::string name, std::string type)
+{
+    IntRect UIFrame(0, 0, screensize.x, screensize.y);
+    if (type == "UI window")
+        return std::make_shared<UI_window>(name, UIFrame, this, resource_manager);
+    else
+    {
+        loading_logger->error("Trying to create subwindow of unknown type {}", type);
+        return nullptr;
     }
 }
 
@@ -283,34 +229,16 @@ void Scene::evaluate_bound_callbacks(sf::Keyboard::Key keycode)
 
 void Scene::update(Event& event, std::string& command_main)
 {
-    /// TEMP
-    // transfer mouse clicked event to buttons and sprites
-    if (event.type == Event::MouseButtonPressed)
+    if (event.type == Event::MouseButtonPressed || event.type == Event::MouseButtonReleased)
     {
-        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
-        switch (event.mouseButton.button)
+        sf::Vector2f curpos(event.mouseButton.x, event.mouseButton.y);
+        if (Interface->contains(curpos))
         {
-        case Mouse::Left:
-            // if mouse hovers UI (not buttons) then skip
-            if (UI_update_mouse(curPos, event, command_main)) return;
-            break;
-
-        default:
-            break;
+            if (event.type == Event::MouseButtonPressed)
+                Interface->push_click(curpos, controls_blocked);
         }
-    }
-    if (event.type == Event::MouseButtonReleased)
-    {
-        Vector2f curPos = Vector2f(event.mouseButton.x, event.mouseButton.y);
-        switch (event.mouseButton.button)
-        {
-        case Mouse::Left:
-            if (UI_update_mouse(curPos, event, command_main)) return;
-            break;
-
-        default:
-            break;
-        }
+        if (Interface->is_clicked() && event.type == Event::MouseButtonReleased)
+            Interface->release_click(curpos, controls_blocked);
     }
 }
 

@@ -1,9 +1,137 @@
 #include "UI_window.h"
 
-UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, bool is_framed) : UI_element(name, UIFrame, parent),
-isFramed(is_framed), pressed(false), clicked_child(NULL)
+#include "ResourceLoader.h"
+#include "Scene.h"
+#include "Scene_Field.h"
+#include "SceneController.h"
+
+UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed) : UI_element(name, UIFrame, parent),
+    ParentFrame(UIFrame), resource_manager(resload), isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
+    window_view = sf::View(sf::FloatRect(UIFrame));
+
     displayed = true;
+}
+
+// reloads interface and other info from config
+void UI_window::load_config(nlohmann::json j)
+{
+    Frame_scale = ParentFrame;
+    sf::Vector2i windowsize = ParentFrame.getSize();
+
+    std::shared_ptr<sf::Texture> back;
+    sf::Vector2f coords;
+    sf::Vector2f size(windowsize);
+    sf::Vector2f origin;
+
+    windowsize = Frame_scale.getSize();
+    if (j.contains("texture"))
+    {
+        back = resource_manager->getUITexture(j["texture"].get<std::string>());
+
+        sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
+        std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
+            name + " background", back_rect, parent_scene, back
+        );
+        int transparency = j.value("transparency", 255);
+        background->setColor(sf::Color(255, 255, 255, transparency));
+        addElement(background);
+    }
+
+    // create and place buttons
+    for (nlohmann::json j2 : j["UI elements"])
+    {
+        back = resource_manager->getUITexture(j2["texture"]);
+
+        std::string element_name = j2["type"].get<std::string>() + ":" + j2["texture"].get<std::string>();
+
+        sf::Vector2f texsize(back->getSize());
+
+        sf::Vector2f coords = get_coords_from_json(j2, windowsize);
+        coords += sf::Vector2f(Frame_scale.getPosition());
+
+        sf::Vector2f size = get_size_from_json(j2, windowsize);
+        size = save_aspect_ratio(size, texsize);
+        sf::Vector2f origin = get_origin_from_json(j2, texsize);
+
+        IntRect posrect(coords.x, coords.y, size.x, size.y);
+
+        std::shared_ptr<Animation> spritesheet = std::make_shared<Animation>();
+        spritesheet->addSpriteSheet(back);
+        spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize)), 0);
+
+        if (j2["type"] == "button")
+        {
+            std::shared_ptr<sf::Texture> back_pressed;
+            if (j2["texture_pressed"].is_string())
+                back_pressed = resource_manager->getUITexture(j2["texture_pressed"]);
+            else
+                back_pressed = back;
+
+            sf::Vector2f texsize_pressed(back_pressed->getSize());
+
+            spritesheet->addSpriteSheet(back_pressed);
+            spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize_pressed)), 1);
+
+            std::function<void()> callback;
+            std::string callback_name = j2["callback"]["name"];
+            if (callback_name == "change scene")
+            {
+                callback = create_change_scene_callback(*parent_scene, j2["callback"]["scene to"].get<std::string>());
+            }
+            else if (callback_name == "change field")
+            {
+                Scene_Field* this_field = dynamic_cast<Scene_Field*>(parent_scene);
+                if (this_field == nullptr)
+                {
+                    loading_logger->error("Adding illegal callback to button: {}", j2["callback"]["name"]);
+                }
+                callback = create_change_field_callback(*this_field, j2["callback"]["field to"].get<int>());
+            }
+            else if (callback_name == "close window")
+            {
+                callback = create_window_closed_callback(*(parent_scene->get_scene_controller().get_current_window()));
+            }
+
+            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, spritesheet, callback);
+            button->setOrigin(origin);
+
+            addElement(button);
+
+            loading_logger->trace(
+                "Added button {} to scene with coords {:.0f}x{:.0f} and origin {:.0f}x{:.0f}",
+                element_name, coords.x, coords.y, origin.x, origin.y
+            );
+        }
+    }
+}
+
+// sets displayed for self and child elements
+void UI_window::show(bool disp)
+{
+    displayed = disp;
+    for (auto& [z_index, elem] : elements)
+        elem->displayed = disp;
+}
+
+// gets window element by name (recursive)
+std::shared_ptr<UI_window> UI_window::get_subwindow(std::string name)
+{
+    std::shared_ptr<UI_window> res = std::shared_ptr<UI_window>(nullptr);
+    for (auto& [z_index, elem] : elements)
+    {
+        std::shared_ptr<UI_window> subwindow = std::dynamic_pointer_cast<UI_window>(elem);
+        if (subwindow)
+        {
+            res = subwindow;
+            if (res && res->name == name)
+                break;
+            res = subwindow->get_subwindow(name);
+            if (res && res->name == name)
+                break;
+        }
+    }
+    return res;
 }
 
 // adds UI_element into set with z_index
@@ -43,7 +171,7 @@ bool UI_window::is_clicked() const
 // pushes hovered element
 void UI_window::push_click(sf::Vector2f cursor, bool controls_blocked)
 {
-    input_logger->trace("Window {} clicked at {}x{}", name, cursor.x, cursor.y);
+        input_logger->trace("Window {} clicked at {}x{}", name, cursor.x, cursor.y);
 
     // if cursor missed, then don't click, and release focus
     if (!contains(cursor))
@@ -58,14 +186,14 @@ void UI_window::push_click(sf::Vector2f cursor, bool controls_blocked)
         set_focus(true);
         pressed = true;
 
-        // find the clicked child and remember
-        for (auto pi : elements)
+        // find the clicked child and remember it
+        // do in reverse order to sort by reverse z-index (the bigger z-index, the bigger is click interception priority)
+        for (auto& [z_index, element] : std::ranges::reverse_view(elements))
         {
-            std::shared_ptr<UI_element> uie = pi.second;
-            if (uie->contains(cursor))
+            if (element->contains(cursor))
             {
-                uie->push_click(cursor, controls_blocked);
-                clicked_child = uie;
+                element->push_click(cursor, controls_blocked);
+                clicked_child = element;
                 break;
             }
         }
@@ -104,4 +232,15 @@ void UI_window::update(Time deltaTime)
 {
     for (auto& [z_index, element] : elements)
         element->update(deltaTime);
+}
+
+// override draw to enable window_view
+void UI_window::draw(RenderTarget& target, RenderStates states) const
+{
+    sf::View previous_view = target.getView();
+    target.setView(window_view);
+
+    UI_element::draw(target, states);
+
+    target.setView(previous_view);
 }
