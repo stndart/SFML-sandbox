@@ -43,7 +43,7 @@ private:
 
 public:
     Animation();
-    Animation(std::shared_ptr<Texture> texture);
+    Animation(std::shared_ptr<Texture> texture, bool addframe = false);
 
     // set texture by link for spritesheet #i
     void setSpriteSheet(std::shared_ptr<Texture> texture, std::size_t i=0);

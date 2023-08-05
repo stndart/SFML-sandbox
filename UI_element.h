@@ -33,6 +33,9 @@ protected:
     // to control hierarchical window structure
     sf::Vector2f parent_coords;
 
+    // pointer to resource manager
+    std::shared_ptr<ResourceLoader> resource_manager;
+
     std::shared_ptr<spdlog::logger> loading_logger, input_logger;
 
 public:
@@ -43,9 +46,9 @@ public:
     // z-index, at which it is displayed in <parent_scene>
     int z_index;
 
-    UI_element(std::string name, sf::IntRect UIFrame, Scene* parent);
-    UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> background);
-    UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> spritesheet);
+    UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload);
+    UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Texture> background);
+    UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Animation> spritesheet);
 
     // Frame_scale setter/getter
     virtual void setFrame(sf::IntRect new_frame_scale);

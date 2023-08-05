@@ -97,7 +97,7 @@ void InventoryDraw::view_inventory()
 
         std::shared_ptr<UI_button> inv_item = std::make_shared<UI_button>(
             "Item: " + item.name, sf::IntRect(pos, sf::Vector2i(element_size)),
-            parent_scene, resource_manager->getItemTexture(item.name));
+            parent_scene, resource_manager, resource_manager->getItemTexture(item.name));
         addItemElement(inv_item, 1);
 
         column++;

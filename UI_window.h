@@ -27,9 +27,6 @@ private:
     // to control what part of general interface displays. Also used by scrollbars
     sf::View window_view;
 
-    // pointer to resource manager
-    std::shared_ptr<ResourceLoader> resource_manager;
-
     // logger is inherited and constructed in parent constructor
 
 protected:

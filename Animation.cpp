@@ -9,9 +9,11 @@ Animation::Animation()
     graphics_logger = spdlog::get("graphics");
 }
 
-Animation::Animation(std::shared_ptr<Texture> texture) : Animation()
+Animation::Animation(std::shared_ptr<Texture> texture, bool addframe) : Animation()
 {
     setSpriteSheet(texture, 0);
+    if (addframe)
+        addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texture->getSize())));
 }
 
 // set spritesheet #i with texture by link

@@ -2,9 +2,9 @@
 
 #include "Scene.h"
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload) :
     Frame_scale(UIFrame), background_animation(std::shared_ptr<Animation>(nullptr)), cur_frame(-1),
-    focus(false), parent_scene(parent),
+    focus(false), parent_scene(parent), resource_manager(resload),
     name(name), displayed(false), z_index(0)
 {
     // Reaching out to global "loading" logger and "input" logger by names
@@ -14,14 +14,14 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     setFrame(UIFrame);
 }
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> background) : UI_element(name, UIFrame, parent)
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Texture> background) : UI_element(name, UIFrame, parent, resload)
 {
     std::shared_ptr<Animation> back = std::make_shared<Animation>(background);
     back->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(background->getSize())));
     setAnimation(back);
 }
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> spritesheet) : UI_element(name, UIFrame, parent)
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Animation> spritesheet) : UI_element(name, UIFrame, parent, resload)
 {
     setAnimation(spritesheet);
 }

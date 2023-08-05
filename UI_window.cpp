@@ -5,8 +5,9 @@
 #include "Scene_Field.h"
 #include "SceneController.h"
 
-UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed) : UI_element(name, UIFrame, parent),
-    ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL), resource_manager(resload)
+UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed) :
+    UI_element(name, UIFrame, parent, resload),
+    ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
     window_view = sf::View(sf::FloatRect(UIFrame));
 
@@ -43,7 +44,7 @@ void UI_window::load_config(nlohmann::json j)
 
         sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
         std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
-            name + " background", back_rect, parent_scene, back
+            name + " background", back_rect, parent_scene, resource_manager, back
         );
         int transparency = j.value("transparency", 255);
         background->setColor(sf::Color(255, 255, 255, transparency));
@@ -113,8 +114,14 @@ void UI_window::load_config(nlohmann::json j)
                 loading_logger->warn("Unknown callback {}", callback_name);
             }
 
-            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, spritesheet, callback);
+            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, resource_manager, spritesheet, callback);
             button->setOrigin(origin);
+
+            /// TEMP
+            button->setText(element_name);
+            button->setAlign("centered");
+            button->setFont("Lobster-Regular");
+            button->setCharSize(24);
 
             addElement(button, 2);
 
