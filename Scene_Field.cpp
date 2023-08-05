@@ -30,9 +30,9 @@ std::shared_ptr<UI_window> Scene_Field::subwindow_oftype(std::string name, std::
         {
             Inventory* bag = &player->getCharacter().bag;
             return std::make_shared<InventoryDraw>(name, UIFrame, bag, this, resource_manager, true);
-            // return InventoryDraw::fromInventory(name, bag, this, resource_manager, true);
         }
     }
+    // all other names are handled in base method
     return Scene::subwindow_oftype(name, type);
 }
 

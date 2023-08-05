@@ -3,6 +3,8 @@
 
 #include <string>
 
+// Item is an item. It has its own weight, volume, quality, but shares same name and category with some other Items.
+// Items with same names are considered the same
 class Item
 {
 private:

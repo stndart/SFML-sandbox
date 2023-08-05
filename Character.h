@@ -113,12 +113,13 @@ private:
 public:
     string name;
 
+    // pointers to visual part. Moving_sprite, when moving, is VisualEffect, containing base_sprite inside
     shared_ptr<AnimatedSprite> base_sprite;
-
     shared_ptr<AnimatedSprite> moving_sprite;
+
     // default animation by name
     string idle_animation;
-
+    // each character has an inventory
     Inventory bag;
 
     // set facing direction and change idle animation by direction (default: idle_animation_0)

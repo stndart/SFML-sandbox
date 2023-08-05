@@ -30,6 +30,7 @@ bool Inventory::is_inventory_changed() const
     return inventory_changed;
 }
 
+// adds one item to appopriate category
 void Inventory::addItem(Item thing)
 {
     if (
@@ -51,6 +52,7 @@ void Inventory::addItem(Item thing)
     set_inventory_changed(true);
 }
 
+// asks, how many items of name <name> storage has
 int Inventory::askItem(std::string name, int min_quality)
 {
     int count = 0;
@@ -63,6 +65,7 @@ int Inventory::askItem(std::string name, int min_quality)
     return count;
 }
 
+// gets list of items by name
 std::vector<Item> Inventory::getItem(std::string name, int min_quality)
 {
     std::vector<Item> giveaway;
@@ -75,6 +78,7 @@ std::vector<Item> Inventory::getItem(std::string name, int min_quality)
     return giveaway;
 }
 
+// gets and removes from storage list of items by name
 std::vector<Item> Inventory::takeItem(std::string name, int min_quality)
 {
     std::vector<Item> giveaway;
@@ -97,7 +101,7 @@ std::vector<Item> Inventory::takeItem(std::string name, int min_quality)
     return giveaway;
 }
 
-
+// same for category. Item with any category passes, as long it has same category
 int Inventory::askCategory(std::string category, int min_quality)
 {
     int count = 0;

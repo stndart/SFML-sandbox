@@ -26,10 +26,6 @@ void UI_window::load_config(nlohmann::json j)
 
     if (j.contains("position"))
     {
-        // loading_logger->debug(
-        //     "Adding positiong for ui subwindow: abs {}x{}, rel {}x{}",
-        //     j[]
-        // );
         sf::Vector2f coords, size, origin;
 
         coords = get_coords_from_json(j["position"], windowsize);
@@ -46,7 +42,6 @@ void UI_window::load_config(nlohmann::json j)
         back = resource_manager->getUITexture(j["texture"].get<std::string>());
 
         sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
-        // sf::IntRect back_rect(sf::Vector2i(0, 0), ParentFrame.getSize());
         std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
             name + " background", back_rect, parent_scene, back
         );
@@ -65,7 +60,6 @@ void UI_window::load_config(nlohmann::json j)
         sf::Vector2f texsize(back->getSize());
 
         sf::Vector2f coords = get_coords_from_json(j2, windowsize);
-        // coords += sf::Vector2f(Frame_scale.getPosition());
 
         sf::Vector2f size = get_size_from_json(j2, windowsize);
         size = save_aspect_ratio(size, texsize);
@@ -77,6 +71,7 @@ void UI_window::load_config(nlohmann::json j)
         spritesheet->addSpriteSheet(back);
         spritesheet->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texsize)), 0);
 
+        // if button - we need second texture (pushed) and callback
         if (j2["type"] == "button")
         {
             std::shared_ptr<sf::Texture> back_pressed;
