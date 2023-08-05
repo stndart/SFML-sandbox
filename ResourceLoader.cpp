@@ -11,6 +11,8 @@ ResourceLoader::ResourceLoader(bool lazy_ram, bool lazy_gpu, std::string path_to
 
     if (!lazy_ram)
         load_textures();
+    
+    load_fonts();
 }
 
 // loads subfolder contents to map
@@ -127,6 +129,55 @@ void ResourceLoader::load_textures()
     }
 }
 
+bool ResourceLoader::load_font_from(std::string font_path)
+{
+    std::string name = re_name(font_path);
+    
+    fonts[name] = std::make_shared<sf::Font>();
+    if (!fonts[name]->loadFromFile(font_path))
+    {
+        loading_logger->warn("Failed to load font {}", font_path);
+        return false;
+    }
+    else
+    {
+        loading_logger->trace("Loaded font {} under name {}", font_path, name);
+        return true;
+    }
+}
+
+// load all fonts (recursively)
+void ResourceLoader::load_fonts(bool recursive)
+{
+    std::ifstream f(path_to_config);
+    nlohmann::json j = nlohmann::json::parse(f);
+
+    int font_counter = 0;
+    if (!j.contains("Fonts"))
+    {
+        loading_logger->error("No font folder specified");
+        return;
+    }
+
+    for (std::string root_fonts : j["Fonts"])
+    {
+        if (recursive)
+        {
+            for (std::filesystem::path font_path : std::filesystem::recursive_directory_iterator(root_fonts))
+                if (std::filesystem::is_regular_file(font_path))
+                    if (load_font_from(font_path.generic_string()))
+                        font_counter++;
+        }
+        else
+            for (std::filesystem::path font_path : std::filesystem::directory_iterator(root_fonts))
+                if (std::filesystem::is_regular_file(font_path))
+                    if (load_font_from(font_path.generic_string()))
+                        font_counter++;
+    }
+
+    loading_logger->info("Loaded {} fonts", font_counter);
+}
+
 std::shared_ptr<Texture> ResourceLoader::getDefaultTexture()
 {
     if (notexture)
@@ -218,4 +269,16 @@ std::shared_ptr<Animation> ResourceLoader::getAnimation(std::string aniname)
 void ResourceLoader::addAnimation(std::string aniname, std::shared_ptr<Animation> anim)
 {
     animations[aniname] = anim;
+}
+
+// get font by name
+std::shared_ptr<Font> ResourceLoader::getFont(std::string fname)
+{
+    if (fonts.contains(fname) && fonts[fname])
+        return fonts[fname];
+    else
+    {
+        loading_logger->critical("Trying to get unknown font {}", fname);
+        throw;
+    }
 }

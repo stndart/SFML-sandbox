@@ -6,5 +6,7 @@
     "Cell": ["Images/Cells/"],
     "Cell object": ["Images/Cell_objects/"],
     "Character": ["Images/Flametail/"],
-    "Item": ["Images/Items/"]
+    "Item": ["Images/Items/"],
+
+    "Fonts": ["Fonts"]
 }

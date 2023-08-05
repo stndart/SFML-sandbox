@@ -285,13 +285,9 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 
     if (s_input != "")
     {
-        Font font;
-        if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
-        {
-            loading_logger->warn("Failed to load arial font");
-        }
+        std::shared_ptr<Font> font = resource_manager->getFont("Arial");
         Text text;
-        text.setFont(font);
+        text.setFont(*font);
         text.setString(s_input);
         text.setCharacterSize(24);
         text.setStyle(sf::Text::Bold);
