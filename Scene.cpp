@@ -68,12 +68,20 @@ void Scene::create_subwindow(std::string name, std::string config_path)
         return;
     }
 
-    loading_logger->debug("j2 contains UI_elements {}", j2.contains("UI_elements"));
-
     std::string subwindow_type = j2.value<std::string>("type", "UI window");
     subwindow = subwindow_oftype(name, subwindow_type);
     subwindow->load_config(j2);
     Interface->addElement(subwindow);
+}
+
+// shows or hides UI_window by name
+void Scene::show_UI_window(std::string name, bool show)
+{
+    std::shared_ptr<UI_window> subwindow = Interface->get_subwindow(name);
+    if (subwindow)
+        subwindow->show(show);
+    else
+        loading_logger->warn("Trying to show nonexistant ui window {}", name);
 }
 
 // returns constructed subwindow of desired type
@@ -198,6 +206,18 @@ void Scene::bind_callback(sf::Keyboard::Key keycode, std::function<void()> callb
 }
 
 // set callbacks array for the key
+void Scene::set_bound_callbacks(sf::Keyboard::Key keycode, std::function<void()> callback)
+{
+    reset_bind(keycode);
+    bound_callbacks[keycode].push_back(std::make_pair(callback, sf::seconds(0)));
+}
+
+void Scene::set_bound_callbacks(sf::Keyboard::Key keycode, std::pair<std::function<void()>, sf::Time> callback)
+{
+    reset_bind(keycode);
+    bound_callbacks[keycode].push_back(callback);
+}
+
 void Scene::set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks)
 {
     reset_bind(keycode);

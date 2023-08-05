@@ -4,10 +4,10 @@
 		"texture": "background",
 		"transparency": 180,
 		"position": {
-			"Rel x": 0.5,
-			"Rel y": 0.4,
-			"Rel height": 0.1,
-			"Rel width": 0.25,
+			"Rel x": 0.07,
+			"Rel y": 0.1,
+			"Rel height": 0.3,
+			"Rel width": 0.2,
 			"Origin rel x": 0,
 			"Origin rel y": 0
 		},

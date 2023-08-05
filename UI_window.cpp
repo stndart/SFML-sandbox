@@ -6,7 +6,7 @@
 #include "SceneController.h"
 
 UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed) : UI_element(name, UIFrame, parent),
-    ParentFrame(UIFrame), resource_manager(resload), isFramed(is_framed), pressed(false), clicked_child(NULL)
+    ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL), resource_manager(resload)
 {
     window_view = sf::View(sf::FloatRect(UIFrame));
 
@@ -24,18 +24,35 @@ void UI_window::load_config(nlohmann::json j)
     sf::Vector2f size(windowsize);
     sf::Vector2f origin;
 
+    if (j.contains("position"))
+    {
+        // loading_logger->debug(
+        //     "Adding positiong for ui subwindow: abs {}x{}, rel {}x{}",
+        //     j[]
+        // );
+        sf::Vector2f coords, size, origin;
+
+        coords = get_coords_from_json(j["position"], windowsize);
+        coords += sf::Vector2f(ParentFrame.getPosition());
+        size = get_size_from_json(j["position"], windowsize);
+        origin = get_origin_from_json(j["position"], sf::Vector2f(windowsize));
+
+        setFrame(sf::IntRect(sf::Vector2i(coords - origin), sf::Vector2i(size)));
+    }
+
     windowsize = Frame_scale.getSize();
     if (j.contains("texture"))
     {
         back = resource_manager->getUITexture(j["texture"].get<std::string>());
 
         sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
+        // sf::IntRect back_rect(sf::Vector2i(0, 0), ParentFrame.getSize());
         std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
             name + " background", back_rect, parent_scene, back
         );
         int transparency = j.value("transparency", 255);
         background->setColor(sf::Color(255, 255, 255, transparency));
-        addElement(background);
+        addElement(background, -1);
     }
 
     // create and place buttons
@@ -48,7 +65,7 @@ void UI_window::load_config(nlohmann::json j)
         sf::Vector2f texsize(back->getSize());
 
         sf::Vector2f coords = get_coords_from_json(j2, windowsize);
-        coords += sf::Vector2f(Frame_scale.getPosition());
+        // coords += sf::Vector2f(Frame_scale.getPosition());
 
         sf::Vector2f size = get_size_from_json(j2, windowsize);
         size = save_aspect_ratio(size, texsize);
@@ -92,11 +109,19 @@ void UI_window::load_config(nlohmann::json j)
             {
                 callback = create_window_closed_callback(*(parent_scene->get_scene_controller().get_current_window()));
             }
+            else if (callback_name == "close UI_window")
+            {
+                callback = close_UI_window_callback(*parent_scene, name);
+            }
+            else
+            {
+                loading_logger->warn("Unknown callback {}", callback_name);
+            }
 
             std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, spritesheet, callback);
             button->setOrigin(origin);
 
-            addElement(button);
+            addElement(button, 2);
 
             loading_logger->trace(
                 "Added button {} to scene with coords {:.0f}x{:.0f} and origin {:.0f}x{:.0f}",
@@ -140,6 +165,7 @@ void UI_window::addElement(std::shared_ptr<UI_element> new_element, int z_index)
     displayed = true;
 
     new_element->z_index = z_index;
+    new_element->set_parent_coords(sf::Vector2f(Frame_scale.getPosition()));
     elements.insert(std::make_pair(z_index, new_element));
 }
 
@@ -154,8 +180,8 @@ bool UI_window::contains(sf::Vector2f cursor)
     bool res = UI_element::contains(cursor);
 
     // not only if this->contains cursor, but any child counts
-    for (auto pi : elements)
-        if (pi.second->contains(cursor))
+    for (auto& [z_index, elem] : elements)
+        if (elem->contains(cursor))
             res = true;
 
 //    input_logger->trace("Window {} at {}x{} contains? {}", name, cursor.x, cursor.y, res);
@@ -221,9 +247,38 @@ std::size_t UI_window::get_elements_size() const
     return elements.size();
 }
 
+// overriding Transformable methods to support nested windows
+void UI_window::setPosition(const Vector2f &position)
+{
+    UI_element::setPosition(position);
+    for (auto& [z_index, elem] : elements)
+    {
+        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
+    }
+}
+
+void UI_window::setOrigin(const Vector2f &origin)
+{
+    UI_element::setOrigin(origin);
+    for (auto& [z_index, elem] : elements)
+    {
+        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
+    }
+}
+
+void UI_window::setScale(const Vector2f &factors)
+{
+    UI_element::setScale(factors);
+    for (auto& [z_index, elem] : elements)
+    {
+        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
+    }
+}
+
 // before drawing send child elements to sort by z-index
 void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
 {
+    UI_element::draw_to_zmap(zmap);
     for (auto& [z_index, element] : elements)
         element->draw_to_zmap(zmap);
 }
@@ -237,10 +292,13 @@ void UI_window::update(Time deltaTime)
 // override draw to enable window_view
 void UI_window::draw(RenderTarget& target, RenderStates states) const
 {
-    sf::View previous_view = target.getView();
-    target.setView(window_view);
+    if (displayed)
+    {
+        sf::View previous_view = target.getView();
+        target.setView(window_view);
 
-    UI_element::draw(target, states);
+        UI_element::draw(target, states);
 
-    target.setView(previous_view);
+        target.setView(previous_view);
+    }
 }

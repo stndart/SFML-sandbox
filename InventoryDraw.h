@@ -37,6 +37,13 @@ public:
     InventoryDraw(
         std::string name, sf::IntRect UIFrame, Inventory* bag,
         Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed = false);
+        
+    // sets displayed for self and child elements
+    // overriden because needs to process item_elements
+    void show(bool displayed = true) override;
+    
+    // override setFrame, because element_count changes
+    void setFrame(sf::IntRect new_frame_scale) override;
     
     void set_inventory_changed(bool changed);
 
@@ -47,6 +54,11 @@ public:
 
     void view_inventory();
     void linkInventory(Inventory* bag);
+
+    // overriding Transformable methods to support nested windows
+    void setPosition(const Vector2f &position) override;
+    void setOrigin(const Vector2f &origin) override;
+    void setScale(const Vector2f &factors) override;
 
     // override to include item_elements
     void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;

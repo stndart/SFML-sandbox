@@ -156,9 +156,10 @@ int main()
     // std::shared_ptr<InventoryDraw> flametail_bag = InventoryDraw::fromInventory("Flametail bag", &player->getCharacter().bag, editor_scene.get(), resload, true);
     // editor_scene->add_UI_element(flametail_bag);
 
-    editor_scene->create_subwindow("inventory");
+    // editor_scene->create_subwindow("inventory");
 
     editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(*editor_scene));
+    editor_scene->set_bound_callbacks(sf::Keyboard::E, open_UI_window_callback(*editor_scene, "inventory"));
 
     loading_logger->info("Loaded fields");
 
@@ -225,6 +226,8 @@ int main()
         window->display();
 
     }
+
+    ImGui::SFML::Shutdown();
 
     loading_logger->info("Main cycle finished, shutting down");
 

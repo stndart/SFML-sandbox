@@ -30,13 +30,16 @@ protected:
 
     // Scene at which this element is displayed
     Scene* parent_scene;
+    // to control hierarchical window structure
+    sf::Vector2f parent_coords;
 
     std::shared_ptr<spdlog::logger> loading_logger, input_logger;
 
 public:
-    std::string name;
     // is displayed or hidden;
     bool displayed;
+
+    std::string name;
     // z-index, at which it is displayed in <parent_scene>
     int z_index;
 
@@ -45,7 +48,7 @@ public:
     UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> spritesheet);
 
     // Frame_scale setter/getter
-    void setFrame(sf::IntRect new_frame_scale);
+    virtual void setFrame(sf::IntRect new_frame_scale);
     sf::IntRect getFrame() const;
     // Animation setter
     void setAnimation(std::shared_ptr<Animation> spritesheet);
@@ -59,6 +62,8 @@ public:
 
     // mouse hover check
     bool contains(sf::Vector2f cursor) const;
+    // set parent coords to support nested windows
+    void set_parent_coords(sf::Vector2f pcoords);
 
     // pushes hovered element
     virtual void push_click(sf::Vector2f cursor, bool controls_blocked=false);

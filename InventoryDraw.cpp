@@ -23,6 +23,24 @@ InventoryDraw::InventoryDraw(
     
     linkInventory(bag);
 }
+        
+// sets displayed for self and child elements
+// overriden because needs to process item_elements
+void InventoryDraw::show(bool disp)
+{
+    UI_window::show(disp);
+    for (auto& [z_index, elem] : item_elements)
+        elem->displayed = disp;
+}
+
+// override setFrame, because element_count changes
+void InventoryDraw::setFrame(sf::IntRect new_frame_scale)
+{
+    UI_window::setFrame(new_frame_scale);
+
+    // update element_count using old element_size
+    element_count = sf::Vector2i(Frame_scale.width / element_size.x, Frame_scale.height / element_size.y);
+}
 
 std::shared_ptr<InventoryDraw> InventoryDraw::fromInventorySize(
     std::string name, sf::Vector2f n_element_size, sf::Vector2i n_element_count,
@@ -54,6 +72,7 @@ void InventoryDraw::addItemElement(std::shared_ptr<UI_element> new_element, int 
     displayed = true;
 
     new_element->z_index = z_index;
+    new_element->set_parent_coords(sf::Vector2f(Frame_scale.getPosition()));
     item_elements.insert(std::make_pair(z_index, new_element));
 }
 
@@ -93,6 +112,34 @@ void InventoryDraw::linkInventory(Inventory* new_bag)
         view_inventory();
 }
 
+// overriding Transformable methods to support nested windows
+void InventoryDraw::setPosition(const Vector2f &position)
+{
+    UI_window::setPosition(position);
+    for (auto& [z_index, elem] : item_elements)
+    {
+        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
+    }
+}
+
+void InventoryDraw::setOrigin(const Vector2f &origin)
+{
+    UI_window::setOrigin(origin);
+    for (auto& [z_index, elem] : item_elements)
+    {
+        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
+    }
+}
+
+void InventoryDraw::setScale(const Vector2f &factors)
+{
+    UI_window::setScale(factors);
+    for (auto& [z_index, elem] : item_elements)
+    {
+        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
+    }
+}
+
 // override to include item_elements
 void InventoryDraw::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
 {
@@ -108,5 +155,6 @@ void InventoryDraw::update(Time deltaTime)
     if (bag->is_inventory_changed())
     {
         view_inventory();
+        bag->set_inventory_changed(false);
     }
 }

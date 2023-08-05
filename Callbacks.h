@@ -34,22 +34,22 @@ std::function<void()> create_window_closed_callback(sf::RenderWindow& window);
 // creates callback that changes fields in scene
 std::function<void()> create_change_field_callback(Scene_Field& scene, int field_to=-1);
 
-/// MEMORY LEAK
+// closes UI_window by name
+std::function<void()> close_UI_window_callback(Scene& scene, std::string UI_window_name);
+// opens or creates UI_window by name
+std::function<void()> open_UI_window_callback(Scene& scene, std::string UI_window_name);
+
 // creates fogging, that thickens over 2 seconds (color is by default black)
 std::function<void()> create_fade_effect(Scene& scene, const sf::Color& color = sf::Color(0, 0, 0, 50),
                                          sf::Time duration = sf::seconds(2), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendNone);
-/// MEMORY LEAK
 // creates fogging, that fades over 2 seconds (color is by default black)
 std::function<void()> create_rfade_effect(Scene& scene, const sf::Color& color = sf::Color(0, 0, 0, 50),
                                           sf::Time duration = sf::seconds(2), int z_ind = 0, sf::BlendMode blend_mode = sf::BlendNone);
-/// MEMORY LEAK
 // creates semi-transparent circle, that covers field
 std::function<void()> create_rect(Scene& scene, sf::FloatRect posrect, const sf::Color& color = sf::Color(100, 100, 0, 150));
-/// MEMORY LEAK
 // creates semi-transparent circle, that covers field
 std::function<void()> create_light_circle(Scene& scene, sf::Vector2f pos = sf::Vector2f(960, 540),
                                           float radius = 70, const sf::Color& color = sf::Color(100, 100, 0, 150));
-/// MEMORY LEAK
 // creates semi-transparent circle, around player, with animated radius
 std::function<void()> create_light_circle_centered(Scene_Field& scene,
                                                    float radius_1 = 500, float radius_2 = 30, const sf::Color& color = sf::Color(200, 200, 100, 150),

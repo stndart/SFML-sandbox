@@ -64,6 +64,11 @@ public:
     // return number of elements
     std::size_t get_elements_size() const;
 
+    // overriding Transformable methods to support nested windows
+    void setPosition(const Vector2f &position) override;
+    void setOrigin(const Vector2f &origin) override;
+    void setScale(const Vector2f &factors) override;
+
     // before drawing send child elements to sort by z-index
     void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
 

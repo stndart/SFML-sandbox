@@ -32,7 +32,25 @@ std::function<void()> create_change_field_callback(Scene_Field& scene, int field
     return callback;
 }
 
-/// MEMORY LEAK
+
+// closes UI_window by name
+std::function<void()> close_UI_window_callback(Scene& scene, std::string UI_window_name)
+{
+    std::function<void()> callback = [&scene, UI_window_name] {
+        scene.show_UI_window(UI_window_name, false);
+    };
+    return callback;
+}
+
+// opens or creates UI_window by name
+std::function<void()> open_UI_window_callback(Scene& scene, std::string UI_window_name)
+{
+    std::function<void()> callback = [&scene, UI_window_name] {
+        scene.create_subwindow(UI_window_name);
+    };
+    return callback;
+}
+
 // creates fogging, that thickens through 2 seconds (color is by default black)
 std::function<void()> create_fade_effect(Scene& scene, const sf::Color& color, sf::Time duration, int z_ind, sf::BlendMode blend_mode)
 {
@@ -51,7 +69,6 @@ std::function<void()> create_fade_effect(Scene& scene, const sf::Color& color, s
     return callback;
 }
 
-/// MEMORY LEAK
 // creates fogging, that fades through 2 seconds (color is by default black)
 std::function<void()> create_rfade_effect(Scene& scene, const sf::Color& color, sf::Time duration, int z_ind, sf::BlendMode blend_mode)
 {
@@ -70,7 +87,6 @@ std::function<void()> create_rfade_effect(Scene& scene, const sf::Color& color, 
     return callback;
 }
 
-/// MEMORY LEAK
 // creates semi-transparent circle, that covers field
 std::function<void()> create_rect(Scene& scene, sf::FloatRect posrect, const sf::Color& color)
 {
@@ -84,7 +100,6 @@ std::function<void()> create_rect(Scene& scene, sf::FloatRect posrect, const sf:
     return callback;
 }
 
-/// MEMORY LEAK
 // creates semi-transparent circle, that covers field
 std::function<void()> create_light_circle(Scene& scene, sf::Vector2f pos, float radius, const sf::Color& color)
 {
@@ -98,7 +113,6 @@ std::function<void()> create_light_circle(Scene& scene, sf::Vector2f pos, float 
     return callback;
 }
 
-/// MEMORY LEAK
 // creates semi-transparent circle, around player, with animated radius
 std::function<void()> create_light_circle_centered(Scene_Field& scene,
                                                    float radius_1, float radius_2, const sf::Color& color, sf::Time duration)
