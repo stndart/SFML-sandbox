@@ -18,7 +18,7 @@ string get_movement_animation_s(int direction)
     return new_move_anim;
 }
 
-Character::Character(string name, shared_ptr<ResourceLoader> resload) : name(name)
+Character::Character(string name, shared_ptr<ResourceLoader> resload) : name(name), bag(this)
 {
     // Reaching out to global "map_events" logger and "graphics" logger by names
     map_events_logger = spdlog::get("map_events");

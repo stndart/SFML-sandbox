@@ -269,10 +269,14 @@ void Field::action(std::shared_ptr<Texture> texture)
         if (target_cell->hasObject("tree"))
         {
             target_cell->action_change("tree", texture);
+            // our "tree" drops one "log" when cut
+            player_0->getCharacter().bag.addItem(Item("log"));
         }
         else if (target_cell->hasObject("stump"))
         {
             target_cell->action_change("stump", texture);
+            // our "stump" drops one "stick" when harvested
+            player_0->getCharacter().bag.addItem(Item("stick"));
         }
         else if (target_cell->hasObject("portal"))
         {

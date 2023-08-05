@@ -1,0 +1,31 @@
+{
+	"inventory": {
+		"type": "inventory draw",
+		"texture": "background",
+		"transparency": 180,
+		"position": {
+			"Rel x": 0.07,
+			"Rel y": 0.1,
+			"Rel height": 0.3,
+			"Rel width": 0.2,
+			"Origin rel x": 0,
+			"Origin rel y": 0
+		},
+		"UI elements": [
+			{
+				"type": "button",
+				"texture": "escape_button",
+				"texture_pressed": "escape_button_pushed",
+				"callback": {
+					"name": "close UI_window",
+					"target": "inventory"
+				},
+				"Rel x": 1,
+				"Rel y": 0,
+				"Rel height": 0.1,
+				"Origin rel x": 1,
+				"Origin rel y": 0
+			}
+		]
+	}
+}

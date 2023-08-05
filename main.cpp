@@ -29,6 +29,9 @@
 #include "UI_button.h"
 #include "extra_algorithms.h"
 #include "Callbacks.h"
+#include "Character.h"
+#include "Inventory.h"
+#include "InventoryDraw.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -106,7 +109,7 @@ int main()
     // Window initial setup: resolution, name, fulscreen, fps
     Vector2u screenDimensions(1920, 1080);
     shared_ptr<RenderWindow> window = make_shared<RenderWindow>(VideoMode(screenDimensions.x, screenDimensions.y), "Animation", sf::Style::Fullscreen);
-//    RenderWindow window(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
+    // shared_ptr<RenderWindow> window = make_shared<RenderWindow>(VideoMode(screenDimensions.x, screenDimensions.y), "Animation");
     window->setFramerateLimit(60);
     // If key is continuously pressed, KeyPressed event shouldn't occur multiple times
     window->setKeyRepeatEnabled(false);
@@ -132,18 +135,31 @@ int main()
 
     // Field editor scene. At first it is inactive.
     shared_ptr<Scene_editor> editor_scene = std::dynamic_pointer_cast<Scene_editor>(scene_controller->get_scene("editor_scene"));
+    // Main menu scene
+    shared_ptr<Scene> main_menu_scene = std::dynamic_pointer_cast<Scene>(scene_controller->get_scene("main_menu"));
 
     // Create first and only player.
     std::shared_ptr<Player> player = std::make_shared<Player>("Player_0");
     std::unique_ptr<Character> Flametail = std::make_unique<Character>("Flametail", resload);
     Flametail->load_config("configs/characters/flametail.json");
+    Flametail->bag = Inventory(Flametail.get(), 20, 10, 10);
+    Flametail->bag.addItem(Item("stick"));
+    Flametail->bag.addItem(Item("log"));
+
     player->setCharacter(std::move(Flametail));
+
 
     editor_scene->get_field(0)->player_0 = player;
     editor_scene->get_field(1)->player_0 = player;
     editor_scene->get_field(0)->teleport_to();
 
+    // std::shared_ptr<InventoryDraw> flametail_bag = InventoryDraw::fromInventory("Flametail bag", &player->getCharacter().bag, editor_scene.get(), resload, true);
+    // editor_scene->add_UI_element(flametail_bag);
+
+    // editor_scene->create_subwindow("inventory");
+
     editor_scene->set_bound_callbacks(sf::Keyboard::Tab, tom_and_jerry(*editor_scene));
+    editor_scene->set_bound_callbacks(sf::Keyboard::E, open_UI_window_callback(*editor_scene, "inventory"));
 
     loading_logger->info("Loaded fields");
 
@@ -210,6 +226,8 @@ int main()
         window->display();
 
     }
+
+    ImGui::SFML::Shutdown();
 
     loading_logger->info("Main cycle finished, shutting down");
 

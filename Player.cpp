@@ -138,7 +138,7 @@ void Player::update(Time deltaTime)
     {
         // cancels previous planned move if present
         // if plan is impossible, silently passes. Eventually animations will return to idle and plan will pass then
-        map_events_logger->debug("Player::update plan movement with dir: {}", mov_dir);
+        map_events_logger->trace("Player::update plan movement with dir: {}", mov_dir);
         map_events_logger->trace("because next_planned: {}, and next_dir: ", sprite->is_next_movement_planned(), sprite->get_next_movement_direction());
 
         sprite->plan_movement(mov_shift, mov_dir);

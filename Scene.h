@@ -64,6 +64,9 @@ protected:
     // Object of user interface. Drawable
     std::shared_ptr<UI_window> Interface;
 
+    // returns constructed subwindow of desired type
+    virtual std::shared_ptr<UI_window> subwindow_oftype(std::string name, std::string type);
+
     SceneController* scene_controller;
 
     // flag if WASD blocked
@@ -86,6 +89,11 @@ public:
     virtual nlohmann::json get_config();
     // loads interface and other info from config
     virtual void load_config(std::string config_path);
+    // creates subwindow in Interface by name and loads it's config
+    // if window already exists, shows it
+    void create_subwindow(std::string name, std::string config_path = "configs/dynamic_UI.json");
+    // shows or hides UI_window by name
+    void show_UI_window(std::string name, bool show=true);
 
     // sets scene controller to invoke callbacks of switching scenes
     void set_scene_controller(SceneController& sc);
@@ -118,6 +126,8 @@ public:
     // bind callback to keys on the keyboard
     void bind_callback(sf::Keyboard::Key keycode, std::function<void()> callback, Time t = seconds(0.5));
     // set callbacks array for the key
+    void set_bound_callbacks(sf::Keyboard::Key keycode, std::function<void()> callback);
+    void set_bound_callbacks(sf::Keyboard::Key keycode, std::pair<std::function<void()>, sf::Time> callback);
     void set_bound_callbacks(sf::Keyboard::Key keycode, std::vector<std::pair<std::function<void()>, sf::Time> > callbacks);
     // deletes all callbacks bound to key
     void reset_bind(sf::Keyboard::Key keycode);

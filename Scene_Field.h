@@ -18,6 +18,9 @@ protected:
     // current map index
     int current_field;
 
+    // returns constructed subwindow of desired type
+    std::shared_ptr<UI_window> subwindow_oftype(std::string name, std::string type) override;
+
     std::shared_ptr<spdlog::logger> map_events_logger;
 
 public:

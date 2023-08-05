@@ -1,5 +1,8 @@
 #include "Scene_Field.h"
 
+#include "Inventory.h"
+#include "InventoryDraw.h"
+
 int Scene_Field::FIELD_Z_INDEX = 0;
 
 Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, std::shared_ptr<ResourceLoader> resload) : Scene(name, screensize, resload)
@@ -14,6 +17,23 @@ Scene_Field::Scene_Field(std::string name, sf::Vector2u screensize, std::shared_
 std::string Scene_Field::get_type()
 {
     return "Scene_Field";
+}
+
+// returns constructed subwindow of desired type
+std::shared_ptr<UI_window> Scene_Field::subwindow_oftype(std::string name, std::string type)
+{
+    IntRect UIFrame(0, 0, screensize.x, screensize.y);
+    if (type == "inventory draw")
+    {
+        std::shared_ptr<Player> player = fields[current_field]->player_0;
+        if (player)
+        {
+            Inventory* bag = &player->getCharacter().bag;
+            return std::make_shared<InventoryDraw>(name, UIFrame, bag, this, resource_manager, true);
+        }
+    }
+    // all other names are handled in base method
+    return Scene::subwindow_oftype(name, type);
 }
 
 // returns config object to be saved externally

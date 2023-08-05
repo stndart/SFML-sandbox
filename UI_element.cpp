@@ -14,6 +14,13 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent) :
     setFrame(UIFrame);
 }
 
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> background) : UI_element(name, UIFrame, parent)
+{
+    std::shared_ptr<Animation> back = std::make_shared<Animation>(background);
+    back->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(background->getSize())));
+    setAnimation(back);
+}
+
 UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> spritesheet) : UI_element(name, UIFrame, parent)
 {
     setAnimation(spritesheet);
@@ -36,6 +43,7 @@ void UI_element::setFrame(sf::IntRect new_frame_scale)
     new_position.x += getOrigin().x * getScale().x;
     new_position.y += getOrigin().y * getScale().y;
 
+    Frame_scale = new_frame_scale;
     setPosition(new_position);
 }
 
@@ -107,12 +115,18 @@ bool UI_element::contains(sf::Vector2f cursor) const
 
     // if not displayed, cursor ignores element
     if (displayed)
-        res = Frame_scale.contains(sf::Vector2i(cursor));
+        res = Frame_scale.contains(sf::Vector2i(cursor - parent_coords));
 
 //    input_logger->trace("Element {} at {}x{} contains? {}", name, cursor.x, cursor.y, res);
 //    input_logger->trace("bc displayed? {} and frame +{}+{}, {}x{}", displayed, Frame_scale.left, Frame_scale.top, Frame_scale.width, Frame_scale.height);
 
     return res;
+}
+
+// set parent coords to support nested windows
+void UI_element::set_parent_coords(sf::Vector2f pcoords)
+{
+    parent_coords = pcoords;
 }
 
 // pushes hovered element
@@ -128,33 +142,24 @@ void UI_element::release_click(sf::Vector2f cursor, bool controls_blocked, bool 
     input_logger->debug("Element {} popped at {}x{}", name, cursor.x, cursor.y);
 }
 
+// overriding some Sprite methods
+void UI_element::setColor(const Color& color)
+{
+    background.setColor(color);
+}
 
 // overriding Transformable methods
 void UI_element::move(const Vector2f &offset)
 {
-    Transformable::move(offset);
-    background.move(offset);
-    
-    Frame_scale.left += offset.x;
-    Frame_scale.top += offset.y;
+    setPosition(getPosition() + offset);
 }
 
 void UI_element::scale(const Vector2f &factor)
 {
-    Transformable::scale(factor);
-    background.scale(factor);
-
-    // update FrameScale from original sprite size and its current scale
-    Vector2f new_pos(
-        getPosition().x - getOrigin().x * getScale().x,
-        getPosition().y - getOrigin().y * getScale().y
-    );
-
-    Vector2f new_size(background.getTextureRect().getSize());
-    new_size.x *= getScale().x;
-    new_size.y *= getScale().y;
-
-    Frame_scale = IntRect(Vector2i(new_pos), Vector2i(new_size));
+    sf::Vector2f new_scale = getScale();
+    new_scale.x *= factor.x;
+    new_scale.y *= factor.y;
+    setScale(new_scale);
 }
 
 FloatRect UI_element::getLocalBounds() const
@@ -225,6 +230,7 @@ void UI_element::setScale(float factorX, float factorY)
 // standard draw method. Draws only if displayed
 void UI_element::draw(RenderTarget& target, RenderStates states) const
 {
+    states.transform.translate(parent_coords);
     if (displayed && background.getTexture())
     {
         target.draw(background, states);
@@ -235,4 +241,9 @@ void UI_element::draw(RenderTarget& target, RenderStates states) const
 void UI_element::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
 {
     zmap[z_index].push_back(this);
+}
+
+void UI_element::update(Time deltaTime)
+{
+    // None;
 }

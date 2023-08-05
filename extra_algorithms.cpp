@@ -48,6 +48,55 @@ int direction_from_shift(sf::Vector2f shift)
     return direction;
 }
 
+// gets coordinate-like absolute and relative properties from json and constructs a vector
+sf::Vector2f get_coords_from_json(nlohmann::json j, sf::Vector2i windowsize)
+{
+    sf::Vector2f coords(0, 0);
+
+    // i didn't know .value<float>(key, 0) exists
+    if (j.contains("Abs x"))
+        coords.x += j["Abs x"].get<float>();
+    if (j.contains("Abs y"))
+        coords.y += j["Abs y"].get<float>();
+    if (j.contains("Rel x"))
+        coords.x += j["Rel x"].get<float>() * windowsize.x;
+    if (j.contains("Rel y"))
+        coords.y += j["Rel y"].get<float>() * windowsize.y;
+    
+    return coords;
+}
+
+sf::Vector2f get_size_from_json(nlohmann::json j, sf::Vector2i windowsize)
+{
+    sf::Vector2f size(0, 0);
+
+    if (j.contains("Abs width"))
+        size.x += j["Abs width"].get<float>();
+    if (j.contains("Abs height"))
+        size.y += j["Abs height"].get<float>();
+    if (j.contains("Rel width"))
+        size.x += j["Rel width"].get<float>() * windowsize.x;
+    if (j.contains("Rel height"))
+        size.y += j["Rel height"].get<float>() * windowsize.y;
+
+    return size;
+}
+sf::Vector2f get_origin_from_json(nlohmann::json j, sf::Vector2f texsize)
+{
+    sf::Vector2f origin;
+
+    if (j.contains("Origin abs x"))
+        origin.x += j["Origin abs x"].get<float>();
+    if (j.contains("Origin abs y"))
+        origin.x += j["Origin abs y"].get<float>();
+    if (j.contains("Origin rel x"))
+        origin.x += j["Origin rel x"].get<float>() * texsize.x;
+    if (j.contains("Origin rel y"))
+        origin.x += j["Origin rel y"].get<float>() * texsize.y;
+
+    return origin;
+}
+
 sf::Vector2f save_aspect_ratio(sf::Vector2f new_size, sf::Vector2f old_size)
 {
     sf::Vector2f aspect_ratio_2f = sf::Vector2f(new_size.x / old_size.x, new_size.y / old_size.y);
