@@ -114,7 +114,7 @@ public:
 
     // transfer mouse event to hovered interface part
     // if mouse doesn't hover over UI - return false
-    bool UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main);
+    bool UI_update_mouse(Vector2f curPos, Event& event);
 
     // schedule callback to call after <t> seconds
     void add_callback(std::function<void()> callback, Time t = seconds(0.5));
@@ -139,7 +139,7 @@ public:
     // draws all framebuffers to textures (because <draw> is const)
     virtual void draw_buffers();
     // overriding Drawable methods
-    virtual void update(Event& event, std::string& command_main);
+    virtual void update(Event& event);
     virtual void update(Time deltaTime);
     virtual void draw(RenderTarget& target, RenderStates states) const override;
 };

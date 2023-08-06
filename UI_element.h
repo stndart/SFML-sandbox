@@ -26,7 +26,11 @@ protected:
     sf::Sprite background;
 
     // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)
-    bool focus;
+    bool focus = false;
+    // is element hovered by mouse
+    bool hovered = false;
+    // time hovered by mouse unmoved
+    sf::Time on_hover;
 
     // Scene at which this element is displayed
     Scene* parent_scene;
@@ -40,7 +44,7 @@ protected:
 
 public:
     // is displayed or hidden;
-    bool displayed;
+    bool displayed = false;
 
     std::string name;
     // z-index, at which it is displayed in <parent_scene>
@@ -62,6 +66,8 @@ public:
     // focus setter/getter
     void set_focus(bool new_focus);
     bool is_focused() const;
+    // if mouse in hovering the element
+    bool is_hovered() const;
 
     // mouse hover check
     bool contains(sf::Vector2f cursor) const;
@@ -88,12 +94,14 @@ public:
     virtual void setScale(const Vector2f &factors);
     virtual void setScale(float factorX, float factorY);
 
+    // handling mouse movements
+    virtual void update(Event& event);
+    virtual void update(sf::Time deltatime);
+
     // overriding Drawable methods
     virtual void draw(RenderTarget& target, RenderStates states) const override;
     // before drawing send itself to sort by z-index
     virtual void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const;
-
-    virtual void update(Time deltaTime);
 };
 
 #endif // UI_ELEMENT_H

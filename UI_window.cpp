@@ -285,6 +285,14 @@ void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap)
         element->draw_to_zmap(zmap);
 }
 
+void UI_window::update(sf::Event& event)
+{
+    if (event.type == sf::Event::MouseMoved)
+        for (auto& [z_index, element] : elements)
+            if (element->is_hovered() || element->contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)))
+                element->update(event);
+}
+
 void UI_window::update(Time deltaTime)
 {
     for (auto& [z_index, element] : elements)

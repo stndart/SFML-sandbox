@@ -127,7 +127,7 @@ void Scene_editor::save_map()
     }
 }
 
-void Scene_editor::update(Event& event, std::string& command_main)
+void Scene_editor::update(Event& event)
 {
     // if <Enter> then mess with command line
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
@@ -240,7 +240,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
         {
         case Mouse::Left:
             /// WHY?
-            if (UI_update_mouse(curPos, event, command_main))
+            if (UI_update_mouse(curPos, event))
                 return;
             Interface->push_click(curPos, controls_blocked);
             break;
@@ -257,7 +257,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
         {
         case Mouse::Left:
             /// WHY?
-            if (UI_update_mouse(curPos, event, command_main))
+            if (UI_update_mouse(curPos, event))
                 return;
             Interface->release_click(curPos, controls_blocked);
             break;

@@ -28,7 +28,7 @@ class Scene_editor : public Scene_Field
         std::string get_type() override;
 
         // overriding Drawable methods
-        void update(Event& event, std::string& command_main) override;
+        void update(Event& event) override;
         void update(Time deltaTime) override;
         void draw(RenderTarget& target, RenderStates states) const override;
 };

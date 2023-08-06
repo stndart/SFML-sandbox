@@ -69,7 +69,8 @@ public:
     // before drawing send child elements to sort by z-index
     void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
 
-    virtual void update(Time deltaTime) override;
+    void update(sf::Event& event) override;
+    void update(sf::Time deltaTime) override;
     // override draw to enable window_view
     void draw(RenderTarget& target, RenderStates states) const override;
 };

@@ -154,7 +154,7 @@ void Scene::delete_sprites()
 
 // transfer mouse event to hovered interface part
 // if mouse doesn't hover over UI - return false
-bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main)
+bool Scene::UI_update_mouse(Vector2f curPos, Event& event)
 {
     if (event.type == Event::MouseButtonPressed)
     {
@@ -247,7 +247,7 @@ void Scene::evaluate_bound_callbacks(sf::Keyboard::Key keycode)
     }
 }
 
-void Scene::update(Event& event, std::string& command_main)
+void Scene::update(Event& event)
 {
     if (event.type == Event::MouseButtonPressed || event.type == Event::MouseButtonReleased)
     {
@@ -260,6 +260,8 @@ void Scene::update(Event& event, std::string& command_main)
         if (Interface->is_clicked() && event.type == Event::MouseButtonReleased)
             Interface->release_click(curpos, controls_blocked);
     }
+
+    Interface->update(event);
 }
 
 void Scene::update(Time deltaTime)

@@ -4,8 +4,8 @@
 
 UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload) :
     Frame_scale(UIFrame), background_animation(std::shared_ptr<Animation>(nullptr)), cur_frame(-1),
-    focus(false), parent_scene(parent), resource_manager(resload),
-    name(name), displayed(false), z_index(0)
+    parent_scene(parent), resource_manager(resload),
+    name(name), z_index(0)
 {
     // Reaching out to global "loading" logger and "input" logger by names
     loading_logger = spdlog::get("loading");
@@ -14,14 +14,16 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std
     setFrame(UIFrame);
 }
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Texture> background) : UI_element(name, UIFrame, parent, resload)
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Texture> background) :
+    UI_element(name, UIFrame, parent, resload)
 {
     std::shared_ptr<Animation> back = std::make_shared<Animation>(background);
     back->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(background->getSize())));
     setAnimation(back);
 }
 
-UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Animation> spritesheet) : UI_element(name, UIFrame, parent, resload)
+UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Animation> spritesheet) :
+    UI_element(name, UIFrame, parent, resload)
 {
     setAnimation(spritesheet);
 }
@@ -106,6 +108,12 @@ void UI_element::set_focus(bool new_focus)
 bool UI_element::is_focused() const
 {
     return focus;
+}
+
+// if mouse in hovering the element
+bool UI_element::is_hovered() const
+{
+    return hovered;
 }
 
 // mouse hover check
@@ -227,6 +235,25 @@ void UI_element::setScale(float factorX, float factorY)
     setScale(Vector2f(factorX, factorY));
 }
 
+// handling mouse movements
+void UI_element::update(Event& event)
+{
+    if (event.type == sf::Event::MouseMoved)
+    {
+        if (contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)))
+            hovered = true;
+        else
+            hovered = false;
+        on_hover = sf::seconds(0);
+    }
+}
+
+void UI_element::update(sf::Time deltatime)
+{
+    if (hovered)
+        on_hover += deltatime;
+}
+
 // standard draw method. Draws only if displayed
 void UI_element::draw(RenderTarget& target, RenderStates states) const
 {
@@ -241,9 +268,4 @@ void UI_element::draw(RenderTarget& target, RenderStates states) const
 void UI_element::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
 {
     zmap[z_index].push_back(this);
-}
-
-void UI_element::update(Time deltaTime)
-{
-    // None;
 }

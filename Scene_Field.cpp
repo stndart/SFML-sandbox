@@ -169,7 +169,7 @@ void Scene_Field::release_player_movement_direction(int direction)
     }
 }
 
-void Scene_Field::update(Event& event, std::string& command_main)
+void Scene_Field::update(Event& event)
 {
     if (current_field != -1 && fields[current_field])
     {
