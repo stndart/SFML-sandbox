@@ -230,16 +230,18 @@ void Scene_Field::update(Event& event)
             }
         }
     }
+
+    Scene::update(event);
 }
 
 void Scene_Field::update(Time deltaTime)
 {
-    Scene::update(deltaTime);
-
     if (current_field != -1 && fields[current_field])
     {
         fields[current_field]->update(deltaTime);
     }
+    
+    Scene::update(deltaTime);
 }
 
 // clears and sorts all drawables by z-index

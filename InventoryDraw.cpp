@@ -74,7 +74,7 @@ void InventoryDraw::addItemElement(std::shared_ptr<UI_element> new_element, int 
     displayed = true;
 
     new_element->z_index = z_index;
-    new_element->set_parent_coords(sf::Vector2f(Frame_scale.getPosition()));
+    new_element->set_parent_window(this);
     item_elements.insert(std::make_pair(z_index, new_element));
 }
 
@@ -121,28 +121,16 @@ void InventoryDraw::linkInventory(Inventory* new_bag)
 void InventoryDraw::setPosition(const Vector2f &position)
 {
     UI_window::setPosition(position);
-    for (auto& [z_index, elem] : item_elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void InventoryDraw::setOrigin(const Vector2f &origin)
 {
     UI_window::setOrigin(origin);
-    for (auto& [z_index, elem] : item_elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void InventoryDraw::setScale(const Vector2f &factors)
 {
     UI_window::setScale(factors);
-    for (auto& [z_index, elem] : item_elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 // override to include item_elements
@@ -157,6 +145,8 @@ void InventoryDraw::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &z
 // update and redraw inventory if needed
 void InventoryDraw::update(Time deltaTime)
 {
+    UI_window::update(deltaTime);
+
     if (bag->is_inventory_changed() && displayed)
     {
         view_inventory();

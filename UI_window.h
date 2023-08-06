@@ -65,6 +65,7 @@ public:
     void setPosition(const Vector2f &position) override;
     void setOrigin(const Vector2f &origin) override;
     void setScale(const Vector2f &factors) override;
+    virtual const sf::Transform getTransform() const;
 
     // before drawing send child elements to sort by z-index
     void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;

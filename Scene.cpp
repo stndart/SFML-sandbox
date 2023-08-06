@@ -48,13 +48,13 @@ void Scene::load_config(std::string config_path)
 
 // creates subwindow in Interface by name and loads it's config
 // if window already exists, shows it
-void Scene::create_subwindow(std::string name, std::string config_path)
+std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string config_path)
 {
     std::shared_ptr<UI_window> subwindow = Interface->get_subwindow(name);
     if (subwindow)
     {
         subwindow->show();
-        return;
+        return subwindow;
     }
 
     ifstream f(config_path);
@@ -65,13 +65,15 @@ void Scene::create_subwindow(std::string name, std::string config_path)
     else
     {
         loading_logger->error("Trying to create subwindow of unknown name {}", name);
-        return;
+        return subwindow;
     }
 
     std::string subwindow_type = j2.value<std::string>("type", "UI window");
     subwindow = subwindow_oftype(name, subwindow_type);
     subwindow->load_config(j2);
     Interface->addElement(subwindow);
+
+    return subwindow;
 }
 
 // shows or hides UI_window by name

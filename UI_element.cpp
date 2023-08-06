@@ -1,6 +1,7 @@
 #include "UI_element.h"
 
 #include "Scene.h"
+#include "UI_window.h"
 
 UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload) :
     Frame_scale(UIFrame), background_animation(std::shared_ptr<Animation>(nullptr)), cur_frame(-1),
@@ -123,18 +124,20 @@ bool UI_element::contains(sf::Vector2f cursor) const
 
     // if not displayed, cursor ignores element
     if (displayed)
+    {
+        sf::Vector2f parent_coords(0, 0);
+        if (parent_window)
+            parent_coords = parent_window->getTransform().transformPoint(parent_coords);
         res = Frame_scale.contains(sf::Vector2i(cursor - parent_coords));
-
-//    input_logger->trace("Element {} at {}x{} contains? {}", name, cursor.x, cursor.y, res);
-//    input_logger->trace("bc displayed? {} and frame +{}+{}, {}x{}", displayed, Frame_scale.left, Frame_scale.top, Frame_scale.width, Frame_scale.height);
+    }
 
     return res;
 }
 
-// set parent coords to support nested windows
-void UI_element::set_parent_coords(sf::Vector2f pcoords)
+// set parent window to support hints, popups, etc.
+void UI_element::set_parent_window(UI_window* pwindow)
 {
-    parent_coords = pcoords;
+    parent_window = pwindow;
 }
 
 // pushes hovered element
@@ -243,21 +246,52 @@ void UI_element::update(Event& event)
         if (contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)))
             hovered = true;
         else
+        {
             hovered = false;
+        }
+        if (on_hover > hover_min)
+            parent_scene->show_UI_window(name + ":hint", false);
+        
         on_hover = sf::seconds(0);
     }
 }
 
 void UI_element::update(sf::Time deltatime)
 {
-    if (hovered)
-        on_hover += deltatime;
+    if (displayed)
+        if (hovered)
+            on_hover += deltatime;
+
+    if (hovered && on_hover > hover_min)
+    {
+        sf::Vector2f hint_pos = sf::Vector2f(Frame_scale.getPosition());
+        
+        std::shared_ptr<UI_window> hint_window = parent_scene->create_subwindow(name + ":hint");
+        if (!hint_window)
+        {
+            sf::IntRect UIWindowFrame = sf::IntRect(sf::Vector2i(hint_pos), sf::Vector2i(Frame_scale.getSize()));
+            sf::IntRect UIHintFrame = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(Frame_scale.getSize()));
+            std::shared_ptr<UI_button> hint_label = std::make_shared<UI_button>(name + ":hint_label", UIHintFrame, parent_scene, resource_manager, name);
+
+            hint_window = std::make_shared<UI_window>(name + ":hint", UIWindowFrame, parent_scene, resource_manager);
+            hint_window->addElement(hint_label, 3);
+
+
+            if (parent_window)
+                parent_window->addElement(hint_window);
+            else
+                parent_scene->add_UI_element(hint_window);
+        }
+    }
 }
 
 // standard draw method. Draws only if displayed
 void UI_element::draw(RenderTarget& target, RenderStates states) const
 {
-    states.transform.translate(parent_coords);
+    // sf::Vector2f parent_coords(0, 0);
+    if (parent_window)
+        states.transform *= parent_window->getTransform();
+
     if (displayed && background.getTexture())
     {
         target.draw(background, states);

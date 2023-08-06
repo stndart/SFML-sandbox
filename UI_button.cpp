@@ -215,9 +215,11 @@ void UI_button::draw(RenderTarget& target, RenderStates states) const
 {
     UI_element::draw(target, states);
 
+    if (parent_window)
+        states.transform *= parent_window->getTransform();
+
     if (displayed && text_string != "")
     {
-        states.transform.translate(parent_coords);
         target.draw(text_label, states);
     }
 }

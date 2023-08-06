@@ -11,6 +11,7 @@
 #include <SFML/System/Vector2.hpp>
 
 class Scene;
+class UI_window;
 
 class UI_element : public sf::Drawable, public sf::Transformable
 {
@@ -31,11 +32,13 @@ protected:
     bool hovered = false;
     // time hovered by mouse unmoved
     sf::Time on_hover;
+    // time hovered when hint should appear
+    sf::Time hover_min = sf::seconds(0.5);
 
     // Scene at which this element is displayed
-    Scene* parent_scene;
-    // to control hierarchical window structure
-    sf::Vector2f parent_coords;
+    Scene* parent_scene = nullptr;
+    // Parent UI window (where to create popups, hints, etc)
+    UI_window* parent_window = nullptr;
 
     // pointer to resource manager
     std::shared_ptr<ResourceLoader> resource_manager;
@@ -71,8 +74,8 @@ public:
 
     // mouse hover check
     bool contains(sf::Vector2f cursor) const;
-    // set parent coords to support nested windows
-    void set_parent_coords(sf::Vector2f pcoords);
+    // set parent window to support hints, popups, nested windows, etc.
+    void set_parent_window(UI_window* pwindow);
 
     // pushes hovered element
     virtual void push_click(sf::Vector2f cursor, bool controls_blocked=false);

@@ -118,10 +118,10 @@ void UI_window::load_config(nlohmann::json j)
             button->setOrigin(origin);
 
             /// TEMP
-            button->setText(element_name);
-            button->setAlign("centered");
-            button->setFont("Lobster-Regular");
-            button->setCharSize(24);
+            // button->setText(element_name);
+            // button->setAlign("centered");
+            // button->setFont("Lobster-Regular");
+            // button->setCharSize(24);
 
             addElement(button, 2);
 
@@ -167,7 +167,7 @@ void UI_window::addElement(std::shared_ptr<UI_element> new_element, int z_index)
     displayed = true;
 
     new_element->z_index = z_index;
-    new_element->set_parent_coords(sf::Vector2f(Frame_scale.getPosition()));
+    new_element->set_parent_window(this);
     elements.insert(std::make_pair(z_index, new_element));
 }
 
@@ -253,28 +253,26 @@ std::size_t UI_window::get_elements_size() const
 void UI_window::setPosition(const Vector2f &position)
 {
     UI_element::setPosition(position);
-    for (auto& [z_index, elem] : elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void UI_window::setOrigin(const Vector2f &origin)
 {
     UI_element::setOrigin(origin);
-    for (auto& [z_index, elem] : elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void UI_window::setScale(const Vector2f &factors)
 {
     UI_element::setScale(factors);
-    for (auto& [z_index, elem] : elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
+}
+
+const sf::Transform UI_window::getTransform() const
+{
+    sf::Transform global_transform;
+    global_transform *= Transformable::getTransform();
+    if (parent_window)
+        global_transform *= parent_window->getTransform();
+    
+    return global_transform;
 }
 
 // before drawing send child elements to sort by z-index
@@ -288,9 +286,21 @@ void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap)
 void UI_window::update(sf::Event& event)
 {
     if (event.type == sf::Event::MouseMoved)
+    {
+        sf::Vector2f mouse_pos = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
         for (auto& [z_index, element] : elements)
-            if (element->is_hovered() || element->contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)))
+        {
+            if (
+                element->is_hovered() || element->contains(mouse_pos) ||
+                (hovered && !contains(mouse_pos))
+            )
+            {
                 element->update(event);
+            }
+        }
+    }
+
+    UI_element::update(event);
 }
 
 void UI_window::update(Time deltaTime)

@@ -91,7 +91,7 @@ public:
     virtual void load_config(std::string config_path);
     // creates subwindow in Interface by name and loads it's config
     // if window already exists, shows it
-    void create_subwindow(std::string name, std::string config_path = "configs/dynamic_UI.json");
+    std::shared_ptr<UI_window> create_subwindow(std::string name, std::string config_path = "configs/dynamic_UI.json");
     // shows or hides UI_window by name
     void show_UI_window(std::string name, bool show=true);
 
