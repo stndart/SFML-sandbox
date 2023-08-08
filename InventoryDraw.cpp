@@ -54,9 +54,9 @@ std::shared_ptr<InventoryDraw> InventoryDraw::fromInventory(
 // overriden because needs to process item_elements
 void InventoryDraw::show(bool disp)
 {
-    UI_window::show(disp);
     for (auto& [z_index, elem] : item_elements)
         elem->displayed = disp;
+    UI_window::show(disp);
 }
 
 // override setFrame, because element_count changes

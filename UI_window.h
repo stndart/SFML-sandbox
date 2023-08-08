@@ -40,7 +40,7 @@ public:
     virtual void load_config(nlohmann::json j);
 
     // sets displayed for self and child elements
-    virtual void show(bool displayed = true);
+    void show(bool displayed = true) override;
     // gets window element by name (recursive)
     virtual std::shared_ptr<UI_window> get_subwindow(std::string name);
 
@@ -50,13 +50,22 @@ public:
     void deleteElement(std::shared_ptr<UI_element> element);
 
     // we override contains since window is no more rectangle: it contains overlapping and outbordering children elements
-    bool contains(sf::Vector2f cursor);
+    bool contains(sf::Vector2f cursor) const override;
 
     bool is_clicked() const;
     // pushes hovered element
     void push_click(sf::Vector2f cursor, bool controls_blocked) override;
     // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
     void release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action=false) override;
+
+    // we override contains since window is no more rectangle: it contains overlapping and outbordering children elements
+    bool is_hovered() const override;
+    // hoveres element under cursor.
+    void hover_on(sf::Vector2f cursor) override;
+    // lifts hover under cursor
+    void hover_off() override;
+    // sets hoverable to self and children
+    void set_hoverable(bool hover=true) override;
 
     // return number of elements
     std::size_t get_elements_size() const;

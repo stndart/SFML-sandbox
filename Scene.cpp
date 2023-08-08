@@ -48,28 +48,32 @@ void Scene::load_config(std::string config_path)
 
 // creates subwindow in Interface by name and loads it's config
 // if window already exists, shows it
-std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string config_path)
+std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string config_path, std::string config_name)
 {
     std::shared_ptr<UI_window> subwindow = Interface->get_subwindow(name);
     if (subwindow)
     {
-        subwindow->show();
+        if (!subwindow->displayed)
+            subwindow->show();
         return subwindow;
     }
 
     ifstream f(config_path);
     nlohmann::json j = nlohmann::json::parse(f);
     nlohmann::json j2;
-    if (j.contains(name))
-        j2 = j.at(name);
+    if (config_name == "")
+        config_name = name;
+
+    if (j.contains(config_name))
+        j2 = j.at(config_name);
     else
     {
-        loading_logger->error("Trying to create subwindow of unknown name {}", name);
+        loading_logger->error("Trying to configure subwindow of unknown name {}", config_name);
         return subwindow;
     }
 
     std::string subwindow_type = j2.value<std::string>("type", "UI window");
-    subwindow = subwindow_oftype(name, subwindow_type);
+    subwindow = subwindow_oftype(config_name, subwindow_type);
     subwindow->load_config(j2);
     Interface->addElement(subwindow);
 
@@ -262,8 +266,14 @@ void Scene::update(Event& event)
         if (Interface->is_clicked() && event.type == Event::MouseButtonReleased)
             Interface->release_click(curpos, controls_blocked);
     }
-
-    Interface->update(event);
+    else if (event.type == Event::MouseMoved)
+    {
+        Interface->hover_on(sf::Vector2f(event.mouseMove.x, event.mouseMove.y));
+    }
+    else
+    {
+        Interface->update(event);
+    }
 }
 
 void Scene::update(Time deltaTime)

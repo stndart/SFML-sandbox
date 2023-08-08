@@ -33,7 +33,7 @@ protected:
     // time hovered by mouse unmoved
     sf::Time on_hover;
     // time hovered when hint should appear
-    sf::Time hover_min = sf::seconds(0.5);
+    sf::Time hover_min = sf::seconds(1.0);
 
     // Scene at which this element is displayed
     Scene* parent_scene = nullptr;
@@ -48,6 +48,8 @@ protected:
 public:
     // is displayed or hidden;
     bool displayed = false;
+    // when false, disables hover checks (for hints) for self and children (if UI_window)
+    bool hoverable = true;
 
     std::string name;
     // z-index, at which it is displayed in <parent_scene>
@@ -69,11 +71,12 @@ public:
     // focus setter/getter
     void set_focus(bool new_focus);
     bool is_focused() const;
-    // if mouse in hovering the element
-    bool is_hovered() const;
+    
+    // sets displayed for self (and child elements)
+    virtual void show(bool displayed = true);
 
     // mouse hover check
-    bool contains(sf::Vector2f cursor) const;
+    virtual bool contains(sf::Vector2f cursor) const;
     // set parent window to support hints, popups, nested windows, etc.
     void set_parent_window(UI_window* pwindow);
 
@@ -81,6 +84,15 @@ public:
     virtual void push_click(sf::Vector2f cursor, bool controls_blocked=false);
     // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
     virtual void release_click(sf::Vector2f cursor, bool controls_bloacked=false, bool skip_action=false);
+    
+    // if mouse in hovering the element
+    virtual bool is_hovered() const;
+    // hoveres element under cursor.
+    virtual void hover_on(sf::Vector2f cursor);
+    // lifts hover under cursor
+    virtual void hover_off();
+    // sets hoverable to self and children
+    virtual void set_hoverable(bool hover=true);
 
     // overriding some Sprite methods
     void setColor(const Color& color);

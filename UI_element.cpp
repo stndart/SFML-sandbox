@@ -111,10 +111,13 @@ bool UI_element::is_focused() const
     return focus;
 }
 
-// if mouse in hovering the element
-bool UI_element::is_hovered() const
+// sets displayed for self (and child elements)
+void UI_element::show(bool disp)
 {
-    return hovered;
+    displayed = disp;
+    // if not displayed, then cursor effectively wandered off
+    // if just displayed, refresh all hover timers
+    hover_off();
 }
 
 // mouse hover check
@@ -151,6 +154,37 @@ void UI_element::release_click(sf::Vector2f cursor, bool controls_blocked, bool 
 {
     // pure virtual;
     input_logger->debug("Element {} popped at {}x{}", name, cursor.x, cursor.y);
+}
+
+// if mouse in hovering the element
+bool UI_element::is_hovered() const
+{
+    return hovered;
+}
+
+// hoveres element under cursor.
+void UI_element::hover_on(sf::Vector2f cursor)
+{
+    if (hoverable)
+        if (contains(cursor))
+            hovered = true;
+}
+
+// lifts hover under cursor
+void UI_element::hover_off()
+{
+    if (hoverable)
+    {
+        hovered = false;
+        parent_scene->show_UI_window(name + ":hint", false);
+        on_hover = sf::seconds(0);
+    }
+}
+
+// sets hoverable to self and children
+void UI_element::set_hoverable(bool hover)
+{
+    hoverable = hover;
 }
 
 // overriding some Sprite methods
@@ -243,26 +277,18 @@ void UI_element::update(Event& event)
 {
     if (event.type == sf::Event::MouseMoved)
     {
-        if (contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)))
-            hovered = true;
-        else
-        {
-            hovered = false;
-        }
-        if (on_hover > hover_min)
-            parent_scene->show_UI_window(name + ":hint", false);
-        
-        on_hover = sf::seconds(0);
+        // hides hint, when mouse moves
+        // hover_on(sf::Vector2f(event.mouseMove.x, event.mouseMove.y));
+        // hover_off();
     }
 }
 
 void UI_element::update(sf::Time deltatime)
 {
-    if (displayed)
-        if (hovered)
-            on_hover += deltatime;
+    if (displayed && hoverable && hovered)
+        on_hover += deltatime;
 
-    if (hovered && on_hover > hover_min)
+    if (hoverable && hovered && on_hover > hover_min)
     {
         sf::Vector2f hint_pos = sf::Vector2f(Frame_scale.getPosition());
         
@@ -275,7 +301,7 @@ void UI_element::update(sf::Time deltatime)
 
             hint_window = std::make_shared<UI_window>(name + ":hint", UIWindowFrame, parent_scene, resource_manager);
             hint_window->addElement(hint_label, 3);
-
+            hint_window->set_hoverable(false);
 
             if (parent_window)
                 parent_window->addElement(hint_window);

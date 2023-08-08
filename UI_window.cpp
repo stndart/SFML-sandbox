@@ -136,9 +136,14 @@ void UI_window::load_config(nlohmann::json j)
 // sets displayed for self and child elements
 void UI_window::show(bool disp)
 {
-    displayed = disp;
     for (auto& [z_index, elem] : elements)
-        elem->displayed = disp;
+        elem->show(disp);
+    UI_element::show(disp);
+
+    // this is duplicated since UI_element::show calls for UI_element::hover_off
+    // if not displayed, then cursor effectively wandered off
+    // if just displayed, refresh all hover timers
+    hover_off();
 }
 
 // gets window element by name (recursive)
@@ -176,8 +181,8 @@ void UI_window::deleteElement(std::shared_ptr<UI_element> element)
     elements.erase(std::make_pair(element->z_index, element));
 }
 
-// mouse hover check
-bool UI_window::contains(sf::Vector2f cursor)
+// same reason of overriding
+bool UI_window::contains(sf::Vector2f cursor) const
 {
     bool res = UI_element::contains(cursor);
 
@@ -185,8 +190,6 @@ bool UI_window::contains(sf::Vector2f cursor)
     for (auto& [z_index, elem] : elements)
         if (elem->contains(cursor))
             res = true;
-
-//    input_logger->trace("Window {} at {}x{} contains? {}", name, cursor.x, cursor.y, res);
 
     return res;
 }
@@ -243,6 +246,66 @@ void UI_window::release_click(sf::Vector2f cursor, bool controls_blocked, bool s
     }
 }
 
+// we override contains since window is no more rectangle: it contains overlapping and outbordering children elements
+bool UI_window::is_hovered() const
+{
+    bool res = UI_element::is_hovered();
+
+    // not only if hovererd, but if any child too
+    for (auto& [z_index, elem] : elements)
+        if (elem->is_hovered())
+            res = true;
+
+    return res;
+}
+
+// hoveres element under cursor.
+void UI_window::hover_on(sf::Vector2f cursor)
+{
+    // hover child element, that contains cursor and unhover all other
+    if (hoverable)
+    {
+        UI_element::hover_on(cursor);
+
+        // flag that some child element caught cursor and other elements can't be hovered_on
+        bool mouse_caught = false;
+        for (auto& [z_index, element] : std::ranges::reverse_view(elements))
+        {
+            if (!mouse_caught && element->contains(cursor) && element->hoverable)
+            {
+                element->hover_on(cursor);
+                mouse_caught = true;
+                // window accounts hovered on, whenever any child element is hovered
+                UI_element::hover_on(cursor);
+            }
+            else if (element->is_hovered() && (!element->contains(cursor) || mouse_caught) && element->hoverable)
+            {
+                element->hover_off();
+            }
+        }
+    }
+}
+
+// lifts hover under cursor
+void UI_window::hover_off()
+{
+    // unhover all child elements
+    if (hoverable)
+    {
+        UI_element::hover_off();
+        for (auto& [z_index, element] : std::ranges::reverse_view(elements))
+            element->hover_off();
+    }
+}
+
+// sets hoverable to self and children
+void UI_window::set_hoverable(bool hover)
+{
+    for (auto& [z_index, element] : std::ranges::reverse_view(elements))
+        element->set_hoverable(hover);
+    UI_element::set_hoverable(hover);
+}
+
 // return number of elements
 std::size_t UI_window::get_elements_size() const
 {
@@ -285,21 +348,6 @@ void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap)
 
 void UI_window::update(sf::Event& event)
 {
-    if (event.type == sf::Event::MouseMoved)
-    {
-        sf::Vector2f mouse_pos = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
-        for (auto& [z_index, element] : elements)
-        {
-            if (
-                element->is_hovered() || element->contains(mouse_pos) ||
-                (hovered && !contains(mouse_pos))
-            )
-            {
-                element->update(event);
-            }
-        }
-    }
-
     UI_element::update(event);
 }
 
