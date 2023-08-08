@@ -25,6 +25,8 @@ protected:
     int cur_frame;
     // sprite to draw textures
     sf::Sprite background;
+    // cut background or fit scale to it
+    bool fit_to_background = true;
 
     // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)
     bool focus = false;
@@ -116,7 +118,7 @@ public:
     // overriding Drawable methods
     virtual void draw(RenderTarget& target, RenderStates states) const override;
     // before drawing send itself to sort by z-index
-    virtual void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const;
+    virtual void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift = 0) const;
 };
 
 #endif // UI_ELEMENT_H

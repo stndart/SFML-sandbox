@@ -18,8 +18,7 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std
 UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Texture> background) :
     UI_element(name, UIFrame, parent, resload)
 {
-    std::shared_ptr<Animation> back = std::make_shared<Animation>(background);
-    back->addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(background->getSize())));
+    std::shared_ptr<Animation> back = std::make_shared<Animation>(background, true);
     setAnimation(back);
 }
 
@@ -32,7 +31,7 @@ UI_element::UI_element(std::string name, sf::IntRect UIFrame, Scene* parent, std
 // Frame_scale setter/getter
 void UI_element::setFrame(sf::IntRect new_frame_scale)
 {
-    if (background_animation && background_animation->getSize() > 0)
+    if (background_animation && background_animation->getSize() > 0 && fit_to_background)
     {
         sf::Vector2f new_scale(
             (float)new_frame_scale.width / (float)background_animation->getFrame(0).width,
@@ -40,6 +39,10 @@ void UI_element::setFrame(sf::IntRect new_frame_scale)
         );
 
         setScale(new_scale);
+    }
+    else if (!fit_to_background)
+    {
+        background.setTextureRect(new_frame_scale);
     }
 
     sf::Vector2f new_position(new_frame_scale.left, new_frame_scale.top);
@@ -291,23 +294,47 @@ void UI_element::update(sf::Time deltatime)
     if (hoverable && hovered && on_hover > hover_min)
     {
         sf::Vector2f hint_pos = sf::Vector2f(Frame_scale.getPosition());
+        hint_pos += sf::Vector2f(Frame_scale.getSize());
+
+        std::string hint_window_name = name + ":hint";
         
-        std::shared_ptr<UI_window> hint_window = parent_scene->create_subwindow(name + ":hint");
+        bool just_created = true;
+        std::shared_ptr<UI_window> hint_window = parent_scene->create_subwindow_dont_register(hint_window_name, "hint");
+        // if parent window (which should, if exists) contains "new" window, then it is not new
+        if (parent_window && parent_window->get_subwindow(hint_window_name))
+            just_created = false;
+        // if parent window doesn't exist, then <this> is top level <Interface> and should contain "new" window itself
+        // but base interface should not create hints, so just leave this window empty
+        else if (!parent_window)
+            just_created = false;
+
+        sf::IntRect UIWindowFrame = sf::IntRect(sf::Vector2i(hint_pos), sf::Vector2i(Frame_scale.getSize()));
+        sf::IntRect UIHintFrame = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(Frame_scale.getSize()));
         if (!hint_window)
         {
-            sf::IntRect UIWindowFrame = sf::IntRect(sf::Vector2i(hint_pos), sf::Vector2i(Frame_scale.getSize()));
-            sf::IntRect UIHintFrame = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(Frame_scale.getSize()));
+            hint_window = std::make_shared<UI_window>(hint_window_name, UIWindowFrame, parent_scene, resource_manager);
+        }
+
+        if (just_created)
+        {
             std::shared_ptr<UI_button> hint_label = std::make_shared<UI_button>(name + ":hint_label", UIHintFrame, parent_scene, resource_manager, name);
 
-            hint_window = std::make_shared<UI_window>(name + ":hint", UIWindowFrame, parent_scene, resource_manager);
             hint_window->addElement(hint_label, 3);
             hint_window->set_hoverable(false);
 
-            if (parent_window)
-                parent_window->addElement(hint_window);
-            else
-                parent_scene->add_UI_element(hint_window);
+            sf::Vector2i newsize(hint_label->getTextLabel().getGlobalBounds().getSize());
+            UIHintFrame = sf::IntRect(UIHintFrame.getPosition(), newsize);
+            UIWindowFrame = sf::IntRect(UIWindowFrame.getPosition(), newsize);
+            
+            hint_label->setFrame(UIHintFrame);
+            hint_window->setFrame(UIWindowFrame);
+            hint_label->getTextLabel().move(-hint_label->getTextLabel().getLocalBounds().getPosition());
         }
+
+        if (parent_window)
+            parent_window->addElement(hint_window, 3);
+        else
+            parent_scene->add_UI_element(hint_window, 3);
     }
 }
 
@@ -325,7 +352,7 @@ void UI_element::draw(RenderTarget& target, RenderStates states) const
 }
 
 // before drawing send itself to sort by z-index
-void UI_element::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
+void UI_element::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift) const
 {
-    zmap[z_index].push_back(this);
+    zmap[z_index + z_shift].push_back(this);
 }

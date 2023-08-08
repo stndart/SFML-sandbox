@@ -65,6 +65,8 @@ public:
     std::string getText() const;
     // setting align, supports: "left", "centered", "right"
     void setAlign(std::string align_mode);
+    // getting Text, for example, to calculate it's visual size
+    sf::Text& getTextLabel();
 
     // override draw since we need to display text
     void draw(RenderTarget& target, RenderStates states) const override;

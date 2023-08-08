@@ -27,5 +27,9 @@
 				"Origin rel y": 0
 			}
 		]
+	},
+	"hint": {
+		"type": "UI window",
+		"texture": "hint_background"
 	}
 }

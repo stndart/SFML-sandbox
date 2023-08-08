@@ -95,9 +95,11 @@ void SceneController::set_current_scene(std::string name)
             loading_logger->warn("Discarding callbacks due to scene change");
         }
         scene_map[cur_scene_name]->cancel_callbacks();
+        scene_map[cur_scene_name]->show_interface(false);
     }
     
     cur_scene_name = name;
+    scene_map[cur_scene_name]->show_interface();
 }
 
 // gets scene by name

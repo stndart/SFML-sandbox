@@ -164,7 +164,7 @@ void UI_button::updateTextPosition()
         sf::Vector2f local_size = text_label.getLocalBounds().getSize();
         text_pos -= sf::Vector2f(local_size.x / 2, local_size.y / 2);
     }
-
+    
     text_label.setPosition(text_pos);
 }
 
@@ -208,6 +208,12 @@ void UI_button::setAlign(std::string align_mode)
         loading_logger->warn("Unknown alignment type {}", align_mode);
     
     updateTextPosition();
+}
+
+// getting Text, for example, to calculate it's visual size
+sf::Text& UI_button::getTextLabel()
+{
+    return text_label;
 }
 
 // override draw since we need to display text

@@ -77,7 +77,7 @@ public:
     virtual const sf::Transform getTransform() const;
 
     // before drawing send child elements to sort by z-index
-    void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
+    void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift = 0) const override;
 
     void update(sf::Event& event) override;
     void update(sf::Time deltaTime) override;

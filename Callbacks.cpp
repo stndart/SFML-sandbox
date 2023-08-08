@@ -46,7 +46,9 @@ std::function<void()> close_UI_window_callback(Scene& scene, std::string UI_wind
 std::function<void()> open_UI_window_callback(Scene& scene, std::string UI_window_name)
 {
     std::function<void()> callback = [&scene, UI_window_name] {
-        scene.create_subwindow(UI_window_name);
+        std::shared_ptr<UI_window> newwindow = scene.create_subwindow(UI_window_name);
+        // std::shared_ptr<UI_window> newwindow = scene.create_subwindow_dont_register(UI_window_name);
+        // scene.add_UI_element(newwindow, 2);
     };
     return callback;
 }

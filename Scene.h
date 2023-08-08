@@ -91,7 +91,9 @@ public:
     virtual void load_config(std::string config_path);
     // creates subwindow in Interface by name and loads it's config
     // if window already exists, shows it
-    std::shared_ptr<UI_window> create_subwindow(std::string name, std::string config_path = "configs/dynamic_UI.json", std::string config_name="");
+    std::shared_ptr<UI_window> create_subwindow(std::string name, std::string config_name="", std::string config_path = "configs/dynamic_UI.json", bool register_to_interface=true);
+    // creates subwindow, but doesn't add to Interface
+    std::shared_ptr<UI_window> create_subwindow_dont_register(std::string name, std::string config_name="", std::string config_path = "configs/dynamic_UI.json");
     // shows or hides UI_window by name
     void show_UI_window(std::string name, bool show=true);
 
@@ -105,9 +107,9 @@ public:
     // change background texture
     void setBackground(std::shared_ptr<Texture> texture, IntRect rect);
     // add sprite to specified framebuffer with specified z-index
-    void addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index=1, int framebuffer = 2);
+    void addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index = 1, int framebuffer = 2);
     // add an ui element to <Interface>
-    void add_UI_element(std::shared_ptr<UI_element> new_ui_element);
+    void add_UI_element(std::shared_ptr<UI_element> new_ui_element, int z_index = 0);
     /// TEMP
     // clear sprites list
     void delete_sprites();
@@ -122,6 +124,9 @@ public:
     void cancel_callbacks();
     // checks if there are callbacks scheduled. For external purposes
     bool has_callbacks() const;
+
+    // hides interface to process all hovers and clicks correctly
+    void show_interface(bool show = true);
 
     // bind callback to keys on the keyboard
     void bind_callback(sf::Keyboard::Key keycode, std::function<void()> callback, Time t = seconds(0.5));

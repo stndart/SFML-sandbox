@@ -9,6 +9,7 @@ UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::
     UI_element(name, UIFrame, parent, resload),
     ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
+    fit_to_background = false;
     window_view = sf::View(sf::FloatRect(UIFrame));
 
     displayed = true;
@@ -42,13 +43,18 @@ void UI_window::load_config(nlohmann::json j)
     {
         back = resource_manager->getUITexture(j["texture"].get<std::string>());
 
-        sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
-        std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
-            name + " background", back_rect, parent_scene, resource_manager, back
-        );
+        // sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
+        // std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
+        //     name + " background", back_rect, parent_scene, resource_manager, back
+        // );
+        // int transparency = j.value("transparency", 255);
+        // background->setColor(sf::Color(255, 255, 255, transparency));
+        // addElement(background, -1);
+
+        background_animation = std::make_shared<Animation>(back, true);
+        setAnimation(background_animation);
         int transparency = j.value("transparency", 255);
-        background->setColor(sf::Color(255, 255, 255, transparency));
-        addElement(background, -1);
+        setColor(sf::Color(255, 255, 255, transparency));
     }
 
     // create and place buttons
@@ -144,6 +150,8 @@ void UI_window::show(bool disp)
     // if not displayed, then cursor effectively wandered off
     // if just displayed, refresh all hover timers
     hover_off();
+    // unpush all buttons
+    release_click(sf::Vector2f(0, 0), false, true);
 }
 
 // gets window element by name (recursive)
@@ -339,11 +347,11 @@ const sf::Transform UI_window::getTransform() const
 }
 
 // before drawing send child elements to sort by z-index
-void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
+void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift) const
 {
-    UI_element::draw_to_zmap(zmap);
+    UI_element::draw_to_zmap(zmap, z_shift);
     for (auto& [z_index, element] : elements)
-        element->draw_to_zmap(zmap);
+        element->draw_to_zmap(zmap, z_shift + z_index);
 }
 
 void UI_window::update(sf::Event& event)
