@@ -5,6 +5,7 @@
             "type": "button",
             "texture": "escape_button",
             "texture_pressed": "escape_button_pushed",
+			"hint": "to main menu",
             "callback": {
                 "name": "change scene",
                 "scene to": "main_menu"

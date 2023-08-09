@@ -55,6 +55,8 @@ public:
     // when false, disables hover checks (for hints) for self and children (if UI_window)
     // also, not hoverable element can't be clicked
     bool hoverable = true;
+    // text to show on hint
+    std::string hint_text;
 
     std::string name;
     // z-index, at which it is displayed in <parent_scene>

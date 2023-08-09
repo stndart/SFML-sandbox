@@ -64,9 +64,7 @@ void UI_window::load_config(nlohmann::json j)
         std::string element_name = j2["type"].get<std::string>() + ":" + j2["texture"].get<std::string>();
 
         sf::Vector2f texsize(back->getSize());
-
         sf::Vector2f coords = get_coords_from_json(j2, windowsize);
-
         sf::Vector2f size = get_size_from_json(j2, windowsize);
         size = save_aspect_ratio(size, texsize);
         sf::Vector2f origin = get_origin_from_json(j2, size);
@@ -122,11 +120,8 @@ void UI_window::load_config(nlohmann::json j)
             std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, resource_manager, spritesheet, callback);
             button->setOrigin(origin);
 
-            /// TEMP
-            // button->setText(element_name);
-            // button->setAlign("centered");
-            // button->setFont("Lobster-Regular");
-            // button->setCharSize(24);
+            std::string hint_text = j2.value<string>("hint", "");
+            button->hint_text = hint_text;
 
             addElement(button, 2);
 

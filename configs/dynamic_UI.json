@@ -15,6 +15,7 @@
 			{
 				"type": "button",
 				"texture": "escape_button",
+				"hint": "close inventory",
 				"texture_pressed": "escape_button_pushed",
 				"callback": {
 					"name": "close UI_window",

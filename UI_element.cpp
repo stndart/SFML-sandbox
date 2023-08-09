@@ -118,9 +118,6 @@ bool UI_element::is_focused() const
 void UI_element::show(bool disp)
 {
     displayed = disp;
-    // if not displayed, then cursor effectively wandered off
-    // if just displayed, refresh all hover timers
-    hover_off();
 }
 
 // mouse hover check
@@ -188,8 +185,8 @@ void UI_element::hover_off()
         hovered = false;
 
         std::string hint_window_name = name + ":hint";
-        if (parent_scene)
-            hint_window_name = parent_scene->name + "-" + hint_window_name;
+        if (parent_window)
+            hint_window_name = parent_window->name + "-" + hint_window_name;
         parent_scene->show_UI_window(hint_window_name, false);
 
         on_hover = sf::seconds(0);
@@ -301,7 +298,7 @@ void UI_element::update(sf::Time deltatime)
     if (displayed && hoverable && hovered)
         on_hover += deltatime;
 
-    if (hoverable && hovered && on_hover > hover_min)
+    if (hoverable && hovered && on_hover > hover_min && hint_text != "")
     {
         sf::Vector2f hint_pos(0, 0);
         // uncomment to set hint position to bottom right corner of hovered element
@@ -310,8 +307,8 @@ void UI_element::update(sf::Time deltatime)
         hint_pos += hovered_cursor;
 
         std::string hint_window_name = name + ":hint";
-        if (parent_scene)
-            hint_window_name = parent_scene->name + "-" + hint_window_name;
+        if (parent_window)
+            hint_window_name = parent_window->name + "-" + hint_window_name;
         
         bool just_created = true;
         // create or obtain subwindow, but don't show it yet
@@ -336,7 +333,7 @@ void UI_element::update(sf::Time deltatime)
 
         if (just_created)
         {
-            std::shared_ptr<UI_button> hint_label = std::make_shared<UI_button>(name + ":hint_label", UIHintFrame, parent_scene, resource_manager, name);
+            std::shared_ptr<UI_button> hint_label = std::make_shared<UI_button>(name + ":hint_label", UIHintFrame, parent_scene, resource_manager, hint_text);
 
             hint_window->addElement(hint_label, 3);
             hint_window->set_hoverable(false);
