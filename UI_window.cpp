@@ -344,7 +344,7 @@ const sf::Transform UI_window::getTransform() const
 void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift) const
 {
     UI_element::draw_to_zmap(zmap, z_shift);
-    for (auto& [z_index, element] : elements)
+    for (auto& [elem_z_index, element] : elements)
         element->draw_to_zmap(zmap, z_shift + z_index);
 }
 

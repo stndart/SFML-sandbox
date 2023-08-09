@@ -136,7 +136,7 @@ void InventoryDraw::setScale(const Vector2f &factors)
 // override to include item_elements
 void InventoryDraw::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift) const
 {
-    for (auto& [z_index, element] : item_elements)
+    for (auto& [elem_z_index, element] : item_elements)
         element->draw_to_zmap(zmap, z_shift + z_index);
     
     UI_window::draw_to_zmap(zmap, z_shift);
