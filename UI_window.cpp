@@ -228,7 +228,7 @@ void UI_window::push_click(sf::Vector2f cursor, bool controls_blocked)
         // do in reverse order to sort by reverse z-index (the bigger z-index, the bigger is click interception priority)
         for (auto& [z_index, element] : std::ranges::reverse_view(elements))
         {
-            if (element->contains(cursor))
+            if (element->contains(cursor) && element->hoverable)
             {
                 element->push_click(cursor, controls_blocked);
                 clicked_child = element;

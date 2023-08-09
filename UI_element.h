@@ -36,6 +36,8 @@ protected:
     sf::Time on_hover;
     // time hovered when hint should appear
     sf::Time hover_min = sf::seconds(1.0);
+    // cursor position where hovered. Used to stick hint to mouse cursor
+    sf::Vector2f hovered_cursor;
 
     // Scene at which this element is displayed
     Scene* parent_scene = nullptr;
@@ -51,6 +53,7 @@ public:
     // is displayed or hidden;
     bool displayed = false;
     // when false, disables hover checks (for hints) for self and children (if UI_window)
+    // also, not hoverable element can't be clicked
     bool hoverable = true;
 
     std::string name;

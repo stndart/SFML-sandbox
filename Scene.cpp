@@ -48,12 +48,12 @@ void Scene::load_config(std::string config_path)
 
 // creates subwindow in Interface by name and loads it's config
 // if window already exists, shows it
-std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string config_name, std::string config_path, bool register_to_interface)
+std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string config_name, bool show, std::string config_path, bool register_to_interface)
 {
     std::shared_ptr<UI_window> subwindow = Interface->get_subwindow(name);
     if (subwindow)
     {
-        if (!subwindow->displayed)
+        if (!subwindow->displayed && show)
             subwindow->show();
         return subwindow;
     }
@@ -74,6 +74,7 @@ std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string
 
     std::string subwindow_type = j2.value<std::string>("type", "UI window");
     subwindow = subwindow_oftype(config_name, subwindow_type);
+    subwindow->displayed = show;
     subwindow->load_config(j2);
     subwindow->name = name;
     if (register_to_interface)
@@ -83,9 +84,9 @@ std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string
 }
 
 // creates subwindow, but doesn't add to Interface
-std::shared_ptr<UI_window> Scene::create_subwindow_dont_register(std::string name, std::string config_name, std::string config_path)
+std::shared_ptr<UI_window> Scene::create_subwindow_dont_register(std::string name, std::string config_name, bool show, std::string config_path)
 {
-    return create_subwindow(name, config_name, config_path, false);
+    return create_subwindow(name, config_name, show, config_path, false);
 }
 
 // shows or hides UI_window by name

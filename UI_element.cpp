@@ -170,7 +170,14 @@ void UI_element::hover_on(sf::Vector2f cursor)
 {
     if (hoverable)
         if (contains(cursor))
+        {
             hovered = true;
+            
+            sf::Vector2f parent_coords(0, 0);
+            if (parent_window)
+                parent_coords = parent_window->getTransform().transformPoint(parent_coords);
+            hovered_cursor = cursor - parent_coords;
+        }
 }
 
 // lifts hover under cursor
@@ -179,7 +186,12 @@ void UI_element::hover_off()
     if (hoverable)
     {
         hovered = false;
-        parent_scene->show_UI_window(name + ":hint", false);
+
+        std::string hint_window_name = name + ":hint";
+        if (parent_scene)
+            hint_window_name = parent_scene->name + "-" + hint_window_name;
+        parent_scene->show_UI_window(hint_window_name, false);
+
         on_hover = sf::seconds(0);
     }
 }
@@ -291,13 +303,22 @@ void UI_element::update(sf::Time deltatime)
 
     if (hoverable && hovered && on_hover > hover_min)
     {
-        sf::Vector2f hint_pos = sf::Vector2f(Frame_scale.getPosition());
-        hint_pos += sf::Vector2f(Frame_scale.getSize());
+        sf::Vector2f hint_pos(0, 0);
+        // uncomment to set hint position to bottom right corner of hovered element
+        // hint_pos += sf::Vector2f(Frame_scale.getPosition());
+        // hint_pos += sf::Vector2f(Frame_scale.getSize());
+        hint_pos += hovered_cursor;
 
         std::string hint_window_name = name + ":hint";
+        if (parent_scene)
+            hint_window_name = parent_scene->name + "-" + hint_window_name;
         
         bool just_created = true;
-        std::shared_ptr<UI_window> hint_window = parent_scene->create_subwindow_dont_register(hint_window_name, "hint");
+        // create or obtain subwindow, but don't show it yet
+        std::shared_ptr<UI_window> hint_window = parent_scene->create_subwindow_dont_register(hint_window_name, "hint", false);
+        if (hint_window && hint_window->displayed)
+            return;
+
         // if parent window (which should, if exists) contains "new" window, then it is not new
         if (parent_window && parent_window->get_subwindow(hint_window_name))
             just_created = false;
@@ -327,12 +348,19 @@ void UI_element::update(sf::Time deltatime)
             hint_label->setFrame(UIHintFrame);
             hint_window->setFrame(UIWindowFrame);
             hint_label->getTextLabel().move(-hint_label->getTextLabel().getLocalBounds().getPosition());
+            
+            if (parent_window)
+                parent_window->addElement(hint_window, 3);
+            else
+                parent_scene->add_UI_element(hint_window, 3);
         }
-
-        if (parent_window)
-            parent_window->addElement(hint_window, 3);
-        else
-            parent_scene->add_UI_element(hint_window, 3);
+        // update hint position (stick to mouse cursor)
+        if (!hint_window->displayed)
+        {
+            hint_window->setPosition(hint_pos);
+        }
+        
+        hint_window->show();
     }
 }
 
