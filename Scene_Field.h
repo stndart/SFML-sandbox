@@ -62,7 +62,7 @@ public:
     // clears and sorts all drawables by z-index
     void sort_drawables() override;
     // overriding Drawable methods
-    void update(Event& event, std::string& command_main) override;
+    void update(Event& event) override;
     void update(Time deltaTime) override;
     // we don't override draw since it stays the same
 

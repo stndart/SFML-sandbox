@@ -15,10 +15,7 @@
 #include <glob/glob.h>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
-
-#include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
-#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Font.hpp>
 
 using namespace sf;
 
@@ -55,6 +52,9 @@ private:
     // load specific texture to map. Used by getting texture with lazy=true
     void load_texture_by_name(std::string texname, std::string category, bool gpu = false, bool repeated = false);
 
+    // map of fonts by name
+    std::map<std::string, std::shared_ptr<sf::Font> > fonts;
+
     std::shared_ptr<spdlog::logger> loading_logger;
 
 public:
@@ -63,6 +63,10 @@ public:
     // loads all sections of textures, with paths specified in config
     // if lazy_gpu, then only loads from disk to ram (loading to gpu on request)
     void load_textures();
+    // load all fonts (recursively)
+    void load_fonts(bool recursive = false);
+    // loads one font and returns success
+    bool load_font_from(std::string font_path);
 
     // lazily returns notexture (loads from notexture_image at first call)
     std::shared_ptr<Texture> getDefaultTexture();
@@ -80,6 +84,9 @@ public:
     // gets animation by name.
     std::shared_ptr<Animation> getAnimation(std::string aniname);
     void addAnimation(std::string aniname, std::shared_ptr<Animation> anim);
+
+    // get font by name
+    std::shared_ptr<Font> getFont(std::string fname);
 };
 
 #endif // RESOURCE_LOADER_H

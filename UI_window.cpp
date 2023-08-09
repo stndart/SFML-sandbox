@@ -5,8 +5,9 @@
 #include "Scene_Field.h"
 #include "SceneController.h"
 
-UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed) : UI_element(name, UIFrame, parent),
-    ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL), resource_manager(resload)
+UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, bool is_framed) :
+    UI_element(name, UIFrame, parent, resload),
+    ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
     window_view = sf::View(sf::FloatRect(UIFrame));
 
@@ -41,13 +42,18 @@ void UI_window::load_config(nlohmann::json j)
     {
         back = resource_manager->getUITexture(j["texture"].get<std::string>());
 
-        sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
-        std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
-            name + " background", back_rect, parent_scene, back
-        );
+        // sf::IntRect back_rect(sf::Vector2i(0, 0), windowsize);
+        // std::shared_ptr<UI_button> background = std::make_shared<UI_button>(
+        //     name + " background", back_rect, parent_scene, resource_manager, back
+        // );
+        // int transparency = j.value("transparency", 255);
+        // background->setColor(sf::Color(255, 255, 255, transparency));
+        // addElement(background, -1);
+
+        background_animation = std::make_shared<Animation>(back, true);
+        setAnimation(background_animation);
         int transparency = j.value("transparency", 255);
-        background->setColor(sf::Color(255, 255, 255, transparency));
-        addElement(background, -1);
+        setColor(sf::Color(255, 255, 255, transparency));
     }
 
     // create and place buttons
@@ -58,12 +64,10 @@ void UI_window::load_config(nlohmann::json j)
         std::string element_name = j2["type"].get<std::string>() + ":" + j2["texture"].get<std::string>();
 
         sf::Vector2f texsize(back->getSize());
-
         sf::Vector2f coords = get_coords_from_json(j2, windowsize);
-
         sf::Vector2f size = get_size_from_json(j2, windowsize);
         size = save_aspect_ratio(size, texsize);
-        sf::Vector2f origin = get_origin_from_json(j2, texsize);
+        sf::Vector2f origin = get_origin_from_json(j2, size);
 
         IntRect posrect(coords.x, coords.y, size.x, size.y);
 
@@ -113,8 +117,11 @@ void UI_window::load_config(nlohmann::json j)
                 loading_logger->warn("Unknown callback {}", callback_name);
             }
 
-            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, spritesheet, callback);
+            std::shared_ptr<UI_button> button = std::make_shared<UI_button>(element_name, posrect, parent_scene, resource_manager, spritesheet, callback);
             button->setOrigin(origin);
+
+            std::string hint_text = j2.value<string>("hint", "");
+            button->hint_text = hint_text;
 
             addElement(button, 2);
 
@@ -129,9 +136,16 @@ void UI_window::load_config(nlohmann::json j)
 // sets displayed for self and child elements
 void UI_window::show(bool disp)
 {
-    displayed = disp;
     for (auto& [z_index, elem] : elements)
-        elem->displayed = disp;
+        elem->show(disp);
+    UI_element::show(disp);
+
+    // this is duplicated since UI_element::show calls for UI_element::hover_off
+    // if not displayed, then cursor effectively wandered off
+    // if just displayed, refresh all hover timers
+    hover_off();
+    // unpush all buttons
+    release_click(sf::Vector2f(0, 0), false, true);
 }
 
 // gets window element by name (recursive)
@@ -160,7 +174,7 @@ void UI_window::addElement(std::shared_ptr<UI_element> new_element, int z_index)
     displayed = true;
 
     new_element->z_index = z_index;
-    new_element->set_parent_coords(sf::Vector2f(Frame_scale.getPosition()));
+    new_element->set_parent_window(this);
     elements.insert(std::make_pair(z_index, new_element));
 }
 
@@ -169,8 +183,8 @@ void UI_window::deleteElement(std::shared_ptr<UI_element> element)
     elements.erase(std::make_pair(element->z_index, element));
 }
 
-// mouse hover check
-bool UI_window::contains(sf::Vector2f cursor)
+// same reason of overriding
+bool UI_window::contains(sf::Vector2f cursor) const
 {
     bool res = UI_element::contains(cursor);
 
@@ -178,8 +192,6 @@ bool UI_window::contains(sf::Vector2f cursor)
     for (auto& [z_index, elem] : elements)
         if (elem->contains(cursor))
             res = true;
-
-//    input_logger->trace("Window {} at {}x{} contains? {}", name, cursor.x, cursor.y, res);
 
     return res;
 }
@@ -211,7 +223,7 @@ void UI_window::push_click(sf::Vector2f cursor, bool controls_blocked)
         // do in reverse order to sort by reverse z-index (the bigger z-index, the bigger is click interception priority)
         for (auto& [z_index, element] : std::ranges::reverse_view(elements))
         {
-            if (element->contains(cursor))
+            if (element->contains(cursor) && element->hoverable)
             {
                 element->push_click(cursor, controls_blocked);
                 clicked_child = element;
@@ -236,6 +248,66 @@ void UI_window::release_click(sf::Vector2f cursor, bool controls_blocked, bool s
     }
 }
 
+// we override contains since window is no more rectangle: it contains overlapping and outbordering children elements
+bool UI_window::is_hovered() const
+{
+    bool res = UI_element::is_hovered();
+
+    // not only if hovererd, but if any child too
+    for (auto& [z_index, elem] : elements)
+        if (elem->is_hovered())
+            res = true;
+
+    return res;
+}
+
+// hoveres element under cursor.
+void UI_window::hover_on(sf::Vector2f cursor)
+{
+    // hover child element, that contains cursor and unhover all other
+    if (hoverable)
+    {
+        UI_element::hover_on(cursor);
+
+        // flag that some child element caught cursor and other elements can't be hovered_on
+        bool mouse_caught = false;
+        for (auto& [z_index, element] : std::ranges::reverse_view(elements))
+        {
+            if (!mouse_caught && element->contains(cursor) && element->hoverable)
+            {
+                element->hover_on(cursor);
+                mouse_caught = true;
+                // window accounts hovered on, whenever any child element is hovered
+                UI_element::hover_on(cursor);
+            }
+            else if (element->is_hovered() && (!element->contains(cursor) || mouse_caught) && element->hoverable)
+            {
+                element->hover_off();
+            }
+        }
+    }
+}
+
+// lifts hover under cursor
+void UI_window::hover_off()
+{
+    // unhover all child elements
+    if (hoverable)
+    {
+        UI_element::hover_off();
+        for (auto& [z_index, element] : std::ranges::reverse_view(elements))
+            element->hover_off();
+    }
+}
+
+// sets hoverable to self and children
+void UI_window::set_hoverable(bool hover)
+{
+    for (auto& [z_index, element] : std::ranges::reverse_view(elements))
+        element->set_hoverable(hover);
+    UI_element::set_hoverable(hover);
+}
+
 // return number of elements
 std::size_t UI_window::get_elements_size() const
 {
@@ -246,36 +318,39 @@ std::size_t UI_window::get_elements_size() const
 void UI_window::setPosition(const Vector2f &position)
 {
     UI_element::setPosition(position);
-    for (auto& [z_index, elem] : elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void UI_window::setOrigin(const Vector2f &origin)
 {
     UI_element::setOrigin(origin);
-    for (auto& [z_index, elem] : elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void UI_window::setScale(const Vector2f &factors)
 {
     UI_element::setScale(factors);
-    for (auto& [z_index, elem] : elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
+}
+
+const sf::Transform UI_window::getTransform() const
+{
+    sf::Transform global_transform;
+    global_transform *= Transformable::getTransform();
+    if (parent_window)
+        global_transform *= parent_window->getTransform();
+    
+    return global_transform;
 }
 
 // before drawing send child elements to sort by z-index
-void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
+void UI_window::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift) const
 {
-    UI_element::draw_to_zmap(zmap);
-    for (auto& [z_index, element] : elements)
-        element->draw_to_zmap(zmap);
+    UI_element::draw_to_zmap(zmap, z_shift);
+    for (auto& [elem_z_index, element] : elements)
+        element->draw_to_zmap(zmap, z_shift + z_index);
+}
+
+void UI_window::update(sf::Event& event)
+{
+    UI_element::update(event);
 }
 
 void UI_window::update(Time deltaTime)

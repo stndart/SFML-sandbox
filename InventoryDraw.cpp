@@ -54,9 +54,9 @@ std::shared_ptr<InventoryDraw> InventoryDraw::fromInventory(
 // overriden because needs to process item_elements
 void InventoryDraw::show(bool disp)
 {
-    UI_window::show(disp);
     for (auto& [z_index, elem] : item_elements)
         elem->displayed = disp;
+    UI_window::show(disp);
 }
 
 // override setFrame, because element_count changes
@@ -74,7 +74,7 @@ void InventoryDraw::addItemElement(std::shared_ptr<UI_element> new_element, int 
     displayed = true;
 
     new_element->z_index = z_index;
-    new_element->set_parent_coords(sf::Vector2f(Frame_scale.getPosition()));
+    new_element->set_parent_window(this);
     item_elements.insert(std::make_pair(z_index, new_element));
 }
 
@@ -97,7 +97,7 @@ void InventoryDraw::view_inventory()
 
         std::shared_ptr<UI_button> inv_item = std::make_shared<UI_button>(
             "Item: " + item.name, sf::IntRect(pos, sf::Vector2i(element_size)),
-            parent_scene, resource_manager->getItemTexture(item.name));
+            parent_scene, resource_manager, resource_manager->getItemTexture(item.name));
         addItemElement(inv_item, 1);
 
         column++;
@@ -121,42 +121,32 @@ void InventoryDraw::linkInventory(Inventory* new_bag)
 void InventoryDraw::setPosition(const Vector2f &position)
 {
     UI_window::setPosition(position);
-    for (auto& [z_index, elem] : item_elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void InventoryDraw::setOrigin(const Vector2f &origin)
 {
     UI_window::setOrigin(origin);
-    for (auto& [z_index, elem] : item_elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 void InventoryDraw::setScale(const Vector2f &factors)
 {
     UI_window::setScale(factors);
-    for (auto& [z_index, elem] : item_elements)
-    {
-        elem->set_parent_coords(sf::Vector2f(Frame_scale.left, Frame_scale.top));
-    }
 }
 
 // override to include item_elements
-void InventoryDraw::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const
+void InventoryDraw::draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift) const
 {
-    for (auto& [z_index, element] : item_elements)
-        element->draw_to_zmap(zmap);
+    for (auto& [elem_z_index, element] : item_elements)
+        element->draw_to_zmap(zmap, z_shift + z_index);
     
-    UI_window::draw_to_zmap(zmap);
+    UI_window::draw_to_zmap(zmap, z_shift);
 }
 
 // update and redraw inventory if needed
 void InventoryDraw::update(Time deltaTime)
 {
+    UI_window::update(deltaTime);
+
     if (bag->is_inventory_changed() && displayed)
     {
         view_inventory();

@@ -46,6 +46,10 @@ imgui.ini
 *.cscope_file_list
 *.cache
 
+# fonts
+Fonts/
+!Fonts/Arial.ttf
+
 !**/CMakeLists.txt
 test/CMakeLists.txt
 .vscode/settings.json

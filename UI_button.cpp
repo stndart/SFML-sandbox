@@ -1,56 +1,59 @@
 #include "UI_button.h"
 
 #include "Scene.h"
+#include "ResourceLoader.h"
 
 // label with texture
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Texture> button_texture) : UI_element(name, UIFrame, parent, button_texture)
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Texture> button_texture) :
+    UI_element(name, UIFrame, parent, resload, button_texture)
 {
     loading_logger->trace("UI_button:UI_texture {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
     displayed = true;
-
-    clickable = false;
-    pressed = false;
-    ignore_controls_blocking = false;
-    text = "";
 }
 
 // label with texture
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, bool is_clickable) : UI_element(name, UIFrame, parent)
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Animation> button_spritesheet, bool is_clickable) :
+    UI_element(name, UIFrame, parent, resload)
 {
     loading_logger->trace("UI_button:UI_texture {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
     displayed = true;
+    clickable = is_clickable;
 
     setAnimation(button_spritesheet);
-
-    clickable = is_clickable;
-    pressed = false;
-    ignore_controls_blocking = false;
-    text = "";
 }
 
 // label with text
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::string ntext, std::shared_ptr<Animation> button_spritesheet) :
-    UI_element(name, UIFrame, parent, button_spritesheet), clickable(false), pressed(false), ignore_controls_blocking(false), text(ntext)
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::string ntext, std::shared_ptr<Animation> button_spritesheet) :
+    UI_element(name, UIFrame, parent, resload, button_spritesheet), text_string(ntext)
 {
-    displayed = true;
-
     loading_logger->trace("UI_button:UI_label {}, UIFRame +{}+{}, {}x{}", name,
                           UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
+
+    // default font
+    setFont("Arial");
+    // default char size
+    setCharSize(24);
+    // default color
+    text_label.setFillColor(sf::Color::Black);
+
+    text_label.setString(ntext);
+
+    displayed = true;
 }
 
 // button with callback
-UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<Animation> button_spritesheet, std::function<void()> ncallback) :
-    UI_element(name, UIFrame, parent, button_spritesheet), clickable(true), pressed(false), ignore_controls_blocking(false), text("")
+UI_button::UI_button(std::string name, sf::IntRect UIFrame, Scene* parent, std::shared_ptr<ResourceLoader> resload, std::shared_ptr<Animation> button_spritesheet, std::function<void()> ncallback) :
+    UI_element(name, UIFrame, parent, resload, button_spritesheet), clickable(true)
 {
+    loading_logger->trace("UI_button:UI_button {}, UIFRame +{}+{}, {}x{}", name,
+                          UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
+
     displayed = true;
 
     if (ncallback)
         add_callback(ncallback);
-
-    loading_logger->trace("UI_button:UI_button {}, UIFRame +{}+{}, {}x{}", name,
-                          UIFrame.left, UIFrame.top, UIFrame.width, UIFrame.height);
 }
 
 // clickable setter/getter
@@ -142,5 +145,87 @@ void UI_button::release_click(sf::Vector2f cursor, bool controls_blocked, bool s
                 parent_scene->add_callback(callpair.first, callpair.second);
             }
         }
+    }
+}
+
+// updates text coordinates considering alignment and font size
+void UI_button::updateTextPosition()
+{
+    sf::Vector2f text_pos(Frame_scale.getPosition());
+    switch (align)
+    {
+    case 0:
+        break;
+    case 1:
+        text_pos += sf::Vector2f(Frame_scale.getSize());
+        text_pos -= text_label.getLocalBounds().getSize();
+    case 2:
+        text_pos += sf::Vector2f((float)Frame_scale.width / 2, (float)Frame_scale.height / 2);
+        sf::Vector2f local_size = text_label.getLocalBounds().getSize();
+        text_pos -= sf::Vector2f(local_size.x / 2, local_size.y / 2);
+    }
+    
+    text_label.setPosition(text_pos);
+}
+
+// setting font for displayed text
+void UI_button::setFont(std::string fname)
+{
+    cur_font = resource_manager->getFont(fname);
+    text_label.setFont(*cur_font);
+    updateTextPosition();
+}
+
+void UI_button::setCharSize(unsigned int size)
+{
+    text_label.setCharacterSize(size);
+    updateTextPosition();
+}
+
+// setting string for displayed text
+void UI_button::setText(std::string ntext)
+{
+    text_string = ntext;
+    text_label.setString(text_string);
+    updateTextPosition();
+}
+
+std::string UI_button::getText() const
+{
+    return text_string;
+}
+
+// setting align, supports: "left", "centered", "right"
+void UI_button::setAlign(std::string align_mode)
+{
+    if (align_mode == "left")
+        align = 0;
+    else if (align_mode == "right")
+        align = 1;
+    else if (align_mode == "center")
+        align = 2;
+    else
+        loading_logger->warn("Unknown alignment type {}", align_mode);
+    
+    updateTextPosition();
+}
+
+// getting Text, for example, to calculate it's visual size
+sf::Text& UI_button::getTextLabel()
+{
+    return text_label;
+}
+
+// override draw since we need to display text
+void UI_button::draw(RenderTarget& target, RenderStates states) const
+{
+    UI_element::draw(target, states);
+
+    if (parent_window)
+        states.transform *= parent_window->getTransform();
+
+    if (displayed && text_string != "")
+    {
+        target.draw(text_label, states);
     }
 }

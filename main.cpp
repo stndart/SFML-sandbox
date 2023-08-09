@@ -192,13 +192,9 @@ int main()
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
                 window->close();
             }
-            // Treats commands got from current scene.
-            // Commands examples:
-            //  ESCAPE = window close
-            //  field_scene / editor_scene / main_menu = change current scene to #
-            std::string command_main = "";
+            // transfer events to scene
             if (cur_scene)
-                cur_scene->update(event, command_main);
+                cur_scene->update(event);
         }
         
         // get time spent per last frame and update all drawables with it

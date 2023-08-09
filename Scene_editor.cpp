@@ -127,8 +127,10 @@ void Scene_editor::save_map()
     }
 }
 
-void Scene_editor::update(Event& event, std::string& command_main)
+void Scene_editor::update(Event& event)
 {
+    Scene_Field::update(event);
+    
     // if <Enter> then mess with command line
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
     {
@@ -144,73 +146,6 @@ void Scene_editor::update(Event& event, std::string& command_main)
             command(data);
         }
         input_focus = !input_focus;
-    }
-    // if keyboard press and command line deactivated
-    if (event.type == sf::Event::KeyPressed && !input_focus)
-    {
-        if (current_field != -1 && fields[current_field])
-        {
-            // <WASD> - move player. <Space> - turn tree into stump, <tab> - change field
-            switch (event.key.code)
-            {
-            case sf::Keyboard::W:
-                if (!controls_blocked)
-                    fields[current_field]->set_player_movement_direction(3);
-                //fields[current_field]->move_player(3);
-                break;
-            case sf::Keyboard::D:
-                if (!controls_blocked)
-                    fields[current_field]->set_player_movement_direction(0);
-                //fields[current_field]->move_player(0);
-                break;
-            case sf::Keyboard::S:
-                if (!controls_blocked)
-                    fields[current_field]->set_player_movement_direction(1);
-                //fields[current_field]->move_player(1);
-                break;
-            case sf::Keyboard::A:
-                if (!controls_blocked)
-                    fields[current_field]->set_player_movement_direction(2);
-                //fields[current_field]->move_player(2);
-                break;
-            case sf::Keyboard::Space:
-                if (!controls_blocked)
-                    fields[current_field]->action(resource_manager->getObjectTexture("stump"));
-                break;
-            default:
-                // if key is not set in contols, check dynamic bindings
-                if (!controls_blocked)
-                    evaluate_bound_callbacks(event.key.code);
-                break;
-            }
-        }
-    }
-    else if (event.type == sf::Event::KeyReleased && !input_focus)
-    {
-        if (current_field != -1 && fields[current_field])
-        {
-            switch (event.key.code)
-            {
-            case sf::Keyboard::W:
-                if (!controls_blocked)
-                    fields[current_field]->release_player_movement_direction(3);
-                break;
-            case sf::Keyboard::D:
-                if (!controls_blocked)
-                    fields[current_field]->release_player_movement_direction(0);
-                break;
-            case sf::Keyboard::S:
-                if (!controls_blocked)
-                    fields[current_field]->release_player_movement_direction(1);
-                break;
-            case sf::Keyboard::A:
-                if (!controls_blocked)
-                    fields[current_field]->release_player_movement_direction(2);
-                break;
-            default:
-                break;
-            }
-        }
     }
     // if command line active and pressed: <backspace>
     else if (input_focus && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
@@ -240,7 +175,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
         {
         case Mouse::Left:
             /// WHY?
-            if (UI_update_mouse(curPos, event, command_main))
+            if (UI_update_mouse(curPos, event))
                 return;
             Interface->push_click(curPos, controls_blocked);
             break;
@@ -257,7 +192,7 @@ void Scene_editor::update(Event& event, std::string& command_main)
         {
         case Mouse::Left:
             /// WHY?
-            if (UI_update_mouse(curPos, event, command_main))
+            if (UI_update_mouse(curPos, event))
                 return;
             Interface->release_click(curPos, controls_blocked);
             break;
@@ -285,13 +220,9 @@ void Scene_editor::draw(RenderTarget& target, RenderStates states) const
 
     if (s_input != "")
     {
-        Font font;
-        if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
-        {
-            loading_logger->warn("Failed to load arial font");
-        }
+        std::shared_ptr<Font> font = resource_manager->getFont("Arial");
         Text text;
-        text.setFont(font);
+        text.setFont(*font);
         text.setString(s_input);
         text.setCharacterSize(24);
         text.setStyle(sf::Text::Bold);

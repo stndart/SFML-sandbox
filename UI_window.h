@@ -27,9 +27,6 @@ private:
     // to control what part of general interface displays. Also used by scrollbars
     sf::View window_view;
 
-    // pointer to resource manager
-    std::shared_ptr<ResourceLoader> resource_manager;
-
     // logger is inherited and constructed in parent constructor
 
 protected:
@@ -43,7 +40,7 @@ public:
     virtual void load_config(nlohmann::json j);
 
     // sets displayed for self and child elements
-    virtual void show(bool displayed = true);
+    void show(bool displayed = true) override;
     // gets window element by name (recursive)
     virtual std::shared_ptr<UI_window> get_subwindow(std::string name);
 
@@ -53,13 +50,22 @@ public:
     void deleteElement(std::shared_ptr<UI_element> element);
 
     // we override contains since window is no more rectangle: it contains overlapping and outbordering children elements
-    bool contains(sf::Vector2f cursor);
+    bool contains(sf::Vector2f cursor) const override;
 
     bool is_clicked() const;
     // pushes hovered element
     void push_click(sf::Vector2f cursor, bool controls_blocked) override;
     // releases push (and invokes callback if hovered element is pushed). If <skip_action> then doesn't invoke callback
     void release_click(sf::Vector2f cursor, bool controls_blocked, bool skip_action=false) override;
+
+    // we override contains since window is no more rectangle: it contains overlapping and outbordering children elements
+    bool is_hovered() const override;
+    // hoveres element under cursor.
+    void hover_on(sf::Vector2f cursor) override;
+    // lifts hover under cursor
+    void hover_off() override;
+    // sets hoverable to self and children
+    void set_hoverable(bool hover=true) override;
 
     // return number of elements
     std::size_t get_elements_size() const;
@@ -68,11 +74,13 @@ public:
     void setPosition(const Vector2f &position) override;
     void setOrigin(const Vector2f &origin) override;
     void setScale(const Vector2f &factors) override;
+    virtual const sf::Transform getTransform() const;
 
     // before drawing send child elements to sort by z-index
-    void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
+    void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift = 0) const override;
 
-    virtual void update(Time deltaTime) override;
+    void update(sf::Event& event) override;
+    void update(sf::Time deltaTime) override;
     // override draw to enable window_view
     void draw(RenderTarget& target, RenderStates states) const override;
 };

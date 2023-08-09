@@ -64,7 +64,7 @@ public:
     void setScale(const Vector2f &factors) override;
 
     // override to include item_elements
-    void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap) const override;
+    void draw_to_zmap(std::map<int, std::vector<const Drawable*> > &zmap, int z_shift = 0) const override;
 
     // update and redraw inventory if needed
     void update(Time deltaTime) override;

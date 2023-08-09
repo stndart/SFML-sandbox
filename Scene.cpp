@@ -48,30 +48,45 @@ void Scene::load_config(std::string config_path)
 
 // creates subwindow in Interface by name and loads it's config
 // if window already exists, shows it
-void Scene::create_subwindow(std::string name, std::string config_path)
+std::shared_ptr<UI_window> Scene::create_subwindow(std::string name, std::string config_name, bool show, std::string config_path, bool register_to_interface)
 {
     std::shared_ptr<UI_window> subwindow = Interface->get_subwindow(name);
     if (subwindow)
     {
-        subwindow->show();
-        return;
+        if (!subwindow->displayed && show)
+            subwindow->show();
+        return subwindow;
     }
 
     ifstream f(config_path);
     nlohmann::json j = nlohmann::json::parse(f);
     nlohmann::json j2;
-    if (j.contains(name))
-        j2 = j.at(name);
+    if (config_name == "")
+        config_name = name;
+
+    if (j.contains(config_name))
+        j2 = j.at(config_name);
     else
     {
-        loading_logger->error("Trying to create subwindow of unknown name {}", name);
-        return;
+        loading_logger->error("Trying to configure subwindow of unknown name {}", config_name);
+        return subwindow;
     }
 
     std::string subwindow_type = j2.value<std::string>("type", "UI window");
-    subwindow = subwindow_oftype(name, subwindow_type);
+    subwindow = subwindow_oftype(config_name, subwindow_type);
+    subwindow->displayed = show;
     subwindow->load_config(j2);
-    Interface->addElement(subwindow);
+    subwindow->name = name;
+    if (register_to_interface)
+        Interface->addElement(subwindow);
+
+    return subwindow;
+}
+
+// creates subwindow, but doesn't add to Interface
+std::shared_ptr<UI_window> Scene::create_subwindow_dont_register(std::string name, std::string config_name, bool show, std::string config_path)
+{
+    return create_subwindow(name, config_name, show, config_path, false);
 }
 
 // shows or hides UI_window by name
@@ -137,12 +152,12 @@ void Scene::addSprite(std::shared_ptr<AnimatedSprite> sprite, int z_index, int f
 }
 
 // add an ui element to <Interface>
-void Scene::add_UI_element(std::shared_ptr<UI_element> new_ui_element)
+void Scene::add_UI_element(std::shared_ptr<UI_element> new_ui_element, int z_index)
 {
     loading_logger->debug("Added ui element {} to scene", new_ui_element->name);
 
     // save new element in UI tree
-    Interface->addElement(new_ui_element);
+    Interface->addElement(new_ui_element, z_index);
 }
 
 /// TEMP
@@ -154,7 +169,7 @@ void Scene::delete_sprites()
 
 // transfer mouse event to hovered interface part
 // if mouse doesn't hover over UI - return false
-bool Scene::UI_update_mouse(Vector2f curPos, Event& event, std::string& command_main)
+bool Scene::UI_update_mouse(Vector2f curPos, Event& event)
 {
     if (event.type == Event::MouseButtonPressed)
     {
@@ -197,6 +212,12 @@ void Scene::cancel_callbacks()
 bool Scene::has_callbacks() const
 {
     return !callbacks_to_call.empty();
+}
+
+// hides interface to process all hovers and clicks correctly
+void Scene::show_interface(bool show)
+{
+    Interface->show(show);
 }
 
 // bind callback to keys on the keyboard
@@ -247,7 +268,7 @@ void Scene::evaluate_bound_callbacks(sf::Keyboard::Key keycode)
     }
 }
 
-void Scene::update(Event& event, std::string& command_main)
+void Scene::update(Event& event)
 {
     if (event.type == Event::MouseButtonPressed || event.type == Event::MouseButtonReleased)
     {
@@ -259,6 +280,14 @@ void Scene::update(Event& event, std::string& command_main)
         }
         if (Interface->is_clicked() && event.type == Event::MouseButtonReleased)
             Interface->release_click(curpos, controls_blocked);
+    }
+    else if (event.type == Event::MouseMoved)
+    {
+        Interface->hover_on(sf::Vector2f(event.mouseMove.x, event.mouseMove.y));
+    }
+    else
+    {
+        Interface->update(event);
     }
 }
 
