@@ -25,7 +25,7 @@ protected:
     int cur_frame;
     // sprite to draw textures
     sf::Sprite background;
-    // cut background or fit scale to it
+    // scale background to fit or crop it
     bool fit_to_background = true;
 
     // is element in focus (enter focus, when clicked, leave focus, when clicked somewhere else and not on children of element)

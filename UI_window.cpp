@@ -9,7 +9,6 @@ UI_window::UI_window(std::string name, sf::IntRect UIFrame, Scene* parent, std::
     UI_element(name, UIFrame, parent, resload),
     ParentFrame(UIFrame), isFramed(is_framed), pressed(false), clicked_child(NULL)
 {
-    fit_to_background = false;
     window_view = sf::View(sf::FloatRect(UIFrame));
 
     displayed = true;
@@ -70,7 +69,7 @@ void UI_window::load_config(nlohmann::json j)
 
         sf::Vector2f size = get_size_from_json(j2, windowsize);
         size = save_aspect_ratio(size, texsize);
-        sf::Vector2f origin = get_origin_from_json(j2, texsize);
+        sf::Vector2f origin = get_origin_from_json(j2, size);
 
         IntRect posrect(coords.x, coords.y, size.x, size.y);
 

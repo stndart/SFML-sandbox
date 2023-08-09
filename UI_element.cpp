@@ -38,7 +38,7 @@ void UI_element::setFrame(sf::IntRect new_frame_scale)
             (float)new_frame_scale.height / (float)background_animation->getFrame(0).height
         );
 
-        setScale(new_scale);
+        background.setScale(new_scale);
     }
     else if (!fit_to_background)
     {
@@ -224,7 +224,6 @@ FloatRect UI_element::getGlobalBounds() const
 void UI_element::setPosition(const Vector2f &position)
 {
     Transformable::setPosition(position);
-    background.setPosition(position);
 
     // update FrameScale from original sprite size and its current scale
     Frame_scale.left = getPosition().x - getOrigin().x * getScale().x;
@@ -240,7 +239,6 @@ void UI_element::setPosition(float x, float y)
 void UI_element::setOrigin(const Vector2f &origin)
 {
     Transformable::setOrigin(origin);
-    background.setOrigin(origin);
 
     // update FrameScale from original sprite size and its current scale
     Frame_scale.left = getPosition().x - getOrigin().x * getScale().x;
@@ -344,6 +342,8 @@ void UI_element::draw(RenderTarget& target, RenderStates states) const
     // sf::Vector2f parent_coords(0, 0);
     if (parent_window)
         states.transform *= parent_window->getTransform();
+    
+    states.transform *= getTransform();
 
     if (displayed && background.getTexture())
     {
